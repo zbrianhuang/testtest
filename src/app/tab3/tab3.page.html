@@ -1,17 +1,72 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="ion-padding profile-page">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- profile_pic -->
+  <div class="avatar-section">
+    <img src="assets/icon/profile_pic.png" class="profile_pic" />
+    <h2 class="username">username</h2>
+    <p class="tagline">#acoustic guitar</p>
+  </div>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <!-- user information -->
+  <div class="stats">
+    <div class="stat-block">
+      <div class="number">100</div>
+      <div class="label">Following</div>
+    </div>
+    <div class="stat-block">
+      <div class="number">20</div>
+      <div class="label">Followers</div>
+    </div>
+    <div class="stat-block">
+      <div class="number">100</div>
+      <div class="label">Likes</div>
+    </div>
+  </div>
+
+  <!-- post list -->
+  <div class="post-list">
+
+    <ion-card class="post-card #1">
+      <img src="assets/icon/post1.png" alt="Post Image #1" />
+      <ion-card-header>
+        <ion-card-title>我的第一支影片</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="hashtags">#acousticguitar · 3 days ago</p>
+        <div class="post-actions">
+          <span>❤️ 100</span>
+          <span>💬 20</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="post-card #2">
+      <img src="assets/icon/post2.png" alt="Post Image #2" />
+      <ion-card-header>
+        <ion-card-title>我的第一支影片</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="hashtags">#acousticguitar · 3 days ago</p>
+        <div class="post-actions">
+          <span>❤️ 100</span>
+          <span>💬 20</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="post-card #3">
+      <img src="assets/icon/post3.png" alt="Post Image #3" />
+      <ion-card-header>
+        <ion-card-title>我的第一支影片</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="hashtags">#acousticguitar · 3 days ago</p>
+        <div class="post-actions">
+          <span>❤️ 100</span>
+          <span>💬 20</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    
+  </div>
 </ion-content>
