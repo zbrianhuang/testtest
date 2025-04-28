@@ -9,6 +9,10 @@ const routes: Routes = [
   {
     path: 'tab-vid',
     loadChildren: () => import('./tab-vid/tab-vid.module').then( m => m.TabVidPageModule)
+  },
+  {
+    path: 'tab4',
+    loadChildren: () => import('./tab4/tab4.module').then( m => m.Tab4PageModule)
   }
   
 ];
