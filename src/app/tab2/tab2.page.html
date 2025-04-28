@@ -1,17 +1,49 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>New Video</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="flash-outline"></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-label>1x</ion-label>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="timer-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <!-- Camera preview placeholder -->
+  <div class="camera-preview">
+    <div class="camera-icon">
+      <ion-icon name="camera-outline" size="large"></ion-icon>
+    </div>
+  </div>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <!-- Recording button -->
+  <div class="record-button-container">
+    <ion-button class="record-button" (click)="toggleRecording()" fill="clear">
+      <ion-icon [name]="isRecording ? 'stop-outline' : 'radio-button-on-outline'" size="large"></ion-icon>
+    </ion-button>
+  </div>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar class="recording-bar">
+    <ion-button slot="start" fill="clear" (click)="setMode('video')" [class.active]="selectedMode === 'video'">
+      Video
+    </ion-button>
+    <ion-label>Recording</ion-label>
+    <ion-button slot="end" fill="clear" (click)="setMode('template')" [class.active]="selectedMode === 'template'">
+      Template
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
