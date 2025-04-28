@@ -8,9 +8,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class Tab4Page implements OnInit {
   conversations = [
-    { user: 'user1', lastMessage: 'blablablablabla' },
-    { user: 'user1', lastMessage: 'blablablablabla' },
-    { user: 'user1', lastMessage: 'blablablablabla' },
+    { user: 'AlexSmith', lastMessage: 'Just uploaded a new cover of "Bohemian Rhapsody"!' },
+    { user: 'JamieLee', lastMessage: 'Can you share the sheet music for "Clair de Lune"?' },
+    { user: 'SamTaylor', lastMessage: 'Check out my latest video update on jazz chords!' },
   ];
 
   constructor() {}

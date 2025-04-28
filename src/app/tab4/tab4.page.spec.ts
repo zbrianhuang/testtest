@@ -23,7 +23,7 @@ describe('Tab4Page', () => {
 
   it('should have a conversations array with 3 items', () => {
     expect(component.conversations.length).toBe(3);
-    expect(component.conversations[0].user).toBe('user1');
-    expect(component.conversations[0].lastMessage).toBe('blablablablabla');
+    expect(component.conversations[0].user).toBe('AlexSmith');
+    expect(component.conversations[0].lastMessage).toBe('Just uploaded a new cover of "Bohemian Rhapsody"!');
   });
 });
