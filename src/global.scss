@@ -32,6 +32,20 @@
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
+/* Comment out dark mode imports to disable dark mode */
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* Set global background color to beige */
+:root {
+  --ion-background-color: #f5f5f5; /* Beige background */
+  --ion-toolbar-background: #f5f5f5; /* Beige toolbar background */
+  --ion-tab-bar-background: #f5f5f5; /* Beige tab bar background */
+  --ion-text-color: #000; /* Black text for contrast */
+}
+
+/* Ensure ion-content uses the beige background */
+ion-content {
+  --background: #f5f5f5;
+}
