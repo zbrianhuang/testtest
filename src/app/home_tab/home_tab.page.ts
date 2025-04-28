@@ -1,8 +1,27 @@
 import { Component, OnInit} from '@angular/core';
+
+
+//not good
+import {
+  IonContent,
+  IonHeader,
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonIcon,
+  IonMenuButton,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+
 interface Video {
   title: string;
   description: string;
   thumbnailUrl: string;
+  id:string;
+}
+interface Gallery_Title{
+  title:string;
 }
 @Component({
   selector: 'app-hometab',
@@ -11,7 +30,7 @@ interface Video {
   standalone: false,
 })
 export class HomeTabPage implements OnInit{
-  videos: Video[] = [
+/*  videos: Video[] = [
     {
       title: 'Video title',
       description: 'video info ',
@@ -43,6 +62,69 @@ export class HomeTabPage implements OnInit{
       thumbnailUrl: 'assets/thumbnails/placeholder.jpeg'
     }
   ];
+  */
+  titles : Gallery_Title[]=
+  [
+    {
+      title: 'Trending'
+    },
+    {
+      title: 'Pop'
+    },
+    {
+      title:'Rock'
+    },
+    {
+      title:'lala'
+    },
+    {
+      title: 'sdf'
+    }
+  ]
+   
+  videos: Video[][] = [
+    [
+      {
+        title: 'Video title 1',
+        description: 'Video info 1',
+        thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg',
+        id: "a"
+      },
+      {
+        title: 'Video title 2',
+        description: 'Video info 2',
+        thumbnailUrl: 'assets/thumbnails/placeholder2.JPG'
+        ,id: "a"
+      },{
+        title: 'Video title 1',
+        description: 'Video info 1',
+        thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg'
+        ,id: "a"
+      },
+      {
+        title: 'Video title 2',
+        description: 'Video info 2',
+        thumbnailUrl: 'assets/thumbnails/placeholder2.JPG'
+        ,id: "a"
+      },
+    ],
+    [
+      {
+        title: 'Video title 3',
+        description: 'Video info 3',
+        thumbnailUrl: 'assets/thumbnails/placeholder.jpeg'
+        ,id: "a"
+      },
+      {
+        title: 'Video title 4',
+        description: 'Video info 4',
+        thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg'
+        ,id: "a"
+      },
+    ],
+
+  ];
+
   constructor() {}
 
   ngOnInit() {

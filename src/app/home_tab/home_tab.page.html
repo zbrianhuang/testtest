@@ -9,17 +9,25 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button> Start </ion-button>
+      </ion-buttons>
+    
       <ion-title size="large">Home</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div id="vid_lst" >
-      <div class="vid_container" onclick="location.href='/tab-vid';" *ngFor="let video of videos">
-          <img class = "thumbnail" [src]="video.thumbnailUrl" alt="{{ video.title }}" />
-          <div class = "description">
-            <h2>{{ video.title }}</h2>
-            <p>{{ video.description }}</p>
+  <div id="vid_lst" *ngFor="let row of videos; index as idx">
+      <h2 class = "gallery_title">{{titles[idx].title}}</h2>
+
+      <div class="gallery" >
+          <div *ngFor="let video of row" onclick="location.href='/tab-vid';" class = "vid_container">
+            <img class = "thumbnail" [src]="video.thumbnailUrl" alt="{{ video.title }}" />
+            <div class = "description">
+              <h2>{{ video.title }}</h2>
+              <p>{{ video.description }}</p>
           </div>
+      </div>
     </div> 
 
   </div>
