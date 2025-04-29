@@ -6,6 +6,7 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 import {HomeTabPage} from './home_tab.page';
 
 
+
 describe('Tab1Page', () => {
   let component: HomeTabPage;
   let fixture: ComponentFixture<HomeTabPage>;

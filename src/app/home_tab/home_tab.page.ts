@@ -1,5 +1,7 @@
 import { Component, OnInit} from '@angular/core';
-
+import { Router } from '@angular/router';
+import { SearchComponent } from 'src/app/search/search.component';
+import { ModalController } from '@ionic/angular';
 
 //not good
 import {
@@ -63,6 +65,7 @@ export class HomeTabPage implements OnInit{
     }
   ];
   */
+  selectedSegment: string = 'discover';
   titles : Gallery_Title[]=
   [
     {
@@ -125,12 +128,23 @@ export class HomeTabPage implements OnInit{
 
   ];
 
-  constructor() {}
+  constructor(private modalController: ModalController) {}
 
   ngOnInit() {
     // Optionally load or refresh videos here.
   }
+
+  async onSearchClick() {
+    const modal = await this.modalController.create({
+      component: SearchComponent,
+      breakpoints: [0, 0.5, 0.9],
+      initialBreakpoint: 0.5,
+      showBackdrop: true
+    });
+    await modal.present();
+  }
 }
+
 
 /*
 import { Component, OnInit } from '@angular/core';

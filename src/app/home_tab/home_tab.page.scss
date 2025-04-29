@@ -32,3 +32,11 @@ ion-title{
     white-space: nowrap;
     padding: 10px;
   }
+  .search-button {
+    width: 36px;
+    height: 36px;
+    --padding-start: 0;
+    --padding-end: 0;
+    --ion-color-base: transparent;
+    --ion-color-contrast: #333;
+  }
