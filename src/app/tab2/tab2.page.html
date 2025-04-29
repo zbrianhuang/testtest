@@ -22,14 +22,14 @@
 
 <ion-content>
   <!-- Camera preview placeholder -->
-  <div class="camera-preview">
+  <div class="camera-preview" *ngIf="!showRecent">
     <div class="camera-icon">
       <ion-icon name="camera-outline" size="large"></ion-icon>
     </div>
   </div>
 
   <!-- Recent videos or templates section -->
-  <div class="recent-videos" *ngIf="showRecent">
+  <div class="recent-videos" *ngIf="showRecent" [ngClass]="{'full-page': showRecent}">
     <!-- Video mode: Flat list of recent videos -->
     <div *ngIf="selectedMode === 'video'">
       <h2>Recent</h2>
@@ -79,8 +79,8 @@
     </div>
   </div>
 
-  <!-- Recording button -->
-  <div class="record-button-container">
+  <!-- Recording button: Hide when grid is visible -->
+  <div class="record-button-container" *ngIf="!showRecent">
     <ion-button class="record-button" (click)="toggleRecording()" fill="clear">
       <ion-icon [name]="isRecording ? 'stop-outline' : 'radio-button-on-outline'" size="large"></ion-icon>
     </ion-button>
@@ -92,7 +92,9 @@
     <ion-button slot="start" fill="clear" (click)="setMode('video')" [class.active]="selectedMode === 'video'">
       Video
     </ion-button>
-    <ion-label>Recording</ion-label>
+    <ion-button fill="clear" (click)="showCamera()" [class.active]="!showRecent">
+      Recording
+    </ion-button>
     <ion-button slot="end" fill="clear" (click)="setMode('template')" [class.active]="selectedMode === 'template'">
       Template
     </ion-button>

@@ -17,6 +17,7 @@
     width: 100%;
     display: flex;
     justify-content: center;
+    z-index: 10; /* Ensure button is in front when visible */
   }
   
   .record-button {
@@ -40,9 +41,10 @@
     ion-toolbar.recording-bar {
       --background: #f5f5f5; /* Light beige background */
       display: flex;
-      justify-content: space-between;
+      justify-content: space-between; /* Center the buttons */
       align-items: center;
       padding: 0 10px;
+      z-index: 5; /* Ensure footer is behind the grid */
   
       ion-button {
         --color: #000;
@@ -51,11 +53,6 @@
           text-decoration: underline;
           font-weight: bold;
         }
-      }
-  
-      ion-label {
-        font-size: 16px;
-        color: #000;
       }
     }
   }
@@ -77,6 +74,13 @@
     width: 100%;
     max-height: 50%; /* Limit height to half the screen */
     overflow-y: auto; /* Allow scrolling if content overflows */
+    z-index: 20; /* Ensure grid is in front of everything */
+  }
+  
+  .recent-videos.full-page {
+    position: static; /* Remove absolute positioning for full-page mode */
+    max-height: 100%; /* Full height */
+    height: calc(100% - 56px); /* Adjust for header height (56px is typical for Ionic headers) */
   }
   
   .recent-videos h2 {

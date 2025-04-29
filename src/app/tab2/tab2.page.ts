@@ -22,8 +22,13 @@ export class Tab2Page implements OnInit {
 
   setMode(mode: 'video' | 'template') {
     this.selectedMode = mode;
-    // Show the recent videos section when either "Video" or "Template" is selected
+    // Show the grid for both "Video" and "Template" modes
     this.showRecent = true;
+  }
+
+  showCamera() {
+    // Close the grid and show the camera preview
+    this.showRecent = false;
   }
 
   close() {
