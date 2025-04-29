@@ -21,9 +21,10 @@ describe('Tab2Page', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with isRecording as false and selectedMode as video', () => {
+  it('should initialize with isRecording as false, selectedMode as video, and showRecent as false', () => {
     expect(component.isRecording).toBeFalse();
     expect(component.selectedMode).toBe('video');
+    expect(component.showRecent).toBeFalse();
   });
 
   it('should toggle recording state', () => {
@@ -34,8 +35,15 @@ describe('Tab2Page', () => {
     expect(component.isRecording).toBeFalse();
   });
 
-  it('should set mode to template', () => {
+  it('should set mode to template and show grid', () => {
     component.setMode('template');
     expect(component.selectedMode).toBe('template');
+    expect(component.showRecent).toBeTrue();
+  });
+
+  it('should set mode to video and show recent videos', () => {
+    component.setMode('video');
+    expect(component.selectedMode).toBe('video');
+    expect(component.showRecent).toBeTrue();
   });
 });

@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
-  templateUrl: 'tab2.page.html',
-  styleUrls: ['tab2.page.scss'],
+  templateUrl: './tab2.page.html',
+  styleUrls: ['./tab2.page.scss'],
   standalone: false,
 })
 export class Tab2Page implements OnInit {
   isRecording: boolean = false; // Tracks recording state
   selectedMode: 'video' | 'template' = 'video'; // Tracks selected mode (Video or Template)
+  showRecent: boolean = false; // Tracks whether to show the recent videos section
 
-  constructor() {}
+  constructor(private navCtrl: NavController) {}
 
   ngOnInit() {}
 
@@ -20,10 +22,12 @@ export class Tab2Page implements OnInit {
 
   setMode(mode: 'video' | 'template') {
     this.selectedMode = mode;
+    // Show the recent videos section when either "Video" or "Template" is selected
+    this.showRecent = true;
   }
 
   close() {
-    // Placeholder for closing the video camera (e.g., navigate back)
-    console.log('Close button clicked');
+    // Navigate back to Tab 1
+    this.navCtrl.navigateBack('/tabs/tab1');
   }
 }

@@ -6,7 +6,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title>New Video</ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" class="header-buttons">
       <ion-button>
         <ion-icon name="flash-outline"></ion-icon>
       </ion-button>
@@ -25,6 +25,57 @@
   <div class="camera-preview">
     <div class="camera-icon">
       <ion-icon name="camera-outline" size="large"></ion-icon>
+    </div>
+  </div>
+
+  <!-- Recent videos or templates section -->
+  <div class="recent-videos" *ngIf="showRecent">
+    <!-- Video mode: Flat list of recent videos -->
+    <div *ngIf="selectedMode === 'video'">
+      <h2>Recent</h2>
+      <div class="video-grid">
+        <div class="video-item"><img src="assets/icon/post1.jpg" alt="Video 1" /></div>
+        <div class="video-item"><img src="assets/icon/post2.png" alt="Video 2" /></div>
+        <div class="video-item"><img src="assets/icon/post3.jpg" alt="Video 3" /></div>
+        <div class="video-item"><img src="assets/icon/post1.jpg" alt="Video 4" /></div>
+        <div class="video-item"><img src="assets/icon/post2.png" alt="Video 5" /></div>
+      </div>
+    </div>
+
+    <!-- Template mode: Categorized templates -->
+    <div *ngIf="selectedMode === 'template'">
+      <div class="category">
+        <h3>Band</h3>
+        <div class="video-grid">
+          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
+          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
+          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+        </div>
+      </div>
+      <div class="category">
+        <h3>Accapella</h3>
+        <div class="video-grid">
+          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
+          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
+          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+        </div>
+      </div>
+      <div class="category">
+        <h3>Duo</h3>
+        <div class="video-grid">
+          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
+          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
+          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+        </div>
+      </div>
+      <div class="category">
+        <h3>Trio</h3>
+        <div class="video-grid">
+          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
+          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
+          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+        </div>
+      </div>
     </div>
   </div>
 
