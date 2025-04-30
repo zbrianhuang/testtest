@@ -1,0 +1,52 @@
+
+<!--this is the menu-->
+<ion-menu side="end" contentId="main-content">
+<ion-list>
+  <ion-item>
+      <ion-button>Upload New</ion-button>
+  </ion-item>
+  <ion-item>
+      <ion-button [disabled]="true">Filter</ion-button>
+  </ion-item>
+
+</ion-list>
+</ion-menu>
+
+
+<!--this is not the menu-->
+<div class="ion-page" id="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="end">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+
+      <ion-title>Sheet Music Library</ion-title>
+    </ion-toolbar>
+  </ion-header>
+<ion-content>
+    <ion-header collapse="condense">
+    </ion-header>
+
+  <ion-grid *ngIf="!isLoading && !errorLoading && sheets.length > 0">
+    <ion-row>
+      <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let sheet of sheets">
+        <a [href]="sheet.redirect" target="_blank" style="text-decoration: none; color: inherit;">
+          <ion-card class="sheet-card ion-activatable">
+            <ion-ripple-effect></ion-ripple-effect>
+            <ion-img
+              [src]="sheet.thumbnail"
+              alt="Thumbnail for {{ sheet.title }}">
+            </ion-img>
+
+            <ion-card-header class="ion-text-center">
+              <ion-card-title>{{ sheet.title }}</ion-card-title>
+              <ion-card-subtitle>{{ sheet.author }}</ion-card-subtitle>
+            </ion-card-header>
+          </ion-card>
+        </a>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content> 

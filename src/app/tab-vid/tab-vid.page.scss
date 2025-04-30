@@ -1,0 +1,32 @@
+.video-container {
+    // Ensures the container doesn't have extra bottom margin if video is display:inline
+    line-height: 0;
+    margin-bottom: 1rem; // Add some space below the video
+  }
+  
+  video {
+    display: block; // Good practice for block elements
+    width: 100%;    // Make video responsive
+    max-width: 100%;
+    height: auto;   // Maintain aspect ratio
+    background-color: #000; // Black background while loading/before playing
+  }
+  
+  .info-container {
+    h1 {
+      font-size: 1.5rem; // Adjust sizes as needed
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+  
+    h2 {
+      font-size: 1.1rem;
+      color: var(--ion-color-medium-shade); // Use theme color
+      margin-bottom: 0.3rem;
+    }
+  
+    h3 {
+      font-size: 1rem;
+      color: var(--ion-color-medium); // Use theme color
+    }
+  }

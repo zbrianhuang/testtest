@@ -8,9 +8,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TabVidPage implements OnInit {
 
-  constructor() { }
+  title: string = '';
+  artist: string = '';
+  cover_artist: string = '';
+  videoUrl: string = ''; // '/assets/videos/annie_wave_to_earth.mp4'; // Default or fetched
+
+  constructor(){} // Inject ActivatedRoute if needed
 
   ngOnInit() {
+    //   const videoId = params.get('videoId');
+    //   this.loadVideoInfo(videoId);
+
+    this.title= 'Annie'; // Set dynamically
+    this.artist = 'Wave to Earth';
+    this.cover_artist = 'j';
+
+    this.videoUrl = '/assets/videos/annie_wave_to_earth.mp4';
   }
+
 
 }

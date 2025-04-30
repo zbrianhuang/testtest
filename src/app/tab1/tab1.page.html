@@ -1,17 +1,37 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
+
+  <ion-header [translucent]="true">
     <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
+      <ion-button slot="end" (click)="test()">
+        <!--<img src = "/assets/icon/three_dot.svg"> -->
+        Upload
+      </ion-button>
+      <ion-title>Sheet Music Library</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
-</ion-content>
+<ion-content>
+
+
+  <ion-grid *ngIf="!isLoading && !errorLoading && sheets.length > 0">
+    <ion-row>
+      <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let sheet of sheets">
+        <a [href]="sheet.redirect" target="_blank" style="text-decoration: none; color: inherit;">
+          <ion-card class="sheet-card ion-activatable">
+            <ion-ripple-effect></ion-ripple-effect>
+            <ion-img
+              [src]="sheet.thumbnail"
+              alt="Thumbnail for {{ sheet.title }}">
+            </ion-img>
+
+            <ion-card-header class="ion-text-center">
+              <ion-card-title>{{ sheet.title }}</ion-card-title>
+              <ion-card-subtitle>{{ sheet.author }}</ion-card-subtitle>
+            </ion-card-header>
+          </ion-card>
+        </a>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content> 

@@ -6,7 +6,6 @@ import { HomeTabPage } from './home_tab.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
 import { HomeTabPageRoutingModule } from './home_tab-routing.module';
-
 @NgModule({
   imports: [
     IonicModule,

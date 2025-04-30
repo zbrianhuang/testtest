@@ -1,0 +1,25 @@
+[
+   
+    {
+        "title": "golden",
+        "author": "jvke ",
+        "thumbnail": "assets/thumbnails/golden.png",
+        "redirect": "assets/sheet_lib/golden_hour.pdf",
+        "instrument":1
+      },
+    {
+        "title": "Are you bored yet",
+        "author": "wallows",
+        "thumbnail": "assets/thumbnails/are_you_bored_yet.png",
+        "redirect": "assets/sheet_lib/are_you_bored_yet.pdf",
+        "instrument":5
+      },
+  { 
+        "title": "golden2",
+        "author": " author",
+        "thumbnail": "assets/thumbnails/golden2.png",
+        "redirect": "assets/sheet_lib/golden_hour.pdf",
+        "instrument":3
+      }
+      
+  ]
