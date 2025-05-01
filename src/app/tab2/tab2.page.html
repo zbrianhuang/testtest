@@ -79,10 +79,14 @@
     </div>
   </div>
 
-  <!-- Recording button: Hide when grid is visible -->
+  <!-- Recording button container: Hide when grid is visible -->
   <div class="record-button-container" *ngIf="!showRecent">
     <ion-button class="record-button" (click)="toggleRecording()" fill="clear">
       <ion-icon [name]="isRecording ? 'stop-outline' : 'radio-button-on-outline'" size="large"></ion-icon>
+    </ion-button>
+    <!-- Next button: Show only after a recording has been made -->
+    <ion-button class="next-button" *ngIf="hasRecorded && !isRecording" (click)="goToNext()" color="primary">
+      Next
     </ion-button>
   </div>
 </ion-content>
