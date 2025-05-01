@@ -8,10 +8,10 @@ import { NavController, AlertController } from '@ionic/angular';
   standalone: false,
 })
 export class Tab2Page implements OnInit {
-  isRecording: boolean = false; // Tracks recording state
-  selectedMode: 'video' | 'template' = 'video'; // Tracks selected mode (Video or Template)
-  showRecent: boolean = false; // Tracks whether to show the recent videos section
-  hasRecorded: boolean = false; // Tracks whether a recording has been completed
+  isRecording: boolean = false;
+  selectedMode: 'video' | 'template' = 'video';
+  showRecent: boolean = false;
+  hasRecorded: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -21,7 +21,6 @@ export class Tab2Page implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
-    // Reset state when entering the page
     this.isRecording = false;
     this.selectedMode = 'video';
     this.showRecent = false;
@@ -29,7 +28,6 @@ export class Tab2Page implements OnInit {
   }
 
   ionViewWillLeave() {
-    // Reset state when leaving the page
     this.isRecording = false;
     this.selectedMode = 'video';
     this.showRecent = false;
@@ -38,7 +36,6 @@ export class Tab2Page implements OnInit {
 
   toggleRecording() {
     this.isRecording = !this.isRecording;
-    // Set hasRecorded to true when stopping a recording (i.e., transitioning from recording to stopped)
     if (!this.isRecording) {
       this.hasRecorded = true;
     }
@@ -46,32 +43,26 @@ export class Tab2Page implements OnInit {
 
   setMode(mode: 'video' | 'template') {
     this.selectedMode = mode;
-    // Show the grid for both "Video" and "Template" modes
     this.showRecent = true;
   }
 
   showCamera() {
-    // Close the grid and show the camera preview
     this.showRecent = false;
   }
 
   async close() {
     if (this.hasRecorded) {
-      // Show confirmation popup if a recording has been made
       const alert = await this.alertController.create({
         header: 'Do you want to discard this video?',
         buttons: [
           {
             text: 'No',
             role: 'cancel',
-            handler: () => {
-              // Stay on the current page
-            }
+            handler: () => {}
           },
           {
             text: 'Yes',
             handler: () => {
-              // Navigate to home tab
               this.navCtrl.navigateBack('/tabs/home_tab');
             }
           }
@@ -79,15 +70,11 @@ export class Tab2Page implements OnInit {
       });
       await alert.present();
     } else {
-      // Navigate back to home tab if no recording has been made
       this.navCtrl.navigateBack('/tabs/home_tab');
     }
   }
 
   goToNext() {
-    // Placeholder for navigation after recording
-    console.log('Next button clicked');
-    // Optionally navigate to a preview or upload page
-    // this.navCtrl.navigateForward('/path-to-next-page');
+    this.navCtrl.navigateForward('/tabs/video-editor');
   }
 }
