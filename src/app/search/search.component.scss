@@ -6,9 +6,21 @@
     --inner-padding-end: 12px;
   }
   
-  .search-btn {
+.search-btn {
     margin-top: 24px;
     border-radius: 30px;
     font-weight: 600;
+}
+
+:host::part(content) {
+    width: 80vw;            
+    max-width: 400px;       
+    height: auto;
+    max-height: 75vh;        
+    border-radius: 16px;
+    padding: 24px;
+    box-sizing: border-box;
   }
+  
+  
   
