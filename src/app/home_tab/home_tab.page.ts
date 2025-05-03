@@ -1,7 +1,7 @@
 import { Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { SearchComponent } from 'src/app/search/search.component';
-import { ModalController } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
 
 //not good
 import {
@@ -15,6 +15,8 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface Video {
   title: string;
@@ -29,7 +31,9 @@ interface Gallery_Title{
   selector: 'app-hometab',
   templateUrl: 'home_tab.page.html',
   styleUrls: ['home_tab.page.scss'],
-  standalone: false,
+  standalone: true,
+  
+  imports: [IonicModule, FormsModule, CommonModule]
 })
 export class HomeTabPage implements OnInit{
 /*  videos: Video[] = [
@@ -128,21 +132,21 @@ export class HomeTabPage implements OnInit{
 
   ];
 
-  constructor(private modalController: ModalController) {}
+  constructor(private modalController: ModalController, private router: Router) {}
 
   ngOnInit() {
     // Optionally load or refresh videos here.
   }
 
-  async onSearchClick() {
+  async openAdvancedSearch() {
     const modal = await this.modalController.create({
       component: SearchComponent,
-      breakpoints: [0, 0.5, 0.9],
-      initialBreakpoint: 0.5,
-      showBackdrop: true
+      cssClass: 'advanced-search-modal', 
+      backdropDismiss: true,         
+      showBackdrop: true             
     });
     await modal.present();
-  }
+  }  
 }
 
 
