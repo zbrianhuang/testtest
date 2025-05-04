@@ -15,6 +15,7 @@ export class TabVidPage implements OnInit {
 
   constructor(){} // Inject ActivatedRoute if needed
 
+
   ngOnInit() {
     //   const videoId = params.get('videoId');
     //   this.loadVideoInfo(videoId);
@@ -24,6 +25,10 @@ export class TabVidPage implements OnInit {
     this.cover_artist = 'j';
 
     this.videoUrl = '/assets/videos/annie_wave_to_earth.mp4';
+  }
+  send_alert(str: string ){
+    alert(str);
+
   }
 
 

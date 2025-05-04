@@ -17,4 +17,6 @@ import { TabVidPage } from './tab-vid.page';
   ],
   declarations: [TabVidPage]
 })
-export class TabVidPageModule {}
+export class TabVidPageModule {
+
+}
