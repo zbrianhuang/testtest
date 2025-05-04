@@ -1,0 +1,64 @@
+<!--<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>upload-info</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">upload-info</ion-title>
+    </ion-toolbar>
+  </ion-header>
+</ion-content>-->
+
+<ion-header translucent="true">
+  <ion-toolbar>
+    <ion-title>Upload Video Info</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-item>
+    <ion-label position="stacked">Video Title</ion-label>
+    <ion-input [(ngModel)]="videoTitle" placeholder="Enter video title"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Instrument</ion-label>
+    <ion-select [(ngModel)]="instrument" placeholder="Choose instrument">
+      <ion-select-option value="piano">Piano</ion-select-option>
+      <ion-select-option value="violin">Violin</ion-select-option>
+      <ion-select-option value="guitar">Guitar</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Video Type</ion-label>
+    <ion-select [(ngModel)]="videoType" placeholder="Choose video type">
+      <ion-select-option value="full song cover">full song cover</ion-select-option>
+      <ion-select-option value="solo challenge">solo challenge</ion-select-option>
+      <ion-select-option value="band">band</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Description</ion-label>
+    <ion-textarea [(ngModel)]="description" placeholder="Enter description"></ion-textarea>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-label>Attach Sheet Music</ion-label>
+    <ion-button fill="outline" (click)="selectSheetMusic()">Choose File</ion-button>
+  </ion-item>
+
+  <ion-item *ngIf="sheetMusicName">
+    <ion-label class="ion-text-wrap">
+      <ion-icon name="document-outline" slot="start"></ion-icon>
+      {{ sheetMusicName }}
+    </ion-label>
+  </ion-item>
+
+  <ion-button expand="block" class="ion-margin-top" (click)="submit()">Submit</ion-button>
+</ion-content>
