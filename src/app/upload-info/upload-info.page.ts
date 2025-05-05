@@ -44,7 +44,7 @@ export class UploadInfoPage {
       videoType: this.videoType,
       description: this.description,
       sheetMusicName: this.sheetMusicName,
-      image: 'assets/icon/post4.jpg',
+      image: 'assets/icon/post1.jpg',
       hashtags: `#${this.instrument}#${this.videoType} · just now`,
       likes: 0,
       comments: 0,
