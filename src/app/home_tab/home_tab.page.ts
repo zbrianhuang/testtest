@@ -11,7 +11,6 @@ interface Video {
   description: string;
   thumbnailUrl: string;
   id: string; // Keep the id
-  // Optional: Add fields needed on the video page if not fetching separately
   artist?: string;
   videoUrl?: string;
 }

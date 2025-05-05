@@ -6,10 +6,10 @@ import { IonicModule } from '@ionic/angular';
 
 const db = [
     { id: "vid-001", title: 'annie.', artist: 'wave to earth', cover_artist: 'jim', videoUrl: '/assets/videos/annie_wave_to_earth.mp4', description: '#cover #guitar #vocal' },
-    { id: "vid-002", title: '', artist: '', cover_artist: 'B', videoUrl: '/assets/videos/placeholder_video_1.mp4', description: '' },
-    { id: "vid-003", title: '',artist: '', cover_artist: 'C', videoUrl: '/assets/videos/placeholder_video_2.mp4', description: '' },
-    { id: "vid-004", title: '', artist: '', cover_artist: 'D', videoUrl: '/assets/videos/placeholder_video_3.mp4', description: '' },
-    { id: "vid-005", title: '', artist: '', cover_artist: 'E', videoUrl: '/assets/videos/placeholder_video_4.mp4', description: '' },
+    { id: "vid-002", title: '', artist: '', cover_artist: 'B', videoUrl: '/assets/videos/placeholder.MP4', description: '' },
+    { id: "vid-003", title: '',artist: '', cover_artist: 'C', videoUrl: '/assets/videos/placeholder.mp4', description: '' },
+    { id: "vid-004", title: '', artist: '', cover_artist: 'D', videoUrl: '/assets/videos/placeholder.mp4', description: '' },
+    { id: "vid-005", title: '', artist: '', cover_artist: 'E', videoUrl: '/assets/videos/placeholder.mp4', description: '' },
 ];
 
 @Component({
