@@ -1,13 +1,13 @@
 <ion-content [fullscreen]="true" class="ion-padding profile-page">
 
-  <!-- profile_pic -->
+  <!-- Profile Section -->
   <div class="avatar-section">
     <img src="assets/icon/profile_pic.png" class="profile-pic" />
     <h2 class="username">username</h2>
     <p class="tagline">#acoustic guitar</p>
   </div>
 
-  <!-- user information -->
+  <!-- User Stats -->
   <div class="stats">
     <div class="stat-block">
       <div class="number">100</div>
@@ -23,60 +23,33 @@
     </div>
   </div>
 
-  <!-- post list -->
+  <!-- All Videos (preset + uploaded) -->
   <div class="post-list">
-
-    <ion-card class="post-card #1">
+    <ion-card *ngFor="let video of allVideos" class="post-card">
       <div class="card-content-horizontal">
-          <!-- image section -->
-          <img src="assets/icon/post1.jpg" alt="Post Image #1" class="post-image"/>
+        <!-- Thumbnail -->
+        <img [src]="video.thumbnail" alt="Video Thumbnail" class="post-image" />
 
-          <!-- text section -->
-           <div class="post-text">
-              <ion-card-title>[sheet] annie. / wave to earth</ion-card-title>
-              <p class="hashtags">#acousticguitar#fullsongcover · 3 days ago</p>
-              <div class="post-actions">
-                <span>❤️ 100</span>
-                <span>💬 20</span>
-              </div>
-            </div>
+        <!-- Text Info -->
+        <div class="post-text">
+          <ion-card-title>{{ video.title }}</ion-card-title>
+          <p class="hashtags">{{ video.hashtags }}</p>
+          <div class="post-actions">
+            <span>❤️ {{ video.likes }}</span>
+            <span>💬 {{ video.comments }}</span>
+          </div>
+
+          <!-- Delete Button (only for uploaded videos) -->
+          <ion-button 
+            *ngIf="video.canDelete" 
+            fill="clear" 
+            size="small" 
+            color="danger" 
+            (click)="deleteVideo(video)">
+            Delete
+          </ion-button>
+        </div>
       </div>
     </ion-card>
-
-    <ion-card class="post-card #2">
-      <div class="card-content-horizontal">
-          <!-- image section -->
-          <img src="assets/icon/post2.png" alt="Post Image #2" class="post-image"/>
-
-          <!-- text section -->
-           <div class="post-text">
-              <ion-card-title>[sheet] Dear Heartless / EggPlantEgg</ion-card-title>
-              <p class="hashtags">#guitar#solochallenge · 2 weeks ago</p>
-              <div class="post-actions">
-                <span>❤️ 100</span>
-                <span>💬 20</span>
-              </div>
-            </div>
-      </div>
-    </ion-card>
-
-    <ion-card class="post-card #3">
-      <div class="card-content-horizontal">
-          <!-- image section -->
-          <img src="assets/icon/post3.jpg" alt="Post Image #3" class="post-image" />
-
-          <!-- text section -->
-           <div class="post-text">
-              <ion-card-title>[sheet] Start / Depapepe</ion-card-title>
-              <p class="hashtags">#guitar#fullsongcover · 1 month ago</p>
-              <div class="post-actions">
-                <span>❤️ 100</span>
-                <span>💬 20</span>
-              </div>
-            </div>
-      </div>
-    </ion-card>
-
-    
   </div>
 </ion-content>

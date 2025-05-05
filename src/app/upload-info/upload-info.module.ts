@@ -4,19 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { TabVidPageRoutingModule } from './tab-vid-routing.module';
+import { UploadInfoPageRoutingModule } from './upload-info-routing.module';
 
-import { TabVidPage } from './tab-vid.page';
+import { UploadInfoPage } from './upload-info.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    TabVidPageRoutingModule
+    UploadInfoPageRoutingModule
   ],
-  declarations: [TabVidPage]
+  declarations: [UploadInfoPage]
 })
-export class TabVidPageModule {
-
-}
+export class UploadInfoPageModule {}

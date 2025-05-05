@@ -7,14 +7,19 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'tab-vid',
+    path: 'tab-vid/:id',
     loadChildren: () => import('./tab-vid/tab-vid.module').then( m => m.TabVidPageModule)
   },
   {
     path: 'tab4',
     loadChildren: () => import('./tab4/tab4.module').then( m => m.Tab4PageModule)
-  }
-  
+
+  },
+  {
+    path: 'upload-info',
+    loadComponent: () => import('./upload-info/upload-info.page').then(m => m.UploadInfoPage)
+  },
+ 
 ];
 @NgModule({
   imports: [

@@ -10,21 +10,20 @@
       </ion-segment-button>
     </ion-segment>
 
-  <ion-buttons slot="end">
-    <ion-button fill="clear" class="search-button" (click)="onSearchClick()">
-      <ion-icon name="search-outline" slot="icon-only"></ion-icon>
-    </ion-button>
-  </ion-buttons>
-    
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+
+
+<ion-content [fullscreen]="true" class="ion-padding-top">
+
+  <div class="floating-search-bar" (click)="openAdvancedSearch()">
+    <ion-icon name="search-outline" class="search-icon"></ion-icon>
+    <span class="placeholder-text">Search videos or creators...</span>
+  </div>
+
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-button> Start </ion-button>
-      </ion-buttons>
     
       <ion-title size="large">Home</ion-title>
     </ion-toolbar>
@@ -35,13 +34,14 @@
         <h2 class = "gallery_title">{{titles[idx].title}}</h2>
 
         <div class="gallery" >
-            <div *ngFor="let video of row" onclick="location.href='/tab-vid';" class = "vid_container">
+           <!-- <ion-card *ngFor="let video of row" onclick="location.href='/tab-vid';" class = "vid_container"> -->
+            <ion-card *ngFor="let video of row" (click)="navigateToVideo(video.id)" class="vid_container">
               <img class = "thumbnail" [src]="video.thumbnailUrl" alt="{{ video.title }}" />
               <div class = "description">
                 <h2>{{ video.title }}</h2>
                 <p>{{ video.description }}</p>
-            </div>
-        </div>
+              </div>
+            </ion-card>
       </div> 
 
     </div>

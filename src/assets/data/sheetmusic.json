@@ -15,11 +15,18 @@
         "instrument":5
       },
   { 
-        "title": "golden2",
-        "author": " author",
-        "thumbnail": "assets/thumbnails/golden2.png",
-        "redirect": "assets/sheet_lib/golden_hour.pdf",
+        "title": "shinunoga e wa",
+        "author": " fuji kaze",
+        "thumbnail": "assets/thumbnails/shinunoga.png",
+        "redirect": "assets/sheet_lib/shinunoga_e_wa.pdf",
         "instrument":3
+      },
+      {
+        "title": "liebestraum",
+        "author": "Franz Liszt ",
+        "thumbnail": "assets/thumbnails/liebestraum.png",
+        "redirect": "assets/sheet_lib/liebestraum.pdf",
+        "instrument":3 
       }
       
   ]

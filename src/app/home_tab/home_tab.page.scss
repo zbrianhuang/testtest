@@ -1,4 +1,4 @@
-ion-title{
+ion-title {
     text-align: center;
 }
     
@@ -6,13 +6,13 @@ ion-title{
     display: block; 
     width: 100%; 
     height: auto; 
-    aspect-ratio: 16 / 9;//make everything conform to aspect ratio
+    aspect-ratio: 16 / 9; //make everything conform to aspect ratio
     object-fit: cover; 
     flex-shrink: 0; 
     margin-top:15px;
 }
-.vid_container{
-    background-color: #666;
+.vid_container {
+    //background-color: #666;
     border-radius: 8px 8px 8px 8px;
     display: inline-block;
     margin-left: 5%;
@@ -24,19 +24,34 @@ ion-title{
     padding-right: 5%;
     width: 50%;
 }
-.gallery_title{
+.gallery_title {
     margin-left:5%;
 }
-.gallery{
+.gallery {
     overflow: auto;
     white-space: nowrap;
     padding: 10px;
-  }
-  .search-button {
-    width: 36px;
-    height: 36px;
-    --padding-start: 0;
-    --padding-end: 0;
-    --ion-color-base: transparent;
-    --ion-color-contrast: #333;
-  }
+}
+
+.floating-search-bar {
+    position: sticky;
+    top: 20px;
+    margin: 12px 16px;
+    z-index: 10;
+  
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #666;
+}
+
+  
+.search-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+  
