@@ -33,16 +33,38 @@ export class UploadInfoPage {
       alert('Please fill in all required fields!');
       return;
     }
-
-    //show toast
+  
+    const finalTitle = this.sheetMusicName
+      ? `[sheet] ${this.videoTitle}`
+      : this.videoTitle;
+  
+    const newVideo = {
+      title: finalTitle,
+      instrument: this.instrument,
+      videoType: this.videoType,
+      description: this.description,
+      sheetMusicName: this.sheetMusicName,
+      image: 'assets/icon/post4.jpg',
+      hashtags: `#${this.instrument}#${this.videoType} · just now`,
+      likes: 0,
+      comments: 0,
+      canDelete: true  // ✅ 讓 Tab3Page 能判斷這則影片能不能刪除
+    };
+  
+    const existing = localStorage.getItem('uploadedVideos');
+    const videoList = existing ? JSON.parse(existing) : [];
+    videoList.unshift(newVideo);
+    localStorage.setItem('uploadedVideos', JSON.stringify(videoList));
+  
     const toast = await this.toastController.create({
       message: 'Video uploaded successfully!',
       duration: 2000,
       color: 'success',
     });
     toast.present();
-
-    //navigate to homepage
+  
     this.router.navigate(['/tabs/home_tab']);
   }
+    
+  
 }

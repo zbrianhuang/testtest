@@ -1,92 +1,103 @@
-//profile picture
 .profile-page {
-    padding-top: 20px; 
-    text-align: center; 
-  }
+    --ion-background-color: #f9f9f9;
   
-  .prifile-pic {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%; 
-    margin: 0 auto;
-  }
+    .avatar-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0;
   
-  .username {
-    margin-top: 10px;
-    font-size: 22px;
-    font-weight: bold;
-  }
+      .profile-pic {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 12px;
+      }
   
-  .tagline {
-    font-size: 14px;
-    color: #666;
-  }
+      .username {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+      }
   
-  .stats {
-    display: flex;
-    justify-content: space-around;
-    margin: 20px 0;
-  }
+      .tagline {
+        color: #888;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+    }
   
-  .stat-block {
-    text-align: center;
-  }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 12px 0 20px;
   
-  .number {
-    font-weight: bold;
-    font-size: 18px;
-  }
+      .stat-block {
+        text-align: center;
   
-  .label {
-    font-size: 14px;
-    color: #999;
-  }
-
-//post list
-.post-list {
-    margin-top: 20px;
-}
+        .number {
+          font-weight: bold;
+          font-size: 18px;
+        }
   
-  .post-card {
-    margin-bottom: 16px;
-    padding: 12px;
-  }
+        .label {
+          font-size: 14px;
+          color: #666;
+        }
+      }
+    }
   
-  .card-content-horizontal {
-    display: flex;
-    align-items: center;
-  }
-
-  .post-image {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-    flex-shrink: 0;
-  }
+    .post-list {
+      padding: 0 16px;
   
-  .post-text {
-    margin-left: 12px;
-    flex: 1;
-  }
+      .post-card {
+        margin-bottom: 16px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   
-  .post-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 6px;
-  }
-
-  .hashtags {
-    font-size: 13px;
-    color: #666;
-  }
+        .card-content-horizontal {
+          display: flex;
+          gap: 12px;
+          padding: 12px;
   
-  .post-actions {
-    display: flex;
-    justify-content: start;
-    gap: 16px;
-    font-size: 14px;
-    color: #999;
-    margin-top: 8px;
+          .post-image {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+          }
+  
+          .post-text {
+            flex: 1;
+  
+            ion-card-title {
+              font-size: 16px;
+              margin-bottom: 4px;
+            }
+  
+            .hashtags {
+              font-size: 12px;
+              color: #888;
+              margin-bottom: 8px;
+            }
+  
+            .post-actions {
+              display: flex;
+              gap: 12px;
+              font-size: 14px;
+              margin-bottom: 4px;
+            }
+  
+            ion-button {
+              --padding-start: 0;
+              --padding-end: 0;
+              margin: 0;
+              font-size: 13px;
+            }
+          }
+        }
+      }
+    }
   }
   
