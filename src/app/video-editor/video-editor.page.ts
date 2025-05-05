@@ -20,7 +20,9 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   @ViewChild('videoPlayer', { static: true })
   videoPlayer!: ElementRef<HTMLVideoElement>;
 
-  videoSrc = 'assets/videos/sample.mp4';
+  // ← Updated to use your video file
+  videoSrc = 'assets/videos/annie_wave_to_earth.mp4';
+
   isPlaying = false;
   duration = 0;
   currentTime = 0;
