@@ -1,17 +1,29 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Edit Video</ion-title>
+  <ion-toolbar class="editor-header">
+    <ion-buttons slot="start">
+      <!-- now calls closeEditor() -->
+      <ion-button fill="clear" (click)="closeEditor()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title></ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" color="primary" class="next-circle" (click)="exportVideo()">
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="editor-content">
   <!-- VIDEO PREVIEW -->
-  <div class="video-preview">
+  <div class="video-wrapper">
     <video #videoPlayer [src]="videoSrc" playsinline></video>
   </div>
 
   <!-- TIMELINE SLIDER -->
   <ion-range
+    class="editor-range"
     [min]="0"
     [max]="duration"
     [step]="0.1"
@@ -19,14 +31,31 @@
     (ionChange)="seek($event)"
   ></ion-range>
 
-  <!-- CONTROLS -->
-  <div class="editor-controls">
+  <!-- TOOLBAR -->
+  <div class="editor-tools">
+    <!-- Play/Pause -->
     <ion-button fill="clear" (click)="togglePlay()">
       <ion-icon [name]="isPlaying ? 'pause' : 'play'"></ion-icon>
     </ion-button>
-    <ion-button fill="clear" (click)="markStart()">Mark Start</ion-button>
-    <ion-button fill="clear" (click)="markEnd()">Mark End</ion-button>
-    <!-- Changed label here from "Export" to "Next" -->
-    <ion-button color="primary" (click)="exportVideo()">Next</ion-button>
+
+    <!-- Speed control -->
+    <ion-button fill="clear" (click)="toggleSpeed()">
+      <ion-icon name="speedometer-outline"></ion-icon>
+    </ion-button>
+
+    <!-- Mark Start / End -->
+    <ion-button fill="clear" (click)="markInOut()">
+      <ion-icon name="swap-horizontal-outline"></ion-icon>
+    </ion-button>
+
+    <!-- Rotate clip -->
+    <ion-button fill="clear" (click)="rotateClip()">
+      <ion-icon name="repeat-outline"></ion-icon>
+    </ion-button>
+
+    <!-- Mute/unmute -->
+    <ion-button fill="clear" (click)="toggleMute()">
+      <ion-icon [name]="isMuted ? 'volume-mute-outline' : 'volume-high-outline'"></ion-icon>
+    </ion-button>
   </div>
 </ion-content>
