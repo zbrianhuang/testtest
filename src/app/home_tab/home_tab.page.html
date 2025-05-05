@@ -37,7 +37,8 @@
         <h2 class = "gallery_title">{{titles[idx].title}}</h2>
 
         <div class="gallery" >
-            <ion-card *ngFor="let video of row" onclick="location.href='/tab-vid';" class = "vid_container">
+           <!-- <ion-card *ngFor="let video of row" onclick="location.href='/tab-vid';" class = "vid_container"> -->
+            <ion-card *ngFor="let video of row" (click)="navigateToVideo(video.id)" class="vid_container">
               <img class = "thumbnail" [src]="video.thumbnailUrl" alt="{{ video.title }}" />
               <div class = "description">
                 <h2>{{ video.title }}</h2>

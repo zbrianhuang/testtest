@@ -1,20 +1,8 @@
-import { Component, OnInit} from '@angular/core';
-import { Router } from '@angular/router';
+// home_tab.page.ts
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router'; // Make sure Router is imported
 import { SearchComponent } from 'src/app/search/search.component';
 import { IonicModule, ModalController } from '@ionic/angular';
-
-//not good
-import {
-  IonContent,
-  IonHeader,
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonIcon,
-  IonMenuButton,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -22,116 +10,68 @@ interface Video {
   title: string;
   description: string;
   thumbnailUrl: string;
-  id:string;
+  id: string; // Keep the id
+  // Optional: Add fields needed on the video page if not fetching separately
+  artist?: string;
+  videoUrl?: string;
 }
-interface Gallery_Title{
-  title:string;
+
+interface Gallery_Title {
+  title: string;
 }
+
 @Component({
   selector: 'app-hometab',
   templateUrl: 'home_tab.page.html',
   styleUrls: ['home_tab.page.scss'],
   standalone: true,
-  
-  imports: [IonicModule, FormsModule, CommonModule]
+  imports: [IonicModule, FormsModule, CommonModule] // Keep necessary imports
 })
-export class HomeTabPage implements OnInit{
-/*  videos: Video[] = [
-    {
-      title: 'Video title',
-      description: 'video info ',
-      thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg'
-    },
-    {
-      title: 'Video title',
-      description: 'Plce holder.',
-      thumbnailUrl: 'assets/thumbnails/placeholder2.JPG'
-    },
-    {
-      title: 'Video title',
-      description: 'SDLKFJL',
-      thumbnailUrl: 'assets/thumbnails/placeholder.jpeg'
-    },
-    {
-      title: 'Video title',
-      description: 'video info ',
-      thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg'
-    },
-    {
-      title: 'Video title',
-      description: 'Plce holder.',
-      thumbnailUrl: 'assets/thumbnails/placeholder2.JPG'
-    },
-    {
-      title: 'Video title',
-      description: 'SDLKFJL',
-      thumbnailUrl: 'assets/thumbnails/placeholder.jpeg'
-    }
-  ];
-  */
+export class HomeTabPage implements OnInit {
+
   selectedSegment: string = 'discover';
-  titles : Gallery_Title[]=
-  [
-    {
-      title: 'Trending'
-    },
-    {
-      title: 'Pop'
-    },
-    {
-      title:'Rock'
-    },
-    {
-      title:'lala'
-    },
-    {
-      title: 'sdf'
-    }
-  ]
-   
+
+  titles: Gallery_Title[] = [
+    { title: 'Trending' },
+    { title: 'Pop' },
+    { title: 'Rock' },
+    { title: 'lala' },
+    { title: 'sdf' }
+  ];
+
+  // Make sure IDs are unique for proper lookup later!
+  // Using placeholder unique IDs for demonstration
   videos: Video[][] = [
     [
       {
-        title: 'Video title 1',
-        description: 'Video info 1',
-        thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg',
-        id: "a"
+        title: 'annie. / wave to earth' ,
+        description: '#cover #guitar #vocal',
+        thumbnailUrl: '../../assets/thumbnails/annie_thumb.png',
+        id: "vid-001",
+        artist: 'jim',
       },
-      {
-        title: 'Video title 2',
-        description: 'Video info 2',
-        thumbnailUrl: 'assets/thumbnails/placeholder2.JPG'
-        ,id: "a"
-      },{
-        title: 'Video title 1',
-        description: 'Video info 1',
-        thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg'
-        ,id: "a"
-      },
-      {
-        title: 'Video title 2',
-        description: 'Video info 2',
-        thumbnailUrl: 'assets/thumbnails/placeholder2.JPG'
-        ,id: "a"
-      },
+      
     ],
     [
       {
-        title: 'Video title 3',
-        description: 'Video info 3',
-        thumbnailUrl: 'assets/thumbnails/placeholder.jpeg'
-        ,id: "a"
+        title: 'other song',
+        description: '#band',
+        thumbnailUrl: 'assets/thumbnails/placeholder.jpeg',
+        id: "vid-002",
+        artist: 'artist',
       },
       {
-        title: 'Video title 4',
-        description: 'Video info 4',
-        thumbnailUrl: '../../assets/thumbnails/placeholder.jpeg'
-        ,id: "a"
+        title: 'other song2',
+        description: '#cover',
+        thumbnailUrl: '../../assets/thumbnails/placeholder2.JPG',
+        id: "vid-003",
+        artist: 'artist',
       },
     ],
-
+    // Add more rows/videos as needed with unique IDs
   ];
 
+  // Inject Router in the constructor (already done)
   constructor(private modalController: ModalController, private router: Router) {}
 
   ngOnInit() {
@@ -141,53 +81,15 @@ export class HomeTabPage implements OnInit{
   async openAdvancedSearch() {
     const modal = await this.modalController.create({
       component: SearchComponent,
-      cssClass: 'advanced-search-modal', 
-      backdropDismiss: true,         
-      showBackdrop: true             
+      cssClass: 'advanced-search-modal',
+      backdropDismiss: true,
+      showBackdrop: true
     });
     await modal.present();
-  }  
-}
+  }
 
-
-/*
-import { Component, OnInit } from '@angular/core';
-
-interface Video {
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-}
-@Component({
-  selector: 'app-hometab',
-  templateUrl: 'home_tab.page.html',
-  styleUrls: ['home_tab.page.scss'],
-  standalone: false,
-})
-
-export class HomePage implements OnInit {
-  videos: Video[] = [
-    {
-      title: 'Video 1',
-      description: 'This is the description for Video 1.',
-      thumbnailUrl: 'assets/thumbnails/placeholder.jpg'
-    },
-    {
-      title: 'Video 2',
-      description: 'This is the description for Video 2.',
-      thumbnailUrl: 'assets/thumbnails/placeholder.jpg'
-    },
-    {
-      title: 'Video 3',
-      description: 'This is the description for Video 3.',
-      thumbnailUrl: 'assets/thumbnails/.jpg'
-    }
-  ];
-
-  constructor() {}
-
-  ngOnInit() {
-    // Optionally load or refresh videos here.
+  navigateToVideo(videoId: string) {
+    console.log('Navigating to video with ID:', videoId);
+    this.router.navigate(['/tab-vid', videoId]);
   }
 }
-*/
