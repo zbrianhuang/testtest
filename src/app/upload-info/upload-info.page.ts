@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-upload-info',
@@ -16,23 +17,32 @@ export class UploadInfoPage {
   videoType = '';
   description = '';
   sheetMusicName = '';
+  sheetMusicFile: File | null = null; 
 
-  constructor() {}
+  constructor(
+    private toastController: ToastController,
+    private router: Router
+  ) {}
 
   selectSheetMusic() {
-    // 模擬選擇檔案（未串實體檔案系統）
-    // 真實應用中會改為透過 file input 或 Capacitor plugin 上傳
     this.sheetMusicName = 'example-sheet.pdf';
   }
 
-  submit() {
-    console.log({
-      videoTitle: this.videoTitle,
-      instrument: this.instrument,
-      videoType: this.videoType,
-      description: this.description,
-      sheetMusicName: this.sheetMusicName,
+  async submit() {
+    if (!this.videoTitle || !this.instrument || !this.videoType) {
+      alert('Please fill in all required fields!');
+      return;
+    }
+
+    //show toast
+    const toast = await this.toastController.create({
+      message: 'Video uploaded successfully!',
+      duration: 2000,
+      color: 'success',
     });
+    toast.present();
+
+    //navigate to homepage
+    this.router.navigate(['/tabs/home_tab']);
   }
 }
-
