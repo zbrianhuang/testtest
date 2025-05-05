@@ -16,7 +16,7 @@ export class Tab3Page implements OnInit {
   presetVideos = [
     {
       title: '[sheet] annie. / wave to earth',
-      thumbnail: 'assets/icon/post1.jpg',
+      thumbnail: 'assets/thumbnails/annie_thumb.png',
       hashtags: '#acousticguitar#fullsongcover · 3 days ago',
       likes: 100,
       comments: 20,
