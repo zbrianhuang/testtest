@@ -4,6 +4,28 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- Empty for now -->
+<ion-content class="ion-padding">
+  <!-- VIDEO PREVIEW -->
+  <div class="video-preview">
+    <video #videoPlayer [src]="videoSrc" playsinline></video>
+  </div>
+
+  <!-- TIMELINE SLIDER -->
+  <ion-range
+    [min]="0"
+    [max]="duration"
+    [step]="0.1"
+    [value]="currentTime"
+    (ionChange)="seek($event)"
+  ></ion-range>
+
+  <!-- CONTROLS -->
+  <div class="editor-controls">
+    <ion-button fill="clear" (click)="togglePlay()">
+      <ion-icon [name]="isPlaying ? 'pause' : 'play'"></ion-icon>
+    </ion-button>
+    <ion-button fill="clear" (click)="markStart()">Mark Start</ion-button>
+    <ion-button fill="clear" (click)="markEnd()">Mark End</ion-button>
+    <ion-button color="primary" (click)="exportVideo()">Export</ion-button>
+  </div>
 </ion-content>
