@@ -11,38 +11,63 @@
   font-size: 50px;
 }
 
-.record-button-container {
-  position: absolute;
-  bottom: 80px; /* Position above the footer */
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Center vertically */
-  gap: 20px; /* Space between buttons */
-  z-index: 10; /* Ensure button is in front when visible */
-}
-
-.record-button {
-  --background: transparent;
-  --border-radius: 50%;
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  ion-icon {
-    font-size: 60px;
-    color: #fff; /* White button */
-    background: #ff0000; /* Red background when recording */
-    border: 4px solid #fff; /* White border */
-    border-radius: 50%;
-    padding: 10px;
+/* ==============================
+   Record & Next button positioning
+   ============================== */
+   .record-button-container {
+    position: absolute;
+    bottom: 80px;   /* same as before */
+    width: 100%;
+    height: 0;      /* children will be absolutely positioned */
+    z-index: 10;    /* keep above other content */
+  
+    /* both buttons share absolute positioning */
+    .record-button,
+    .next-button {
+      position: absolute;
+      bottom: 0;    /* align to 80px-from-bottom line */
+    }
+  
+    /* center the red record button */
+    .record-button {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  
+    /* place Next immediately to the right */
+    .next-button {
+      left: calc(50% + 60px);  /* adjust 60px for your spacing */
+    }
   }
-}
-
-.next-button {
-  --border-radius: 20px; /* Rounded corners like in the screenshot */
-  font-size: 16px;
-}
+  
+  /* ==============================
+     Record button styling (unchanged colors)
+     ============================== */
+  .record-button {
+    --background: transparent;
+    --border-radius: 50%;
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+  
+    ion-icon {
+      font-size: 60px;
+      color: #fff;            /* white icon */
+      background: #ff0000;    /* red background */
+      border: 4px solid #fff; /* white border */
+      border-radius: 50%;
+      padding: 10px;
+    }
+  }
+  
+  /* ==============================
+     Next button styling
+     ============================== */
+  .next-button {
+    --border-radius: 20px; /* rounded corners */
+    font-size: 16px;
+  }
 
 ion-footer {
   ion-toolbar.recording-bar {
