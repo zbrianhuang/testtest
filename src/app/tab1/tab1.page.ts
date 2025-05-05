@@ -36,6 +36,12 @@ export class Tab1Page implements OnInit { // Implement OnInit
   test(){
     alert(":)");
   }
+  upload_notif(param:string){
+    alert("File uploaded");
+
+    const dataUrl = 'assets/data/sheetmusic.json'; // Path to your JSON
+   //ya no 
+  }
   loadSheetMusicData() {
     this.isLoading = true;
     this.errorLoading = false;
