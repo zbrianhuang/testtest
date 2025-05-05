@@ -1,23 +1,64 @@
-.video-preview {
-    width: 100%;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
-    video {
-      max-width: 100%;
-      max-height: 200px;
-    }
-  }
-  
-  .editor-controls {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 16px;
-  }
-  
-  ion-range {
-    margin: 16px 0;
-  }
+/* hide the bottom tabs when this page is active */
+:host ::ng-deep ion-tabs > ion-tab-bar {
+  display: none !important;
+}
+
+/* HEADER */
+.editor-header {
+  --background: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Next arrow in a circle */
+.next-circle {
+  --border-radius: 50%;
+  --padding: 0;
+  width: 36px;
+  height: 36px;
+}
+
+/* CONTENT WRAPPER */
+.editor-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+}
+
+/* VIDEO PREVIEW */
+.video-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 aspect */
+  background: #000;
+}
+
+.video-wrapper video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* SLIDER */
+.editor-range {
+  margin: 16px;
+}
+
+/* EDITOR TOOLS */
+.editor-tools {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 0;
+  background: #fff;
+}
+
+.editor-tools ion-button {
+  --padding: 0;
+}
+
+.editor-tools ion-icon {
+  font-size: 24px;
+}
