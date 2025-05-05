@@ -7,7 +7,7 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'tab-vid',
+    path: 'tab-vid/:id',
     loadChildren: () => import('./tab-vid/tab-vid.module').then( m => m.TabVidPageModule)
   },
   {
