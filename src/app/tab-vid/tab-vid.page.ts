@@ -26,6 +26,8 @@ export class TabVidPage implements OnInit {
   cover_artist: string = '';
   videoUrl: string = '';
   description: string = ''; 
+  liked: boolean = false;
+  saved: boolean = false;
 
   // Inject ActivatedRoute
   constructor(private route: ActivatedRoute) {}
@@ -63,7 +65,14 @@ export class TabVidPage implements OnInit {
       this.description = '';
     }
   }
+  like_video() {
+    this.liked = true;
+  }
 
+  save_video() {
+    this.saved = true;
+    console.log("saved");
+  }
   send_alert(str: string) {
     alert(str);
   }
