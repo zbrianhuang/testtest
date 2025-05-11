@@ -15,6 +15,9 @@
   --padding: 0;
   width: 36px;
   height: 36px;
+  ion-icon {
+    font-size: 34.56px; /* Increased by an additional 20% from 28.8px */
+  }
 }
 
 /* CONTENT WRAPPER */
@@ -61,4 +64,21 @@
 
 .editor-tools ion-icon {
   font-size: 24px;
+}
+
+/* Style the back arrow button */
+.back-arrow {
+  ion-icon {
+    font-size: 34.56px; /* Already increased by an additional 20% */
+  }
+}
+
+/* Style the Done button with a right arrow */
+.done-button {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Space between text and icon */
+  ion-icon {
+    font-size: 28.8px; /* Already increased by 20% from default 24px */
+  }
 }
