@@ -1,3 +1,10 @@
+//////////////////
+// RUN:
+// npm install @capacitor/filesystem 
+// npm install @capacitor-community/file-opener
+// npm install @capawesome/capacitor-file-picker
+//////////////////
+
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ModalController, Platform, ToastController, IonicModule } from '@ionic/angular';
