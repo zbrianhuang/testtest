@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Upload Sheet Music</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="uploadForm" (ngSubmit)="saveSheetMusic()">
+    <ion-item>
+      <ion-label position="floating">Title</ion-label>
+      <ion-input formControlName="title" type="text" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Author</ion-label>
+      <ion-input formControlName="author" type="text" required></ion-input>
+    </ion-item>
+
+    <ion-item button (click)="selectSheetFile()">
+      <ion-label>Sheet Music (PDF)</ion-label>
+      <ion-note slot="end">{{ sheetFileName || 'Select File' }}</ion-note>
+    </ion-item>
+    <!-- Hidden file input for web/PWA fallback if FilePicker fails or for testing -->
+    <input type="file" #sheetFileInput hidden (change)="handleSheetFileWeb($event)" accept=".pdf"/>
+
+
+    <ion-item button (click)="selectThumbnailFile()">
+      <ion-label>Thumbnail (Image)</ion-label>
+      <ion-note slot="end">{{ thumbnailFileName || 'Select File' }}</ion-note>
+    </ion-item>
+    <!-- Hidden file input for web/PWA fallback -->
+    <input type="file" #thumbnailFileInput hidden (change)="handleThumbnailFileWeb($event)" accept="image/png, image/jpeg"/>
+
+    <ion-button type="submit" expand="block" [disabled]="!uploadForm.valid || !selectedSheetFile || !selectedThumbnailFile">
+      Upload
+    </ion-button>
+  </form>
+</ion-content>

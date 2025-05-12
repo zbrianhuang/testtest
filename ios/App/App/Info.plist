@@ -45,5 +45,19 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>This app needs access to documents to save and manage sheet music files.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to photos to select thumbnails for sheet music.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs access to save thumbnails to your photo library.</string>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+	<key>UISupportsOpeningDocumentsInPlace</key>
+	<true/>
 </dict>
 </plist>
