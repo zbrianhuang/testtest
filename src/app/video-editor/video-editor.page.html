@@ -19,6 +19,15 @@
   <!-- VIDEO PREVIEW -->
   <div class="video-wrapper">
     <video #videoPlayer [src]="videoSrc" playsinline></video>
+    <!-- Template image preview in the same position -->
+    <div
+      class="template-video-preview"
+      *ngIf="selectedTemplateImage"
+      [style.top.px]="templateImagePosition.top"
+      [style.left.px]="templateImagePosition.left"
+    >
+      <img [src]="selectedTemplateImage" alt="Template Preview" />
+    </div>
   </div>
 
   <!-- TIMELINE WITH TRIMMING HANDLES -->

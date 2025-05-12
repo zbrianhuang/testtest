@@ -9,6 +9,7 @@ import {
 import { NavController, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-video-editor',
@@ -32,18 +33,27 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   startTime: number | null = null;
   endTime: number | null = null;
 
-  private isDragging: boolean = false;
-  private dragType: 'start' | 'end' | null = null;
-  private timelineWidth: number = 0;
-  private timelineLeft: number = 0;
+  // Properties for the template picture
+  selectedTemplateImage: string | null = null;
+  templateImagePosition: { top: number; left: number } = { top: 10, left: 10 }; // Default position
 
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Retrieve navigation state
+    this.route.queryParams.subscribe(() => {
+      const navigation = this.navCtrl['router'].getCurrentNavigation();
+      if (navigation?.extras?.state) {
+        this.selectedTemplateImage = navigation.extras.state['selectedTemplateImage'] || null;
+        this.templateImagePosition = navigation.extras.state['templateImagePosition'] || { top: 10, left: 10 };
+      }
+    });
+  }
 
   ngAfterViewInit() {
     const vid = this.videoPlayer.nativeElement;
@@ -68,50 +78,6 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
 
   seek(event: any) {
     this.videoPlayer.nativeElement.currentTime = event.target.value;
-  }
-
-  startTrim(event: MouseEvent, type: 'start' | 'end') {
-    event.preventDefault();
-    this.isDragging = true;
-    this.dragType = type;
-
-    // Update timeline dimensions in case the window has resized
-    const timeline = this.elementRef.nativeElement.querySelector('.timeline');
-    const rect = timeline.getBoundingClientRect();
-    this.timelineWidth = rect.width;
-    this.timelineLeft = rect.left;
-  }
-
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    if (!this.isDragging || !this.dragType) return;
-
-    const vid = this.videoPlayer.nativeElement;
-    const x = event.clientX - this.timelineLeft;
-    let newTime = (x / this.timelineWidth) * this.duration;
-
-    // Ensure newTime stays within bounds
-    if (this.dragType === 'start') {
-      newTime = Math.max(0, Math.min(newTime, this.trimEnd - 0.1)); // Prevent overlap with trimEnd
-      this.trimStart = newTime;
-      if (this.currentTime < this.trimStart) {
-        this.currentTime = this.trimStart;
-        vid.currentTime = this.currentTime;
-      }
-    } else if (this.dragType === 'end') {
-      newTime = Math.min(this.duration, Math.max(newTime, this.trimStart + 0.1)); // Prevent overlap with trimStart
-      this.trimEnd = newTime;
-      if (this.currentTime > this.trimEnd) {
-        this.currentTime = this.trimEnd;
-        vid.currentTime = this.currentTime;
-      }
-    }
-  }
-
-  @HostListener('document:mouseup')
-  onMouseUp() {
-    this.isDragging = false;
-    this.dragType = null;
   }
 
   markInOut() {
@@ -162,5 +128,53 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     } else {
       this.navCtrl.navigateBack('/tabs/home_tab');
     }
+  }
+
+  // Properties and methods for trimming (unchanged from previous implementation)
+  private isDragging: boolean = false;
+  private dragType: 'start' | 'end' | null = null;
+  private timelineWidth: number = 0;
+  private timelineLeft: number = 0;
+
+  startTrim(event: MouseEvent, type: 'start' | 'end') {
+    event.preventDefault();
+    this.isDragging = true;
+    this.dragType = type;
+
+    const timeline = this.elementRef.nativeElement.querySelector('.timeline');
+    const rect = timeline.getBoundingClientRect();
+    this.timelineWidth = rect.width;
+    this.timelineLeft = rect.left;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isDragging || !this.dragType) return;
+
+    const vid = this.videoPlayer.nativeElement;
+    const x = event.clientX - this.timelineLeft;
+    let newTime = (x / this.timelineWidth) * this.duration;
+
+    if (this.dragType === 'start') {
+      newTime = Math.max(0, Math.min(newTime, this.trimEnd - 0.1));
+      this.trimStart = newTime;
+      if (this.currentTime < this.trimStart) {
+        this.currentTime = this.trimStart;
+        vid.currentTime = this.currentTime;
+      }
+    } else if (this.dragType === 'end') {
+      newTime = Math.min(this.duration, Math.max(newTime, this.trimStart + 0.1));
+      this.trimEnd = newTime;
+      if (this.currentTime > this.trimEnd) {
+        this.currentTime = this.trimEnd;
+        vid.currentTime = this.currentTime;
+      }
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    this.isDragging = false;
+    this.dragType = null;
   }
 }

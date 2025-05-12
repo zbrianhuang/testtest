@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { NavController, AlertController } from '@ionic/angular';
+import { Storage } from '@ionic/storage-angular';
 
 @Component({
   selector: 'app-tab2',
@@ -12,19 +13,34 @@ export class Tab2Page implements OnInit {
   selectedMode: 'video' | 'template' = 'video';
   showRecent: boolean = false;
   hasRecorded: boolean = false;
+  selectedTemplateImage: string | null = null;
+
+  // Dragging state
+  private isDragging: boolean = false;
+  private dragStartX: number = 0;
+  private dragStartY: number = 0;
+  templateImagePosition: { top: number; left: number } = { top: 10, left: 10 }; // Default position in pixels
 
   constructor(
     private navCtrl: NavController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private storage: Storage,
+    private elementRef: ElementRef
   ) {}
 
-  ngOnInit() {}
+  async ngOnInit() {
+    // Initialize storage
+    await this.storage.create();
+    // No need to load saved position since we don't want to persist it in Tab2
+  }
 
   ionViewWillEnter() {
     this.isRecording = false;
     this.selectedMode = 'video';
     this.showRecent = false;
     this.hasRecorded = false;
+    this.selectedTemplateImage = null;
+    this.templateImagePosition = { top: 10, left: 10 }; // Reset position on page enter
   }
 
   ionViewWillLeave() {
@@ -32,6 +48,7 @@ export class Tab2Page implements OnInit {
     this.selectedMode = 'video';
     this.showRecent = false;
     this.hasRecorded = false;
+    this.selectedTemplateImage = null;
   }
 
   toggleRecording() {
@@ -47,6 +64,12 @@ export class Tab2Page implements OnInit {
   }
 
   showCamera() {
+    this.showRecent = false;
+  }
+
+  selectTemplateVideo(imageUrl: string) {
+    this.selectedTemplateImage = imageUrl;
+    this.templateImagePosition = { top: 10, left: 10 }; // Reset position when selecting a new template
     this.showRecent = false;
   }
 
@@ -75,6 +98,63 @@ export class Tab2Page implements OnInit {
   }
 
   goToNext() {
-    this.navCtrl.navigateForward('/tabs/video-editor');
+    this.navCtrl.navigateForward('/tabs/video-editor', {
+      state: {
+        selectedTemplateImage: this.selectedTemplateImage,
+        templateImagePosition: this.templateImagePosition
+      }
+    });
+  }
+
+  startDrag(event: MouseEvent | TouchEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+    this.dragStartX = clientX - this.templateImagePosition.left;
+    this.dragStartY = clientY - this.templateImagePosition.top;
+
+    // Add event listeners for mouse/touch move and up events
+    document.addEventListener('mousemove', this.onDrag.bind(this));
+    document.addEventListener('touchmove', this.onDrag.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+    document.addEventListener('touchend', this.stopDrag.bind(this));
+  }
+
+  onDrag(event: MouseEvent | TouchEvent) {
+    if (!this.isDragging) return;
+
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+    // Get the camera-preview boundaries
+    const cameraPreview = this.elementRef.nativeElement.querySelector('.camera-preview');
+    const rect = cameraPreview.getBoundingClientRect();
+
+    // Calculate new position
+    let newLeft = clientX - this.dragStartX;
+    let newTop = clientY - this.dragStartY;
+
+    // Ensure the image stays within the camera-preview boundaries
+    const imageWidth = 100; // Width of the template image (from CSS)
+    const imageHeight = 100; // Height of the template image (from CSS)
+    newLeft = Math.max(0, Math.min(newLeft, rect.width - imageWidth));
+    newTop = Math.max(0, Math.min(newTop, rect.height - imageHeight));
+
+    this.templateImagePosition = { top: newTop, left: newLeft };
+  }
+
+  stopDrag() {
+    this.isDragging = false;
+
+    // Remove event listeners
+    document.removeEventListener('mousemove', this.onDrag.bind(this));
+    document.removeEventListener('touchmove', this.onDrag.bind(this));
+    document.removeEventListener('mouseup', this.stopDrag.bind(this));
+    document.removeEventListener('touchend', this.stopDrag.bind(this));
+
+    // Do not save to storage, so position resets on new template selection
   }
 }

@@ -26,6 +26,17 @@
     <div class="camera-icon">
       <ion-icon name="camera-outline" size="large"></ion-icon>
     </div>
+    <!-- Template image preview in the top corner -->
+    <div
+      class="template-video-preview"
+      *ngIf="selectedTemplateImage"
+      [style.top.px]="templateImagePosition.top"
+      [style.left.px]="templateImagePosition.left"
+      (mousedown)="startDrag($event)"
+      (touchstart)="startDrag($event)"
+    >
+      <img [src]="selectedTemplateImage" alt="Template Preview" />
+    </div>
   </div>
 
   <!-- Recent videos or templates section -->
@@ -47,33 +58,57 @@
       <div class="category">
         <h3>Band</h3>
         <div class="video-grid">
-          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
-          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
-          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post1.jpg')">
+            <img src="assets/icon/post1.jpg" alt="Template 1" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post2.png')">
+            <img src="assets/icon/post2.png" alt="Template 2" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post3.jpg')">
+            <img src="assets/icon/post3.jpg" alt="Template 3" />
+          </div>
         </div>
       </div>
       <div class="category">
         <h3>Accapella</h3>
         <div class="video-grid">
-          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
-          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
-          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post1.jpg')">
+            <img src="assets/icon/post1.jpg" alt="Template 1" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post2.png')">
+            <img src="assets/icon/post2.png" alt="Template 2" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post3.jpg')">
+            <img src="assets/icon/post3.jpg" alt="Template 3" />
+          </div>
         </div>
       </div>
       <div class="category">
         <h3>Duo</h3>
         <div class="video-grid">
-          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
-          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
-          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post1.jpg')">
+            <img src="assets/icon/post1.jpg" alt="Template 1" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post2.png')">
+            <img src="assets/icon/post2.png" alt="Template 2" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post3.jpg')">
+            <img src="assets/icon/post3.jpg" alt="Template 3" />
+          </div>
         </div>
       </div>
       <div class="category">
         <h3>Trio</h3>
         <div class="video-grid">
-          <div class="video-item"><img src="assets/icon/post1.jpg" alt="Template 1" /></div>
-          <div class="video-item"><img src="assets/icon/post2.png" alt="Template 2" /></div>
-          <div class="video-item"><img src="assets/icon/post3.jpg" alt="Template 3" /></div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post1.jpg')">
+            <img src="assets/icon/post1.jpg" alt="Template 1" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post2.png')">
+            <img src="assets/icon/post2.png" alt="Template 2" />
+          </div>
+          <div class="video-item" (click)="selectTemplateVideo('assets/icon/post3.jpg')">
+            <img src="assets/icon/post3.jpg" alt="Template 3" />
+          </div>
         </div>
       </div>
     </div>
