@@ -2,7 +2,8 @@ import { Component ,OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http'; // Import HttpClient
 import { Observable } from 'rxjs'; // Optional for typing
 import { catchError } from 'rxjs/operators'; // Optional for error handling
-
+import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 interface SheetMusic {
   title: string;
   author: string;
@@ -26,9 +27,13 @@ export class Tab1Page implements OnInit { // Implement OnInit
   uploadAuthor: string = '';
   selectedFile: File | null = null;
   selectedFileName: string = ''; // To display the selected file name
+  router: any;
 
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+        private toastController: ToastController,
+  ) {}
 
   ngOnInit() {
     this.loadSheetMusicData();
@@ -36,11 +41,15 @@ export class Tab1Page implements OnInit { // Implement OnInit
   test(){
     alert(":)");
   }
-  upload_notif(param:string){
-    alert("File uploaded");
+  async upload_notif(param:string){
 
-    const dataUrl = 'assets/data/sheetmusic.json'; // Path to your JSON
-   //ya no 
+    const toast = await this.toastController.create({
+      message: 'Sheet Music Successfully updated!',
+      duration: 2000,
+      color: 'success',
+    });
+    toast.present();
+  
   }
   loadSheetMusicData() {
     this.isLoading = true;

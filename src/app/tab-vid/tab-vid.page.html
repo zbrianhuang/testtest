@@ -23,14 +23,12 @@
   <div class="info-container ion-padding">
 
     <ion-grid>
-      <ion-button (click)="send_alert('You liked this video!')">
-        
-        <ion-icon name="heart-outline"></ion-icon>
+      <ion-button (click)="like_video()" [disabled]="liked">
+        <ion-icon [name]="liked ? 'heart' : 'heart-outline'"></ion-icon>
       </ion-button> 
-      <ion-button (click)="send_alert('You saved this video!')">
-        <ion-icon name="folder-outline"></ion-icon>
+      <ion-button (click)="save_video()" [disabled]="saved">
+        <ion-icon [name]="saved ? 'folder' : 'folder-outline'"></ion-icon>
       </ion-button> 
-
     </ion-grid>
     <h1>{{ title }}</h1>
     <h2>Original Artist: {{ artist }}</h2>
