@@ -128,13 +128,13 @@
 
 <ion-footer>
   <ion-toolbar class="recording-bar">
-    <ion-button slot="start" fill="clear" (click)="setMode('video')" [class.active]="selectedMode === 'video'">
+    <ion-button class="video-button" fill="clear" (click)="setMode('video')" [class.active]="selectedMode === 'video' && showRecent">
       Video
     </ion-button>
-    <ion-button fill="clear" (click)="showCamera()" [class.active]="!showRecent">
+    <ion-button class="recording-button" fill="clear" (click)="showCamera()" [class.active]="!showRecent">
       Recording
     </ion-button>
-    <ion-button slot="end" fill="clear" (click)="setMode('template')" [class.active]="selectedMode === 'template'">
+    <ion-button class="template-button" fill="clear" (click)="setMode('template')" [class.active]="selectedMode === 'template' && showRecent">
       Template
     </ion-button>
   </ion-toolbar>

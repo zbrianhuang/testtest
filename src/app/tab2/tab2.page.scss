@@ -91,7 +91,9 @@ ion-footer {
   ion-toolbar.recording-bar {
     --background: #f5f5f5; /* Light beige background */
     display: flex;
-    justify-content: space-between; /* Center the buttons */
+    flex-direction: row; /* Ensure row layout */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    justify-content: space-between; /* Pin Video and Template to edges */
     align-items: center;
     padding: 0 10px;
     z-index: 5; /* Ensure footer is behind the grid */
@@ -103,6 +105,20 @@ ion-footer {
         text-decoration: underline;
         font-weight: bold;
       }
+      flex: 0 0 auto; /* Prevent buttons from stretching */
+      padding: 0 15px; /* Add padding to ensure even spacing */
+    }
+
+    .video-button {
+      margin-right: auto; /* Push to the left */
+    }
+
+    .recording-button {
+      margin: 0 auto; /* Center the Recording button */
+    }
+
+    .template-button {
+      margin-left: auto; /* Push to the right */
     }
   }
 }
