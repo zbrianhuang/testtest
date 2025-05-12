@@ -21,15 +21,30 @@
     <video #videoPlayer [src]="videoSrc" playsinline></video>
   </div>
 
-  <!-- TIMELINE SLIDER -->
-  <ion-range
-    class="editor-range"
-    [min]="0"
-    [max]="duration"
-    [step]="0.1"
-    [value]="currentTime"
-    (ionChange)="seek($event)"
-  ></ion-range>
+  <!-- TIMELINE WITH TRIMMING HANDLES -->
+  <div class="timeline-container">
+    <div class="timeline">
+      <!-- Placeholder thumbnails for the video timeline -->
+      <div class="timeline-thumbnails">
+        <div class="thumbnail" *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"></div>
+      </div>
+      <!-- Trimming handles -->
+      <div class="trim-handles">
+        <div class="trim-start" (mousedown)="startTrim($event, 'start')"></div>
+        <div class="trim-end" (mousedown)="startTrim($event, 'end')"></div>
+      </div>
+      <!-- Seek bar within the trimmed area -->
+      <input
+        type="range"
+        class="seek-bar"
+        [min]="trimStart"
+        [max]="trimEnd"
+        [step]="0.1"
+        [value]="currentTime"
+        (input)="seek($event)"
+      />
+    </div>
+  </div>
 
   <!-- TOOLBAR -->
   <div class="editor-tools">

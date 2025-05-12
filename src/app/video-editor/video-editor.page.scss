@@ -26,6 +26,7 @@
   flex-direction: column;
   height: 100%;
   background: #fff;
+  position: relative; /* Ensure ion-content is a positioning context */
 }
 
 /* VIDEO PREVIEW */
@@ -44,20 +45,88 @@
   object-fit: cover;
 }
 
-/* SLIDER */
-.editor-range {
-  margin: 16px;
+/* TIMELINE WITH TRIMMING HANDLES */
+.timeline-container {
+  padding: 16px;
+  background: #fff;
+}
+
+.timeline {
+  position: relative;
+  height: 60px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.timeline-thumbnails {
+  display: flex;
+  height: 100%;
+  .thumbnail {
+    flex: 1;
+    background: #ccc; /* Placeholder for video thumbnails */
+    border-right: 1px solid #999;
+  }
+}
+
+.trim-handles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  .trim-start, .trim-end {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    background: #fff;
+    border: 2px solid #ffcc00; /* Yellow handles like iPhone editor */
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .trim-start {
+    left: 0;
+  }
+  .trim-end {
+    right: 0;
+  }
+}
+
+.seek-bar {
+  position: absolute;
+  top: 0;
+  left: 10px; /* Match trim-start width */
+  right: 10px; /* Match trim-end width */
+  height: 100%;
+  -webkit-appearance: none;
+  background: transparent;
+  outline: none;
+}
+
+.seek-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 6px;
+  height: 60px;
+  background: #fff;
+  border: 1px solid #000;
+  cursor: pointer;
 }
 
 /* EDITOR TOOLS */
 .editor-tools {
+  position: absolute; /* Position at the bottom of ion-content */
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 12px 0;
   background: #fff;
+  border-top: 1px solid #ccc; /* Add a subtle border to separate from content */
 }
 
+/* Ensure buttons inside editor-tools remain unaffected */
 .editor-tools ion-button {
   --padding: 0;
 }

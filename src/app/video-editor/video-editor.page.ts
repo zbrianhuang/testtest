@@ -3,7 +3,8 @@ import {
   OnInit,
   AfterViewInit,
   ViewChild,
-  ElementRef
+  ElementRef,
+  HostListener
 } from '@angular/core';
 import { NavController, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
@@ -25,21 +26,38 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   isMuted = false;
   duration = 0;
   currentTime = 0;
+  trimStart = 0;
+  trimEnd = 0;
 
   startTime: number | null = null;
   endTime: number | null = null;
 
+  private isDragging: boolean = false;
+  private dragType: 'start' | 'end' | null = null;
+  private timelineWidth: number = 0;
+  private timelineLeft: number = 0;
+
   constructor(
     private navCtrl: NavController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private elementRef: ElementRef
   ) {}
 
   ngOnInit() {}
 
   ngAfterViewInit() {
     const vid = this.videoPlayer.nativeElement;
-    vid.onloadedmetadata = () => (this.duration = vid.duration);
+    vid.onloadedmetadata = () => {
+      this.duration = vid.duration;
+      this.trimEnd = this.duration; // Initialize trimEnd to the video duration
+    };
     vid.ontimeupdate = () => (this.currentTime = vid.currentTime);
+
+    // Get timeline dimensions after view initialization
+    const timeline = this.elementRef.nativeElement.querySelector('.timeline');
+    const rect = timeline.getBoundingClientRect();
+    this.timelineWidth = rect.width;
+    this.timelineLeft = rect.left;
   }
 
   togglePlay() {
@@ -49,7 +67,51 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   }
 
   seek(event: any) {
-    this.videoPlayer.nativeElement.currentTime = event.detail.value;
+    this.videoPlayer.nativeElement.currentTime = event.target.value;
+  }
+
+  startTrim(event: MouseEvent, type: 'start' | 'end') {
+    event.preventDefault();
+    this.isDragging = true;
+    this.dragType = type;
+
+    // Update timeline dimensions in case the window has resized
+    const timeline = this.elementRef.nativeElement.querySelector('.timeline');
+    const rect = timeline.getBoundingClientRect();
+    this.timelineWidth = rect.width;
+    this.timelineLeft = rect.left;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isDragging || !this.dragType) return;
+
+    const vid = this.videoPlayer.nativeElement;
+    const x = event.clientX - this.timelineLeft;
+    let newTime = (x / this.timelineWidth) * this.duration;
+
+    // Ensure newTime stays within bounds
+    if (this.dragType === 'start') {
+      newTime = Math.max(0, Math.min(newTime, this.trimEnd - 0.1)); // Prevent overlap with trimEnd
+      this.trimStart = newTime;
+      if (this.currentTime < this.trimStart) {
+        this.currentTime = this.trimStart;
+        vid.currentTime = this.currentTime;
+      }
+    } else if (this.dragType === 'end') {
+      newTime = Math.min(this.duration, Math.max(newTime, this.trimStart + 0.1)); // Prevent overlap with trimStart
+      this.trimEnd = newTime;
+      if (this.currentTime > this.trimEnd) {
+        this.currentTime = this.trimEnd;
+        vid.currentTime = this.currentTime;
+      }
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    this.isDragging = false;
+    this.dragType = null;
   }
 
   markInOut() {
@@ -82,11 +144,6 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.videoPlayer.nativeElement.muted = this.isMuted;
   }
 
-  /** 
-   * Called by the back-chevron. 
-   * If any progress (mark start/end) exists, asks to discard.
-   * Otherwise just navigates back.
-   */
   async closeEditor() {
     if (this.startTime !== null || this.endTime !== null) {
       const alert = await this.alertController.create({
