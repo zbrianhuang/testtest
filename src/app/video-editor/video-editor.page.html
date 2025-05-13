@@ -1,7 +1,6 @@
 <ion-header>
   <ion-toolbar class="editor-header">
     <ion-buttons slot="start">
-      <!-- now calls closeEditor() -->
       <ion-button fill="clear" (click)="closeEditor()">
         <ion-icon name="chevron-back-outline"></ion-icon>
       </ion-button>
@@ -18,7 +17,7 @@
 <ion-content class="editor-content">
   <!-- VIDEO PREVIEW -->
   <div class="video-wrapper">
-    <video #videoPlayer [src]="videoSrc" playsinline></video>
+    <video #videoPlayer [src]="videoSrc" playsinline preload="metadata"></video>
     <!-- Template image preview in the same position -->
     <div
       class="template-video-preview"
@@ -28,30 +27,64 @@
     >
       <img [src]="selectedTemplateImage" alt="Template Preview" />
     </div>
+    <!-- Crop rectangle overlay -->
+    <div
+      class="crop-rectangle"
+      [style.left.px]="cropRect.x"
+      [style.top.px]="cropRect.y"
+      [style.width.px]="cropRect.width"
+      [style.height.px]="cropRect.height"
+    >
+      <!-- Resize handles -->
+      <div class="resize-handle top-left" (mousedown)="startResize($event, 'top-left')" (touchstart)="startResize($event, 'top-left')"></div>
+      <div class="resize-handle top-right" (mousedown)="startResize($event, 'top-right')" (touchstart)="startResize($event, 'top-right')"></div>
+      <div class="resize-handle bottom-left" (mousedown)="startResize($event, 'bottom-left')" (touchstart)="startResize($event, 'bottom-left')"></div>
+      <div class="resize-handle bottom-right" (mousedown)="startResize($event, 'bottom-right')" (touchstart)="startResize($event, 'bottom-right')"></div>
+    </div>
   </div>
 
-  <!-- TIMELINE WITH TRIMMING HANDLES -->
+  <!-- TIMELINE FOR TRIMMING -->
   <div class="timeline-container">
-    <div class="timeline">
-      <!-- Placeholder thumbnails for the video timeline -->
-      <div class="timeline-thumbnails">
-        <div class="thumbnail" *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"></div>
+    <div class="timeline" (mousedown)="startTrim($event, 'scrub')" (touchstart)="startTrim($event, 'scrub')">
+      <!-- Thumbnails for the video timeline -->
+      <div class="timeline-thumbnails" *ngIf="thumbnailsLoaded; else loadingThumbnails">
+        <img *ngFor="let thumbnail of thumbnails" [src]="thumbnail" class="thumbnail" />
       </div>
+      <ng-template #loadingThumbnails>
+        <div class="loading-thumbnails">
+          Loading thumbnails...
+        </div>
+      </ng-template>
+      <!-- Trimmed area overlays -->
+      <div
+        class="trimmed-area trimmed-start"
+        [style.width]="(trimStart / duration) * 100 + '%'"
+      ></div>
+      <div
+        class="trimmed-area trimmed-end"
+        [style.width]="((duration - trimEnd) / duration) * 100 + '%'"
+      ></div>
+      <!-- Selected range border -->
+      <div
+        class="selected-range"
+        [style.left]="(trimStart / duration) * 100 + '%'"
+        [style.width]="((trimEnd - trimStart) / duration) * 100 + '%'"
+      ></div>
+      <!-- Playhead -->
+      <div
+        class="playhead"
+        [style.left]="((currentTime - trimStart) / (trimEnd - trimStart)) * 100 + '%'"
+        *ngIf="currentTime >= trimStart && currentTime <= trimEnd"
+      ></div>
       <!-- Trimming handles -->
       <div class="trim-handles">
-        <div class="trim-start" (mousedown)="startTrim($event, 'start')"></div>
-        <div class="trim-end" (mousedown)="startTrim($event, 'end')"></div>
+        <div class="trim-start" (mousedown)="startTrim($event, 'start')" (touchstart)="startTrim($event, 'start')">
+          <span class="trim-time">{{ trimStart | number:'1.1-1' }}s</span>
+        </div>
+        <div class="trim-end" (mousedown)="startTrim($event, 'end')" (touchstart)="startTrim($event, 'end')">
+          <span class="trim-time">{{ trimEnd | number:'1.1-1' }}s</span>
+        </div>
       </div>
-      <!-- Seek bar within the trimmed area -->
-      <input
-        type="range"
-        class="seek-bar"
-        [min]="trimStart"
-        [max]="trimEnd"
-        [step]="0.1"
-        [value]="currentTime"
-        (input)="seek($event)"
-      />
     </div>
   </div>
 
@@ -65,11 +98,6 @@
     <!-- Speed control -->
     <ion-button fill="clear" (click)="toggleSpeed()">
       <ion-icon name="speedometer-outline"></ion-icon>
-    </ion-button>
-
-    <!-- Mark Start / End -->
-    <ion-button fill="clear" (click)="markInOut()">
-      <ion-icon name="swap-horizontal-outline"></ion-icon>
     </ion-button>
 
     <!-- Rotate clip -->
