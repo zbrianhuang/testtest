@@ -19,12 +19,12 @@ export class S3Service {
     });
   }
 
-  private async fileToBuffer(file: File): Promise<Uint8Array> {
+  private async fileToBuffer(file: File): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
         if (reader.result instanceof ArrayBuffer) {
-          resolve(new Uint8Array(reader.result));
+          resolve(Buffer.from(reader.result));
         } else {
           reject(new Error('Failed to convert file to buffer'));
         }
@@ -36,20 +36,31 @@ export class S3Service {
 
   async uploadVideo(file: File): Promise<string> {
     const key = `videos/${Date.now()}-${file.name}`;
-    const fileBuffer = await this.fileToBuffer(file);
     
-    const command = new PutObjectCommand({
-      Bucket: environment.aws.bucketName,
-      Key: key,
-      Body: fileBuffer,
-      ContentType: file.type
-    });
-
     try {
-      await this.s3Client.send(command);
-      return key;
+      // Convert file to buffer
+      const fileBuffer = await this.fileToBuffer(file);
+      
+      // Upload the file to S3
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: environment.aws.bucketName,
+          Key: key,
+          Body: fileBuffer,
+          ContentType: file.type
+        })
+      );
+
+      // Generate a signed URL for the uploaded file
+      const command = new GetObjectCommand({
+        Bucket: environment.aws.bucketName,
+        Key: key
+      });
+      
+      const url = await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+      return url;
     } catch (error) {
-      console.error('Error uploading video:', error);
+      console.error('Error uploading to S3:', error);
       throw error;
     }
   }
