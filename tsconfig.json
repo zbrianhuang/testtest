@@ -23,7 +23,7 @@
       "dom"
     ],
     "useDefineForClassFields": false,
-    "types": ["node"],
+    "types": ["node", "jasmine"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
