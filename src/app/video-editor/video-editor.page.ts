@@ -7,8 +7,9 @@ import {
   HostListener,
   ChangeDetectorRef
 } from '@angular/core';
-import { NavController, AlertController } from '@ionic/angular';
+import { NavController, AlertController, RangeCustomEvent } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './video-editor.page.html',
   styleUrls: ['./video-editor.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, FormsModule]
 })
 export class VideoEditorPage implements OnInit, AfterViewInit {
   @ViewChild('videoPlayer', { static: false })
@@ -56,6 +57,15 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   startY = 0;
   videoWrapperRect: DOMRect | null = null;
 
+  // Add rotation property
+  currentRotation: number = 0;
+
+  // Volume control properties
+  volumeLevel: number = 100;
+  isVolumeSliderVisible: boolean = false;
+  previousVolume: number = 100;
+  private startVolume = 0;
+
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
@@ -77,6 +87,9 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   async ngAfterViewInit() {
     const vid = this.videoPlayer.nativeElement;
     vid.load();
+
+    // Initialize volume
+    vid.volume = this.volumeLevel / 100;
 
     await new Promise<void>((resolve) => {
       const onMetadataLoaded = () => {
@@ -136,10 +149,15 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
       return;
     }
 
-    const thumbnailCount = 8;
+    // Get the timeline width to determine optimal thumbnail count
+    const timeline = this.elementRef.nativeElement.querySelector('.timeline');
+    const timelineWidth = timeline ? timeline.offsetWidth : 400;
+    const thumbnailCount = Math.max(12, Math.floor(timelineWidth / 60)); // At least 12 thumbnails, or one per 60px
     const interval = this.duration / thumbnailCount;
-    const thumbnailWidth = 50;
-    const thumbnailHeight = 50;
+
+    // Set thumbnail size based on timeline height
+    const thumbnailHeight = timeline ? timeline.offsetHeight : 60;
+    const thumbnailWidth = Math.ceil(thumbnailHeight * (16/9)); // Maintain 16:9 aspect ratio
 
     canvas.width = thumbnailWidth;
     canvas.height = thumbnailHeight;
@@ -192,10 +210,47 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   }
 
   toggleSpeed() { alert('Speed control (stub)'); }
-  rotateClip() { alert('Rotate clip (stub)'); }
+  rotateClip() {
+    this.currentRotation = (this.currentRotation + 90) % 360;
+    const video = this.videoPlayer.nativeElement;
+    const wrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
+    
+    if (video && wrapper) {
+      video.style.transform = `rotate(${this.currentRotation}deg)`;
+      
+      // Adjust video size based on rotation
+      if (this.currentRotation % 180 === 90) {
+        // For 90 and 270 degrees, swap width and height to maintain aspect ratio
+        const wrapperWidth = wrapper.offsetWidth;
+        const wrapperHeight = wrapper.offsetHeight;
+        const scale = Math.min(wrapperHeight / video.videoWidth, wrapperWidth / video.videoHeight);
+        
+        video.style.width = video.videoHeight * scale + 'px';
+        video.style.height = video.videoWidth * scale + 'px';
+      } else {
+        // For 0 and 180 degrees, reset to normal dimensions
+        video.style.width = '100%';
+        video.style.height = '100%';
+      }
+    }
+  }
   toggleMute() {
-    this.isMuted = !this.isMuted;
-    this.videoPlayer.nativeElement.muted = this.isMuted;
+    if (this.volumeLevel > 0) {
+      this.previousVolume = this.volumeLevel;
+      this.volumeLevel = 0;
+    } else {
+      this.volumeLevel = this.previousVolume || 100;
+    }
+    this.videoPlayer.nativeElement.volume = this.volumeLevel / 100;
+    this.isVolumeSliderVisible = !this.isVolumeSliderVisible;
+    this.cdr.detectChanges();
+  }
+
+  onVolumeChange(event: RangeCustomEvent) {
+    const volume = Math.round(event.detail.value as number);
+    this.volumeLevel = volume;
+    this.videoPlayer.nativeElement.volume = volume / 100;
+    this.cdr.detectChanges();
   }
 
   exportVideo() {
@@ -348,5 +403,65 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.cropRect = { x: newX, y: newY, width: newWidth, height: newHeight };
     this.startX = clientX;
     this.startY = clientY;
+  }
+
+  getVolumeIcon(): string {
+    if (this.volumeLevel === 0) {
+      return 'volume-mute-outline';
+    } else if (this.volumeLevel < 33) {
+      return 'volume-low-outline';
+    } else if (this.volumeLevel < 67) {
+      return 'volume-medium-outline';
+    } else {
+      return 'volume-high-outline';
+    }
+  }
+
+  preventScroll(event: TouchEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  preventClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.classList.contains('range-knob')) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  @HostListener('touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('range-knob')) {
+      this.isDragging = true;
+      this.startY = event.touches[0].clientY;
+      this.startVolume = this.volumeLevel;
+      event.preventDefault();
+    }
+  }
+
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (!this.isDragging) return;
+
+    const deltaY = this.startY - event.touches[0].clientY;
+    const volumeChange = (deltaY / 110) * 100; // 110px is the height of our slider
+    let newVolume = this.startVolume + volumeChange;
+    
+    // Clamp the volume between 0 and 100
+    newVolume = Math.max(0, Math.min(100, newVolume));
+    
+    this.volumeLevel = Math.round(newVolume);
+    this.videoPlayer.nativeElement.volume = this.volumeLevel / 100;
+    this.cdr.detectChanges();
+    
+    event.preventDefault();
+  }
+
+  @HostListener('touchend')
+  @HostListener('touchcancel')
+  onTouchEnd() {
+    this.isDragging = false;
   }
 }

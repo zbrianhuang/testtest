@@ -105,9 +105,26 @@
       <ion-icon name="repeat-outline"></ion-icon>
     </ion-button>
 
-    <!-- Mute/unmute -->
-    <ion-button fill="clear" (click)="toggleMute()">
-      <ion-icon [name]="isMuted ? 'volume-mute-outline' : 'volume-high-outline'"></ion-icon>
-    </ion-button>
+    <!-- Volume control -->
+    <div class="volume-control">
+      <ion-button fill="clear" (click)="toggleMute()">
+        <ion-icon [name]="getVolumeIcon()"></ion-icon>
+      </ion-button>
+      <div class="volume-slider-container" [class.show-slider]="isVolumeSliderVisible">
+        <div class="volume-value">{{ volumeLevel }}%</div>
+        <ion-range
+          [(ngModel)]="volumeLevel"
+          (ionChange)="onVolumeChange($event)"
+          min="0"
+          max="100"
+          step="1"
+          class="volume-slider"
+          [snaps]="false"
+          [pin]="false"
+          [ticks]="false"
+          debounce="0">
+        </ion-range>
+      </div>
+    </div>
   </div>
 </ion-content>
