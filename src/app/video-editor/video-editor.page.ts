@@ -7,11 +7,12 @@ import {
   HostListener,
   ChangeDetectorRef
 } from '@angular/core';
-import { NavController, AlertController, RangeCustomEvent } from '@ionic/angular';
+import { NavController, AlertController, RangeCustomEvent, IonModal } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
+import { VideoService } from '../services/video.service';
 
 @Component({
   selector: 'app-video-editor',
@@ -23,6 +24,8 @@ import { ActivatedRoute } from '@angular/router';
 export class VideoEditorPage implements OnInit, AfterViewInit {
   @ViewChild('videoPlayer', { static: false })
   videoPlayer!: ElementRef<HTMLVideoElement>;
+
+  @ViewChild('stitchingModal') stitchingModal!: IonModal;
 
   videoSrc = 'assets/videos/annie_wave_to_earth.mp4';
   isPlaying = false;
@@ -66,12 +69,17 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   previousVolume: number = 100;
   private startVolume = 0;
 
+  isStitchingModalOpen = false;
+  selectedVideos: { file: File; preview: string }[] = [];
+  isStitching = false;
+
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
     private elementRef: ElementRef,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private videoService: VideoService
   ) {}
 
   async ngOnInit() {
@@ -463,5 +471,82 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   @HostListener('touchcancel')
   onTouchEnd() {
     this.isDragging = false;
+  }
+
+  async openVideoStitchingModal() {
+    this.isStitchingModalOpen = true;
+  }
+
+  closeStitchingModal() {
+    this.isStitchingModalOpen = false;
+    this.selectedVideos = [];
+    this.isStitching = false;
+  }
+
+  async addVideo() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.multiple = false;
+
+    input.onchange = async (e: Event) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const preview = URL.createObjectURL(file);
+        this.selectedVideos.push({ file, preview });
+        this.cdr.detectChanges();
+      }
+    };
+
+    input.click();
+  }
+
+  removeVideo(index: number) {
+    URL.revokeObjectURL(this.selectedVideos[index].preview);
+    this.selectedVideos.splice(index, 1);
+  }
+
+  async startStitching() {
+    if (this.selectedVideos.length < 2) {
+      return;
+    }
+
+    try {
+      this.isStitching = true;
+      const files = this.selectedVideos.map(v => v.file);
+      const stitchedVideo = await this.videoService.stitchVideos(files);
+      
+      // Create a preview of the stitched video
+      const videoUrl = URL.createObjectURL(stitchedVideo);
+      
+      // Clean up old previews
+      this.selectedVideos.forEach(v => URL.revokeObjectURL(v.preview));
+      this.selectedVideos = [];
+      
+      // Update the video player with the stitched video
+      this.videoSrc = videoUrl;
+      this.videoPlayer.nativeElement.load();
+      
+      // Close the modal
+      this.closeStitchingModal();
+      
+      const alert = await this.alertController.create({
+        header: 'Success',
+        message: 'Videos have been successfully combined!',
+        buttons: ['OK']
+      });
+      await alert.present();
+      
+    } catch (error) {
+      console.error('Error stitching videos:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to combine videos. Please try again.',
+        buttons: ['OK']
+      });
+      await alert.present();
+    } finally {
+      this.isStitching = false;
+    }
   }
 }

@@ -126,5 +126,55 @@
         </ion-range>
       </div>
     </div>
+
+    <!-- Add this button to the editor-tools section -->
+    <ion-button (click)="openVideoStitchingModal()" fill="clear">
+      <ion-icon name="add-circle-outline"></ion-icon>
+    </ion-button>
   </div>
 </ion-content>
+
+<!-- Add this modal template -->
+<ion-modal #stitchingModal [isOpen]="isStitchingModalOpen">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Stitch Videos</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeStitchingModal()">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <ion-list>
+        <ion-item *ngFor="let video of selectedVideos; let i = index">
+          <ion-thumbnail slot="start">
+            <video [src]="video.preview" style="width: 100%; height: 100%;"></video>
+          </ion-thumbnail>
+          <ion-label>
+            <h2>Video {{i + 1}}</h2>
+            <p>{{video.file.name}}</p>
+          </ion-label>
+          <ion-button slot="end" fill="clear" color="danger" (click)="removeVideo(i)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+
+        <ion-item *ngIf="selectedVideos.length < 5">
+          <ion-button expand="block" (click)="addVideo()">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Add Video
+          </ion-button>
+        </ion-item>
+      </ion-list>
+
+      <ion-button expand="block" 
+                  [disabled]="selectedVideos.length < 2 || isStitching"
+                  (click)="startStitching()">
+        <ion-spinner *ngIf="isStitching"></ion-spinner>
+        <span *ngIf="!isStitching">Stitch Videos</span>
+      </ion-button>
+    </ion-content>
+  </ng-template>
+</ion-modal>
