@@ -46,6 +46,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   // Properties for the template picture
   selectedTemplateImage: string | null = null;
   templateImagePosition: { top: number; left: number } = { top: 10, left: 10 };
+  private initialTemplatePosition: { top: number; left: number } | null = null;
 
   // Crop rectangle properties
   cropRect = {
@@ -73,6 +74,11 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   selectedVideos: { file: File; preview: string }[] = [];
   isStitching = false;
 
+  // Template dragging functionality
+  private isDraggingTemplate = false;
+  private dragStartX = 0;
+  private dragStartY = 0;
+
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
@@ -83,13 +89,35 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   ) {}
 
   async ngOnInit() {
-    this.route.queryParams.subscribe(() => {
+    this.route.queryParams.subscribe(async () => {
       const navigation = this.navCtrl['router'].getCurrentNavigation();
       if (navigation?.extras?.state) {
         this.selectedTemplateImage = navigation.extras.state['selectedTemplateImage'] || null;
-        this.templateImagePosition = navigation.extras.state['templateImagePosition'] || { top: 10, left: 10 };
+        this.initialTemplatePosition = navigation.extras.state['templateImagePosition'] || { top: 10, left: 10 };
+        
+        // Wait for the view to be ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+        this.updateTemplatePosition();
       }
     });
+  }
+
+  private updateTemplatePosition() {
+    if (this.selectedTemplateImage && this.initialTemplatePosition) {
+      const videoWrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
+      if (videoWrapper) {
+        // Use the percentages directly since they're already in percentage format
+        this.templateImagePosition = {
+          top: this.initialTemplatePosition.top,
+          left: this.initialTemplatePosition.left
+        };
+      }
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.updateTemplatePosition();
   }
 
   async ngAfterViewInit() {
@@ -325,7 +353,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   onMouseMove(event: MouseEvent | TouchEvent) {
     if (this.isResizing) {
       event.preventDefault();
-      this.onResize(event);
+      this.onResizeCrop(event);
     }
   }
 
@@ -378,7 +406,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.startY = clientY;
   }
 
-  onResize(event: MouseEvent | TouchEvent) {
+  onResizeCrop(event: MouseEvent | TouchEvent) {
     if (!this.isResizing || !this.resizeHandle || !this.videoWrapperRect) return;
 
     const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
@@ -548,5 +576,69 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     } finally {
       this.isStitching = false;
     }
+  }
+
+  startDrag(event: MouseEvent | TouchEvent) {
+    event.preventDefault();
+    this.isDraggingTemplate = true;
+
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+    // Store the initial position
+    this.dragStartX = clientX;
+    this.dragStartY = clientY;
+
+    // Add event listeners
+    if (event instanceof MouseEvent) {
+      document.addEventListener('mousemove', this.onDrag.bind(this));
+      document.addEventListener('mouseup', this.stopDrag.bind(this));
+    } else {
+      document.addEventListener('touchmove', this.onDrag.bind(this));
+      document.addEventListener('touchend', this.stopDrag.bind(this));
+    }
+  }
+
+  onDrag(event: MouseEvent | TouchEvent) {
+    if (!this.isDraggingTemplate) return;
+
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+    const videoWrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
+    if (!videoWrapper) return;
+
+    const rect = videoWrapper.getBoundingClientRect();
+    
+    // Calculate the change in position
+    const deltaX = clientX - this.dragStartX;
+    const deltaY = clientY - this.dragStartY;
+
+    // Update the position in percentages
+    let newLeft = (this.templateImagePosition.left + (deltaX / rect.width) * 100);
+    let newTop = (this.templateImagePosition.top + (deltaY / rect.height) * 100);
+
+    // Clamp the values between 0 and 100
+    newLeft = Math.max(0, Math.min(100, newLeft));
+    newTop = Math.max(0, Math.min(100, newTop));
+
+    this.templateImagePosition = {
+      left: newLeft,
+      top: newTop
+    };
+
+    // Update the start position for the next move
+    this.dragStartX = clientX;
+    this.dragStartY = clientY;
+  }
+
+  stopDrag() {
+    this.isDraggingTemplate = false;
+
+    // Remove event listeners
+    document.removeEventListener('mousemove', this.onDrag.bind(this));
+    document.removeEventListener('touchmove', this.onDrag.bind(this));
+    document.removeEventListener('mouseup', this.stopDrag.bind(this));
+    document.removeEventListener('touchend', this.stopDrag.bind(this));
   }
 }

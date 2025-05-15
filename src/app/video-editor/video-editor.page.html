@@ -19,14 +19,13 @@
   <div class="video-wrapper">
     <video #videoPlayer [src]="videoSrc" playsinline preload="metadata"></video>
     <!-- Template image preview in the same position -->
-    <div
-      class="template-video-preview"
-      *ngIf="selectedTemplateImage"
-      [style.top.px]="templateImagePosition.top"
-      [style.left.px]="templateImagePosition.left"
-    >
-      <img [src]="selectedTemplateImage" alt="Template Preview" />
-    </div>
+    <img *ngIf="selectedTemplateImage" 
+         [src]="selectedTemplateImage" 
+         class="template-image"
+         [style.--left]="templateImagePosition.left"
+         [style.--top]="templateImagePosition.top"
+         (mousedown)="startDrag($event)"
+         (touchstart)="startDrag($event)">
     <!-- Crop rectangle overlay -->
     <div
       class="crop-rectangle"
