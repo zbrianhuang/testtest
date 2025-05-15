@@ -32,15 +32,15 @@
 /* VIDEO PREVIEW */
 .video-wrapper {
   position: relative;
-  padding-top: 56.25%; /* 16:9 aspect */
   background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: auto;
-  height: 100vh;
-  max-height: 60vh; /* Limit the height to prevent the video from being too large */
-  padding-top: 0; /* Remove the aspect ratio padding since we're using a fixed height */
+  margin: 16px;
+  height: calc(100vh - 32px);
+  max-height: calc(60vh - 32px);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 /* Template image preview in the same position */
@@ -63,7 +63,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* This will maintain aspect ratio while fitting within the container */
+  object-fit: contain;
 }
 
 /* Crop rectangle overlay */
