@@ -105,18 +105,18 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
       this.cdr.detectChanges();
     };
 
+    // Initialize the video wrapper rect and crop rectangle
     const videoWrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
     if (videoWrapper) {
       this.videoWrapperRect = videoWrapper.getBoundingClientRect();
-      this.cropRect = {
-        x: 0,
-        y: 0,
-        width: this.videoWrapperRect?.width || 0,
-        height: this.videoWrapperRect?.height || 0
-      };
-    } else {
-      console.warn('Video wrapper element not found');
-      this.cropRect = { x: 0, y: 0, width: 0, height: 0 };
+      if (this.videoWrapperRect) {
+        // Initialize crop rectangle to 80% of video size
+        const width = this.videoWrapperRect.width * 0.8;
+        const height = this.videoWrapperRect.height * 0.8;
+        const x = (this.videoWrapperRect.width - width) / 2;
+        const y = (this.videoWrapperRect.height - height) / 2;
+        this.cropRect = { x, y, width, height };
+      }
     }
 
     const timeline = this.elementRef.nativeElement.querySelector('.timeline');
@@ -258,13 +258,19 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   }
 
   @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    this.onTrim(event);
+  @HostListener('document:touchmove', ['$event'])
+  onMouseMove(event: MouseEvent | TouchEvent) {
+    if (this.isResizing) {
+      event.preventDefault();
+      this.onResize(event);
+    }
   }
 
   @HostListener('document:mouseup')
+  @HostListener('document:touchend')
   onMouseUp() {
-    this.stopTrim();
+    this.isResizing = false;
+    this.resizeHandle = null;
   }
 
   onTrim(event: MouseEvent | TouchEvent) {
@@ -301,16 +307,12 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     event.preventDefault();
     this.isResizing = true;
     this.resizeHandle = handle;
-
+    
     const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+    
     this.startX = clientX;
     this.startY = clientY;
-
-    document.addEventListener('mousemove', this.onResize.bind(this));
-    document.addEventListener('touchmove', this.onResize.bind(this));
-    document.addEventListener('mouseup', this.stopResize.bind(this));
-    document.addEventListener('touchend', this.stopResize.bind(this));
   }
 
   onResize(event: MouseEvent | TouchEvent) {
@@ -346,15 +348,5 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.cropRect = { x: newX, y: newY, width: newWidth, height: newHeight };
     this.startX = clientX;
     this.startY = clientY;
-  }
-
-  stopResize() {
-    this.isResizing = false;
-    this.resizeHandle = null;
-
-    document.removeEventListener('mousemove', this.onResize);
-    document.removeEventListener('touchmove', this.onResize);
-    document.removeEventListener('mouseup', this.stopResize);
-    document.removeEventListener('touchend', this.stopResize);
   }
 }
