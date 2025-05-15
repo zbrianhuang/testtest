@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home_tab"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Viewing: {{ title }} cover by {{ cover_artist }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ title }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="video-container ion-padding-horizontal">
+    <video *ngIf="videoUrl" controls [src]="videoUrl" type="video/mp4" webkit-playsinline playsinline>
+    </video>
+  </div>
+
+  <div class="info-container ion-padding">
+
+    <ion-grid>
+      <ion-button (click)="like_video()" [disabled]="liked">
+        <ion-icon [name]="liked ? 'heart' : 'heart-outline'"></ion-icon>
+      </ion-button> 
+      <ion-button (click)="save_video()" [disabled]="saved">
+        <ion-icon [name]="saved ? 'folder' : 'folder-outline'"></ion-icon>
+      </ion-button> 
+    </ion-grid>
+    <h1>{{ title }}</h1>
+    <h2>Original Artist: {{ artist }}</h2>
+    <h3>Cover by: {{ cover_artist }}</h3>
+  </div>
+
+</ion-content>

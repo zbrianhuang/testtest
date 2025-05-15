@@ -1,0 +1,57 @@
+ion-title {
+    text-align: center;
+}
+    
+.vid_container img.thumbnail {
+    display: block; 
+    width: 100%; 
+    height: auto; 
+    aspect-ratio: 16 / 9; //make everything conform to aspect ratio
+    object-fit: cover; 
+    flex-shrink: 0; 
+    margin-top:15px;
+}
+.vid_container {
+    //background-color: #666;
+    border-radius: 8px 8px 8px 8px;
+    display: inline-block;
+    margin-left: 5%;
+    margin-right: 5%;
+
+    margin-bottom: 35px;
+
+    padding-left: 5%;
+    padding-right: 5%;
+    width: 50%;
+}
+.gallery_title {
+    margin-left:5%;
+}
+.gallery {
+    overflow: auto;
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.floating-search-bar {
+    position: sticky;
+    top: 20px;
+    margin: 12px 16px;
+    z-index: 10;
+  
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #666;
+}
+
+  
+.search-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+  

@@ -1,0 +1,285 @@
+/* hide the bottom tabs when this page is active */
+:host ::ng-deep ion-tabs > ion-tab-bar {
+  display: none !important;
+}
+
+/* HEADER */
+.editor-header {
+  --background: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Next arrow in a circle */
+.next-circle {
+  --border-radius: 50%;
+  --padding: 0;
+  width: 36px;
+  height: 36px;
+  ion-icon {
+    font-size: 34.56px; /* Increased by an additional 20% from 28.8px */
+  }
+}
+
+/* CONTENT WRAPPER */
+.editor-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  position: relative; /* Ensure ion-content is a positioning context */
+}
+
+/* VIDEO PREVIEW */
+.video-wrapper {
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px;
+  height: calc(100vh - 32px);
+  max-height: calc(60vh - 32px);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Template image preview in the same position */
+.template-video-preview {
+  position: absolute;
+  width: 100px; /* Match size from Tab2 */
+  height: 100px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.template-video-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-wrapper video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Crop rectangle overlay */
+.crop-rectangle {
+  position: absolute;
+  border: 2px solid #ffcc00; /* Yellow border like iPhone editor */
+  box-sizing: border-box;
+  z-index: 10; /* Above the video */
+}
+
+/* Resize handles at the corners */
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffcc00;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.resize-handle.top-left {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.resize-handle.top-right {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-left {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-right {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+/* TIMELINE FOR TRIMMING */
+.timeline-container {
+  position: absolute;
+  bottom: 90px; /* As per your adjustment */
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: #fff;
+}
+
+.timeline {
+  position: relative;
+  height: 60px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.timeline-thumbnails {
+  display: flex;
+  height: 100%;
+  .thumbnail {
+    flex: 1;
+    height: 100%;
+    object-fit: cover; /* Ensure thumbnails fit nicely */
+    border-right: 1px solid #999;
+  }
+}
+
+.loading-thumbnails {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 12px;
+  color: #666;
+}
+
+.trimmed-area {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay for trimmed areas */
+  z-index: 1; /* Above thumbnails but below handles */
+}
+
+.trimmed-area.trimmed-start {
+  left: 0;
+}
+
+.trimmed-area.trimmed-end {
+  right: 0;
+}
+
+.selected-range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border: 2px solid #ffcc00; /* Yellow border to highlight selected range */
+  box-sizing: border-box;
+  z-index: 1; /* Above thumbnails but below handles */
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #fff; /* White playhead line */
+  z-index: 2; /* Above selected range but below handles */
+}
+
+.trim-handles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3; /* Above everything else in the timeline */
+  .trim-start, .trim-end {
+    position: absolute;
+    width: 16px; /* Slightly wider for better visibility */
+    height: 100%;
+    background: #ffcc00; /* Yellow handle */
+    border: none; /* Remove border for a cleaner look */
+    cursor: ew-resize;
+  }
+  .trim-start {
+    left: 0;
+    transform: translateX(-50%); /* Center the handle on the edge */
+  }
+  .trim-start::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -10px; /* Position arrow to the right of the handle */
+    transform: translateY(-50%);
+    border-left: 10px solid #ffcc00; /* Yellow triangle pointing right */
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+  .trim-end {
+    right: 0;
+    transform: translateX(50%); /* Center the handle on the edge */
+  }
+  .trim-end::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -10px; /* Position arrow to the left of the handle */
+    transform: translateY(-50%);
+    border-right: 10px solid #ffcc00; /* Yellow triangle pointing left */
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+  .trim-time {
+    position: absolute;
+    top: -20px; /* Position above the handle */
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .trim-start .trim-time {
+    left: 50%;
+  }
+  .trim-end .trim-time {
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
+
+/* EDITOR TOOLS */
+.editor-tools {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around; /* Adjusted for 4 icons */
+  align-items: center;
+  padding: 12px 0;
+  background: #fff;
+  border-top: 1px solid #ccc;
+}
+
+/* Ensure buttons inside editor-tools remain unaffected */
+.editor-tools ion-button {
+  --padding: 0;
+}
+
+.editor-tools ion-icon {
+  font-size: 24px;
+}
+
+/* Style the back arrow button */
+.back-arrow {
+  ion-icon {
+    font-size: 34.56px;
+  }
+}
+
+/* Style the Done button with a right arrow */
+.done-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  ion-icon {
+    font-size: 28.8px;
+  }
+}

@@ -1,0 +1,193 @@
+.camera-preview {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000; /* Black background for camera preview */
+  position: relative; /* Positioning context for the template image preview */
+}
+
+.camera-icon {
+  color: #fff; /* White icon for placeholder */
+  font-size: 50px;
+}
+
+/* Template image preview in the top corner */
+.template-video-preview {
+  position: absolute;
+  width: 100px; /* Adjust size as needed */
+  height: 100px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: grab; /* Indicate the image is draggable */
+}
+
+.template-video-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==============================
+   Record & Next button positioning
+   ============================== */
+.record-button-container {
+  position: absolute;
+  bottom: 80px;   /* same as before */
+  width: 100%;
+  height: 0;      /* children will be absolutely positioned */
+  z-index: 10;    /* keep above other content */
+
+  /* both buttons share absolute positioning */
+  .record-button,
+  .next-button {
+    position: absolute;
+    bottom: 0;    /* align to 80px-from-bottom line */
+  }
+
+  /* center the red record button */
+  .record-button {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* place Next immediately to the right */
+  .next-button {
+    left: calc(50% + 60px);  /* adjust 60px for your spacing */
+  }
+}
+
+/* ==============================
+   Record button styling (unchanged colors)
+   ============================== */
+.record-button {
+  --background: transparent;
+  --border-radius: 50%;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+
+  ion-icon {
+    font-size: 60px;
+    color: #fff;            /* white icon */
+    background: #ff0000;    /* red background */
+    border: 4px solid #fff; /* white border */
+    border-radius: 50%;
+    padding: 10px;
+  }
+}
+
+/* ==============================
+   Next button styling
+   ============================== */
+.next-button {
+  --border-radius: 20px; /* rounded corners */
+  font-size: 19.2px; /* Increased by 20% from 16px */
+}
+
+ion-footer {
+  ion-toolbar.recording-bar {
+    --background: #f5f5f5; /* Light beige background */
+    display: flex;
+    flex-direction: row; /* Ensure row layout */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    justify-content: space-between; /* Pin Video and Template to edges */
+    align-items: center;
+    padding: 0 10px;
+    z-index: 5; /* Ensure footer is behind the grid */
+
+    ion-button {
+      --color: #000;
+      font-size: 16px;
+      &.active {
+        text-decoration: underline;
+        font-weight: bold;
+      }
+      flex: 0 0 auto; /* Prevent buttons from stretching */
+      padding: 0 15px; /* Add padding to ensure even spacing */
+    }
+
+    .video-button {
+      margin-right: auto; /* Push to the left */
+    }
+
+    .recording-button {
+      margin: 0 auto; /* Center the Recording button */
+    }
+
+    .template-button {
+      margin-left: auto; /* Push to the right */
+    }
+  }
+}
+
+/* Center the header buttons */
+.header-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Space between buttons */
+}
+
+/* Recent videos section */
+.recent-videos {
+  background: #f5f5f5; /* Beige background */
+  padding: 10px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-height: 50%; /* Limit height to half the screen */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  z-index: 20; /* Ensure grid is in front of everything */
+}
+
+.recent-videos.full-page {
+  position: static; /* Remove absolute positioning for full-page mode */
+  max-height: 100%; /* Full height */
+  height: calc(100% - 56px); /* Adjust for header height (56px is typical for Ionic headers) */
+}
+
+.recent-videos h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.category {
+  margin-bottom: 20px;
+}
+
+.category h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.video-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto; /* Allow horizontal scrolling for videos */
+}
+
+.video-item {
+  flex: 0 0 auto;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure images fit nicely */
+}
+
+/* Style the alert backdrop */
+ion-alert {
+  --backdrop-opacity: 0.5; /* Slightly transparent backdrop */
+}

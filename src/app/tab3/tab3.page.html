@@ -1,0 +1,55 @@
+<ion-content [fullscreen]="true" class="ion-padding profile-page">
+
+  <!-- Profile Section -->
+  <div class="avatar-section">
+    <img src="assets/icon/profile_pic.png" class="profile-pic" />
+    <h2 class="username">username</h2>
+    <p class="tagline">#acoustic guitar</p>
+  </div>
+
+  <!-- User Stats -->
+  <div class="stats">
+    <div class="stat-block">
+      <div class="number">100</div>
+      <div class="label">Following</div>
+    </div>
+    <div class="stat-block">
+      <div class="number">20</div>
+      <div class="label">Followers</div>
+    </div>
+    <div class="stat-block">
+      <div class="number">100</div>
+      <div class="label">Likes</div>
+    </div>
+  </div>
+
+  <!-- All Videos (preset + uploaded) -->
+  <div class="post-list">
+    <ion-card *ngFor="let video of allVideos" class="post-card">
+      <div class="card-content-horizontal">
+        <!-- Thumbnail -->
+        <img [src]="video.thumbnail" alt="Video Thumbnail" class="post-image" />
+
+        <!-- Text Info -->
+        <div class="post-text">
+          <ion-card-title>{{ video.title }}</ion-card-title>
+          <p class="hashtags">{{ video.hashtags }}</p>
+          <div class="post-actions">
+            <span>❤️ {{ video.likes }}</span>
+            <span>💬 {{ video.comments }}</span>
+          </div>
+
+          <!-- Delete Button (only for uploaded videos) -->
+          <ion-button 
+            *ngIf="video.canDelete" 
+            fill="clear" 
+            size="small" 
+            color="danger" 
+            (click)="deleteVideo(video)">
+            Delete
+          </ion-button>
+        </div>
+      </div>
+    </ion-card>
+  </div>
+</ion-content>
