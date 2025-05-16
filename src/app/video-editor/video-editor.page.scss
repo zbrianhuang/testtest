@@ -3,32 +3,56 @@
   display: none !important;
 }
 
+<<<<<<< HEAD
 /* Core layout */
+=======
+/* HEADER */
+>>>>>>> backend2
 .editor-header {
   --background: #f5f5f5;
   border-bottom: 1px solid #ccc;
 }
 
+<<<<<<< HEAD
+=======
+/* Next arrow in a circle */
+>>>>>>> backend2
 .next-circle {
   --border-radius: 50%;
   --padding: 0;
   width: 36px;
   height: 36px;
+<<<<<<< HEAD
   
   ion-icon {
     font-size: 34px;
   }
 }
 
+=======
+  ion-icon {
+    font-size: 34.56px; /* Increased by an additional 20% from 28.8px */
+  }
+}
+
+/* CONTENT WRAPPER */
+>>>>>>> backend2
 .editor-content {
   display: flex;
   flex-direction: column;
   height: 100%;
   background: #fff;
+<<<<<<< HEAD
   position: relative;
 }
 
 /* Video preview section */
+=======
+  position: relative; /* Ensure ion-content is a positioning context */
+}
+
+/* VIDEO PREVIEW */
+>>>>>>> backend2
 .video-wrapper {
   position: relative;
   background: #000;
@@ -40,6 +64,7 @@
   max-height: calc(60vh - 32px);
   border-radius: 8px;
   overflow: hidden;
+<<<<<<< HEAD
 
   video {
     position: absolute;
@@ -66,6 +91,80 @@
 .timeline-container {
   position: absolute;
   bottom: 90px;
+=======
+}
+
+/* Template image preview in the same position */
+.template-video-preview {
+  position: absolute;
+  width: 100px; /* Match size from Tab2 */
+  height: 100px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.template-video-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-wrapper video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Crop rectangle overlay */
+.crop-rectangle {
+  position: absolute;
+  border: 2px solid #ffcc00; /* Yellow border like iPhone editor */
+  box-sizing: border-box;
+  z-index: 10; /* Above the video */
+}
+
+/* Resize handles at the corners */
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffcc00;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.resize-handle.top-left {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.resize-handle.top-right {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-left {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-right {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+/* TIMELINE FOR TRIMMING */
+.timeline-container {
+  position: absolute;
+  bottom: 90px; /* As per your adjustment */
+>>>>>>> backend2
   left: 0;
   right: 0;
   padding: 16px;
@@ -78,12 +177,16 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   overflow: hidden;
+<<<<<<< HEAD
   background: #000;
+=======
+>>>>>>> backend2
 }
 
 .timeline-thumbnails {
   display: flex;
   height: 100%;
+<<<<<<< HEAD
   width: 100%;
   
   .thumbnail {
@@ -100,24 +203,62 @@
 }
 
 /* Trim controls */
+=======
+  .thumbnail {
+    flex: 1;
+    height: 100%;
+    object-fit: cover; /* Ensure thumbnails fit nicely */
+    border-right: 1px solid #999;
+  }
+}
+
+.loading-thumbnails {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 12px;
+  color: #666;
+}
+
+>>>>>>> backend2
 .trimmed-area {
   position: absolute;
   top: 0;
   height: 100%;
+<<<<<<< HEAD
   background: rgba(0, 0, 0, 0.5);
   z-index: 1;
 
   &.trimmed-start { left: 0; }
   &.trimmed-end { right: 0; }
+=======
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay for trimmed areas */
+  z-index: 1; /* Above thumbnails but below handles */
+}
+
+.trimmed-area.trimmed-start {
+  left: 0;
+}
+
+.trimmed-area.trimmed-end {
+  right: 0;
+>>>>>>> backend2
 }
 
 .selected-range {
   position: absolute;
   top: 0;
   height: 100%;
+<<<<<<< HEAD
   border: 2px solid #ffcc00;
   box-sizing: border-box;
   z-index: 1;
+=======
+  border: 2px solid #ffcc00; /* Yellow border to highlight selected range */
+  box-sizing: border-box;
+  z-index: 1; /* Above thumbnails but below handles */
+>>>>>>> backend2
 }
 
 .playhead {
@@ -125,12 +266,18 @@
   top: 0;
   bottom: 0;
   width: 2px;
+<<<<<<< HEAD
   background: #fff;
   z-index: 2;
+=======
+  background: #fff; /* White playhead line */
+  z-index: 2; /* Above selected range but below handles */
+>>>>>>> backend2
 }
 
 .trim-handles {
   position: absolute;
+<<<<<<< HEAD
   inset: 0;
   z-index: 3;
 
@@ -177,6 +324,52 @@
   .trim-time {
     position: absolute;
     top: -20px;
+=======
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3; /* Above everything else in the timeline */
+  .trim-start, .trim-end {
+    position: absolute;
+    width: 16px; /* Slightly wider for better visibility */
+    height: 100%;
+    background: #ffcc00; /* Yellow handle */
+    border: none; /* Remove border for a cleaner look */
+    cursor: ew-resize;
+  }
+  .trim-start {
+    left: 0;
+    transform: translateX(-50%); /* Center the handle on the edge */
+  }
+  .trim-start::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -10px; /* Position arrow to the right of the handle */
+    transform: translateY(-50%);
+    border-left: 10px solid #ffcc00; /* Yellow triangle pointing right */
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+  .trim-end {
+    right: 0;
+    transform: translateX(50%); /* Center the handle on the edge */
+  }
+  .trim-end::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -10px; /* Position arrow to the left of the handle */
+    transform: translateY(-50%);
+    border-right: 10px solid #ffcc00; /* Yellow triangle pointing left */
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+  .trim-time {
+    position: absolute;
+    top: -20px; /* Position above the handle */
+>>>>>>> backend2
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.7);
     color: #fff;
@@ -185,6 +378,16 @@
     font-size: 10px;
     white-space: nowrap;
   }
+<<<<<<< HEAD
+=======
+  .trim-start .trim-time {
+    left: 50%;
+  }
+  .trim-end .trim-time {
+    right: 50%;
+    transform: translateX(50%);
+  }
+>>>>>>> backend2
 }
 
 /* EDITOR TOOLS */
@@ -194,7 +397,11 @@
   left: 0;
   right: 0;
   display: flex;
+<<<<<<< HEAD
   justify-content: space-around;
+=======
+  justify-content: space-around; /* Adjusted for 4 icons */
+>>>>>>> backend2
   align-items: center;
   padding: 12px 0;
   background: #fff;
@@ -225,6 +432,7 @@
   ion-icon {
     font-size: 28.8px;
   }
+<<<<<<< HEAD
 }
 
 /* Volume control styles */
@@ -384,4 +592,6 @@ ion-spinner {
   z-index: 2;
   pointer-events: auto;
   transform: translate(calc(var(--left) * 1%), calc(var(--top) * 1%));
+=======
+>>>>>>> backend2
 }
