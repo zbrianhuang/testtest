@@ -5,6 +5,10 @@ import { SearchComponent } from 'src/app/search/search.component';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+<<<<<<< HEAD
+=======
+import { S3Service } from '../services/s3.service';
+>>>>>>> backend2
 
 interface Video {
   title: string;
@@ -32,6 +36,7 @@ export class HomeTabPage implements OnInit {
 
   titles: Gallery_Title[] = [
     { title: 'Trending' },
+<<<<<<< HEAD
     { title: 'Pop' },
     { title: 'Rock' },
     { title: 'lala' },
@@ -75,6 +80,52 @@ export class HomeTabPage implements OnInit {
 
   ngOnInit() {
     // Optionally load or refresh videos here.
+=======
+    { title: 'Recent Uploads' },
+    { title: 'Popular' }
+  ];
+
+  videos: Video[][] = [];
+
+  constructor(
+    private modalController: ModalController,
+    private router: Router,
+    private s3Service: S3Service
+  ) {}
+
+  async ngOnInit() {
+    await this.loadVideos();
+  }
+
+  async loadVideos() {
+    try {
+      // Load videos from localStorage
+      const savedVideos = localStorage.getItem('uploadedVideos');
+      const uploadedVideos = savedVideos ? JSON.parse(savedVideos) : [];
+
+      // Get signed URLs for all videos
+      const processedVideos = await Promise.all(
+        uploadedVideos.map(async (video: any) => {
+          const videoUrl = await this.s3Service.getVideoUrl(video.videoUrl);
+          const thumbnailUrl = await this.s3Service.getThumbnailUrl(video.thumbnailUrl);
+          return {
+            ...video,
+            videoUrl,
+            thumbnailUrl
+          };
+        })
+      );
+
+      // Organize videos into categories
+      this.videos = [
+        processedVideos.slice(0, 5), // Trending (first 5 videos)
+        processedVideos, // Recent Uploads (all videos)
+        processedVideos.slice().sort((a, b) => b.likes - a.likes).slice(0, 5) // Popular (top 5 by likes)
+      ];
+    } catch (error) {
+      console.error('Error loading videos:', error);
+    }
+>>>>>>> backend2
   }
 
   async openAdvancedSearch() {

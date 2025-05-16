@@ -22,7 +22,14 @@
       "es2018", 
       "dom"
     ],
+<<<<<<< HEAD
     "useDefineForClassFields": false
+=======
+    "useDefineForClassFields": false,
+    "types": ["node", "jasmine"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+>>>>>>> backend2
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

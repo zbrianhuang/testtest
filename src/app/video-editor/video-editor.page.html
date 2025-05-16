@@ -19,6 +19,7 @@
   <div class="video-wrapper">
     <video #videoPlayer [src]="videoSrc" playsinline preload="metadata"></video>
     <!-- Template image preview in the same position -->
+<<<<<<< HEAD
     <img *ngIf="selectedTemplateImage" 
          [src]="selectedTemplateImage" 
          class="template-image"
@@ -26,6 +27,16 @@
          [style.--top]="templateImagePosition.top"
          (mousedown)="startDrag($event)"
          (touchstart)="startDrag($event)">
+=======
+    <div
+      class="template-video-preview"
+      *ngIf="selectedTemplateImage"
+      [style.top.px]="templateImagePosition.top"
+      [style.left.px]="templateImagePosition.left"
+    >
+      <img [src]="selectedTemplateImage" alt="Template Preview" />
+    </div>
+>>>>>>> backend2
     <!-- Crop rectangle overlay -->
     <div
       class="crop-rectangle"
@@ -104,6 +115,7 @@
       <ion-icon name="repeat-outline"></ion-icon>
     </ion-button>
 
+<<<<<<< HEAD
     <!-- Volume control -->
     <div class="volume-control">
       <ion-button fill="clear" (click)="toggleMute()">
@@ -177,3 +189,11 @@
     </ion-content>
   </ng-template>
 </ion-modal>
+=======
+    <!-- Mute/unmute -->
+    <ion-button fill="clear" (click)="toggleMute()">
+      <ion-icon [name]="isMuted ? 'volume-mute-outline' : 'volume-high-outline'"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content>
+>>>>>>> backend2

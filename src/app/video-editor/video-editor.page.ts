@@ -7,26 +7,41 @@ import {
   HostListener,
   ChangeDetectorRef
 } from '@angular/core';
+<<<<<<< HEAD
 import { NavController, AlertController, RangeCustomEvent, IonModal } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { VideoService } from '../services/video.service';
+=======
+import { NavController, AlertController } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { S3Service } from '../services/s3.service';
+>>>>>>> backend2
 
 @Component({
   selector: 'app-video-editor',
   templateUrl: './video-editor.page.html',
   styleUrls: ['./video-editor.page.scss'],
   standalone: true,
+<<<<<<< HEAD
   imports: [IonicModule, CommonModule, FormsModule]
+=======
+  imports: [IonicModule, CommonModule]
+>>>>>>> backend2
 })
 export class VideoEditorPage implements OnInit, AfterViewInit {
   @ViewChild('videoPlayer', { static: false })
   videoPlayer!: ElementRef<HTMLVideoElement>;
 
+<<<<<<< HEAD
   @ViewChild('stitchingModal') stitchingModal!: IonModal;
 
+=======
+>>>>>>> backend2
   videoSrc = 'assets/videos/annie_wave_to_earth.mp4';
   isPlaying = false;
   isMuted = false;
@@ -46,7 +61,10 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   // Properties for the template picture
   selectedTemplateImage: string | null = null;
   templateImagePosition: { top: number; left: number } = { top: 10, left: 10 };
+<<<<<<< HEAD
   private initialTemplatePosition: { top: number; left: number } | null = null;
+=======
+>>>>>>> backend2
 
   // Crop rectangle properties
   cropRect = {
@@ -61,6 +79,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   startY = 0;
   videoWrapperRect: DOMRect | null = null;
 
+<<<<<<< HEAD
   // Add rotation property
   currentRotation: number = 0;
 
@@ -79,12 +98,15 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   private dragStartX = 0;
   private dragStartY = 0;
 
+=======
+>>>>>>> backend2
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
     private elementRef: ElementRef,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
+<<<<<<< HEAD
     private videoService: VideoService
   ) {}
 
@@ -98,10 +120,22 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
         // Wait for the view to be ready
         await new Promise(resolve => setTimeout(resolve, 100));
         this.updateTemplatePosition();
+=======
+    private s3Service: S3Service
+  ) {}
+
+  async ngOnInit() {
+    this.route.queryParams.subscribe(() => {
+      const navigation = this.navCtrl['router'].getCurrentNavigation();
+      if (navigation?.extras?.state) {
+        this.selectedTemplateImage = navigation.extras.state['selectedTemplateImage'] || null;
+        this.templateImagePosition = navigation.extras.state['templateImagePosition'] || { top: 10, left: 10 };
+>>>>>>> backend2
       }
     });
   }
 
+<<<<<<< HEAD
   private updateTemplatePosition() {
     if (this.selectedTemplateImage && this.initialTemplatePosition) {
       const videoWrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
@@ -120,13 +154,18 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.updateTemplatePosition();
   }
 
+=======
+>>>>>>> backend2
   async ngAfterViewInit() {
     const vid = this.videoPlayer.nativeElement;
     vid.load();
 
+<<<<<<< HEAD
     // Initialize volume
     vid.volume = this.volumeLevel / 100;
 
+=======
+>>>>>>> backend2
     await new Promise<void>((resolve) => {
       const onMetadataLoaded = () => {
         vid.removeEventListener('loadedmetadata', onMetadataLoaded);
@@ -185,6 +224,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
       return;
     }
 
+<<<<<<< HEAD
     // Get the timeline width to determine optimal thumbnail count
     const timeline = this.elementRef.nativeElement.querySelector('.timeline');
     const timelineWidth = timeline ? timeline.offsetWidth : 400;
@@ -194,6 +234,12 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     // Set thumbnail size based on timeline height
     const thumbnailHeight = timeline ? timeline.offsetHeight : 60;
     const thumbnailWidth = Math.ceil(thumbnailHeight * (16/9)); // Maintain 16:9 aspect ratio
+=======
+    const thumbnailCount = 8;
+    const interval = this.duration / thumbnailCount;
+    const thumbnailWidth = 50;
+    const thumbnailHeight = 50;
+>>>>>>> backend2
 
     canvas.width = thumbnailWidth;
     canvas.height = thumbnailHeight;
@@ -246,6 +292,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   }
 
   toggleSpeed() { alert('Speed control (stub)'); }
+<<<<<<< HEAD
   rotateClip() {
     this.currentRotation = (this.currentRotation + 90) % 360;
     const video = this.videoPlayer.nativeElement;
@@ -293,6 +340,66 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     console.log('Exporting video with crop area:', this.cropRect);
     console.log('Trimming from', this.trimStart, 'to', this.trimEnd);
     this.navCtrl.navigateForward('/upload-info');
+=======
+  rotateClip() { alert('Rotate clip (stub)'); }
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    this.videoPlayer.nativeElement.muted = this.isMuted;
+  }
+
+  async exportVideo() {
+    try {
+      // Get the video file from the video element
+      const videoElement = this.videoPlayer.nativeElement;
+      const videoBlob = await this.getVideoBlob(videoElement);
+      const videoFile = new File([videoBlob], 'video.mp4', { type: 'video/mp4' });
+
+      // Generate a unique key for the video
+      const videoKey = `videos/${Date.now()}-${videoFile.name}`;
+      
+      // Upload to S3
+      const videoUrl = await this.s3Service.uploadVideo(videoFile);
+
+      // Navigate to upload info page with the video URL
+      this.navCtrl.navigateForward(['/upload-info'], {
+        state: { videoUrl }
+      });
+    } catch (error) {
+      console.error('Error exporting video:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to export video. Please try again.',
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
+  }
+
+  private async getVideoBlob(videoElement: HTMLVideoElement): Promise<Blob> {
+    // Create a canvas to capture the video frame
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      throw new Error('Failed to get canvas context');
+    }
+
+    // Draw the video frame on the canvas
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    
+    // Convert canvas to blob
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to create blob from canvas'));
+        }
+      }, 'video/mp4');
+    });
+>>>>>>> backend2
   }
 
   async closeEditor() {
@@ -353,7 +460,11 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   onMouseMove(event: MouseEvent | TouchEvent) {
     if (this.isResizing) {
       event.preventDefault();
+<<<<<<< HEAD
       this.onResizeCrop(event);
+=======
+      this.onResize(event);
+>>>>>>> backend2
     }
   }
 
@@ -406,7 +517,11 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.startY = clientY;
   }
 
+<<<<<<< HEAD
   onResizeCrop(event: MouseEvent | TouchEvent) {
+=======
+  onResize(event: MouseEvent | TouchEvent) {
+>>>>>>> backend2
     if (!this.isResizing || !this.resizeHandle || !this.videoWrapperRect) return;
 
     const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
@@ -440,6 +555,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.startX = clientX;
     this.startY = clientY;
   }
+<<<<<<< HEAD
 
   getVolumeIcon(): string {
     if (this.volumeLevel === 0) {
@@ -641,4 +757,6 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     document.removeEventListener('mouseup', this.stopDrag.bind(this));
     document.removeEventListener('touchend', this.stopDrag.bind(this));
   }
+=======
+>>>>>>> backend2
 }
