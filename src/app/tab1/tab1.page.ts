@@ -33,8 +33,7 @@ const USER_METADATA_FILE = 'user_sheetmusic.json';
     CommonModule,
     IonicModule,
     FormsModule,
-    HttpClientModule,
-    UploadSheetModalComponent
+    HttpClientModule
   ]
 })
 export class Tab1Page implements OnInit {

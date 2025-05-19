@@ -6,6 +6,8 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { S3Service } from '../services/s3.service';
+import { VideoMetadataService, VideoMetadata } from '../services/video-metadata.service';
+import { UploadComponent } from '../upload/upload.component';
 
 interface Video {
   title: string;
@@ -36,12 +38,13 @@ export class HomeTabPage implements OnInit {
     { title: 'Popular' }
   ];
 
-  videos: Video[][] = [];
+  videos: VideoMetadata[][] = [];
 
   constructor(
     private modalController: ModalController,
     private router: Router,
-    private s3Service: S3Service
+    private s3Service: S3Service,
+    private metadataService: VideoMetadataService
   ) {}
 
   async ngOnInit() {
@@ -50,14 +53,48 @@ export class HomeTabPage implements OnInit {
 
   async loadVideos() {
     try {
-      // Load videos from S3
-      const s3Videos = await this.s3Service.listVideos();
+      // Load videos from different categories
+      const [trending, recent, popular] = await Promise.all([
+        this.metadataService.getTrendingVideos(),
+        this.metadataService.getRecentVideos(),
+        this.metadataService.getPopularVideos()
+      ]);
 
-      // Organize videos into categories
+      // Create a Set to track unique video IDs
+      const uniqueVideoIds = new Set<string>();
+      
+      // Get signed URLs for all videos, ensuring each video appears only once
+      const videosWithUrls = await Promise.all([
+        ...trending,
+        ...recent,
+        ...popular
+      ].filter(video => {
+        // Only include the video if we haven't seen its ID before
+        if (uniqueVideoIds.has(video.id)) {
+          return false;
+        }
+        uniqueVideoIds.add(video.id);
+        return true;
+      }).map(async (video) => {
+        const videoUrl = await this.s3Service.getVideoUrl(video.s3Key);
+        let thumbnailUrl = '';
+        try {
+          thumbnailUrl = await this.s3Service.getThumbnailUrl(video.thumbnailKey);
+        } catch {
+          thumbnailUrl = 'assets/thumbnails/default.jpg';
+        }
+        return {
+          ...video,
+          videoUrl,
+          thumbnailUrl
+        };
+      }));
+
+      // Organize videos into categories, ensuring each video appears in its highest priority category
       this.videos = [
-        s3Videos.slice(0, 5), // Trending (first 5 videos)
-        s3Videos, // Recent Uploads (all videos)
-        s3Videos.slice().sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 5) // Popular (top 5 by likes)
+        videosWithUrls.filter(v => trending.some(t => t.id === v.id)), // Trending
+        videosWithUrls.filter(v => recent.some(r => r.id === v.id) && !trending.some(t => t.id === v.id)), // Recent (excluding trending)
+        videosWithUrls.filter(v => popular.some(p => p.id === v.id) && !trending.some(t => t.id === v.id) && !recent.some(r => r.id === v.id)) // Popular (excluding trending and recent)
       ];
     } catch (error) {
       console.error('Error loading videos:', error);
@@ -72,6 +109,21 @@ export class HomeTabPage implements OnInit {
       showBackdrop: true
     });
     await modal.present();
+  }
+
+  async openUploadModal() {
+    const modal = await this.modalController.create({
+      component: UploadComponent,
+      cssClass: 'upload-modal'
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      // Refresh videos if upload was successful
+      await this.loadVideos();
+    }
   }
 
   navigateToVideo(videoId: string) {

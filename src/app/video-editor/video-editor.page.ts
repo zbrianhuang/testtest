@@ -14,6 +14,7 @@ import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { VideoService } from '../services/video.service';
 import { S3Service } from '../services/s3.service';
+import { VideoMetadataService } from '../services/video-metadata.service';
 
 @Component({
   selector: 'app-video-editor',
@@ -33,6 +34,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   isMuted = false;
   duration = 0;
   currentTime = 0;
+  isExporting = false;
 
   // Properties for timeline trimming
   trimStart = 0;
@@ -87,7 +89,8 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private videoService: VideoService,
-    private s3Service: S3Service
+    private s3Service: S3Service,
+    private metadataService: VideoMetadataService
   ) {}
 
   async ngOnInit() {
@@ -287,22 +290,41 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   }
 
   async exportVideo() {
+    if (this.isExporting) {
+      return;
+    }
+
     try {
-      // Get the video file from the video element
+      this.isExporting = true;
       const videoElement = this.videoPlayer.nativeElement;
       const videoBlob = await this.getVideoBlob(videoElement);
-      const videoFile = new File([videoBlob], 'video.mp4', { type: 'video/mp4' });
-
-      // Generate a unique key for the video
-      const videoKey = `videos/${Date.now()}-${videoFile.name}`;
       
-      // Upload to S3
-      const videoUrl = await this.s3Service.uploadVideo(videoFile);
+      // Get the original file name from the video source
+      const originalFileName = this.videoSrc.split('/').pop() || 'edited-video.mp4';
+      const videoFile = new File([videoBlob], originalFileName, { type: 'video/mp4' });
 
-      // Navigate to upload info page with the video URL
-      this.navCtrl.navigateForward(['/upload-info'], {
-        state: { videoUrl }
-      });
+      // Create a temporary thumbnail from the first frame
+      const canvas = document.createElement('canvas');
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(videoElement, 0, 0);
+        const thumbnailBlob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+          }, 'image/jpeg');
+        });
+        const thumbnailFile = new File([thumbnailBlob], originalFileName.replace('.mp4', '.jpg'), { type: 'image/jpeg' });
+
+        // Navigate to upload info page with both files
+        this.navCtrl.navigateForward('/upload-info', {
+          state: {
+            videoFile,
+            thumbnailFile
+          }
+        });
+      }
     } catch (error) {
       console.error('Error exporting video:', error);
       const alert = await this.alertController.create({
@@ -311,6 +333,8 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
         buttons: ['OK']
       });
       await alert.present();
+    } finally {
+      this.isExporting = false;
     }
   }
 

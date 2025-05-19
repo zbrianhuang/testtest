@@ -40,6 +40,7 @@
     "@ionic/storage-angular": "^4.0.0",
     "buffer": "^6.0.3",
     "ionicons": "^7.0.0",
+    "mongodb": "^6.16.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

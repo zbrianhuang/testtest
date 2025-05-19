@@ -18,6 +18,10 @@
   <div class="video-container ion-padding-horizontal">
     <video *ngIf="videoUrl" controls [src]="videoUrl" type="video/mp4" webkit-playsinline playsinline>
     </video>
+    <div *ngIf="!videoUrl" class="video-error">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>Unable to load video. Please try again later.</p>
+    </div>
   </div>
 
   <div class="info-container ion-padding">
@@ -25,10 +29,15 @@
     <ion-grid>
       <ion-button (click)="like_video()" [class.greyed-out]="liked" [class.active]="liked">
         <ion-icon [name]="liked ? 'heart' : 'heart-outline'"></ion-icon>
+        <span class="count">{{ likes }}</span>
       </ion-button> 
       <ion-button (click)="save_video()" [class.greyed-out]="saved" [class.active]="saved">
         <ion-icon [name]="saved ? 'folder' : 'folder-outline'"></ion-icon>
       </ion-button> 
+      <ion-button>
+        <ion-icon name="eye-outline"></ion-icon>
+        <span class="count">{{ views }}</span>
+      </ion-button>
     </ion-grid>
     <h1>{{ title }}</h1>
     <h2>Original Artist: {{ artist }}</h2>

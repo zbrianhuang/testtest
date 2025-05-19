@@ -16,11 +16,12 @@
 
   <ion-grid *ngIf="!isLoading && !errorLoading && sheets.length > 0">
     <ion-row>
-      <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let sheet of sheets">
+      <ion-col size="6" size-sm="4" size-md="3" size-lg="2" *ngFor="let sheet of sheets">
         <a [href]="sheet.redirect" target="_blank" style="text-decoration: none; color: inherit;">
           <ion-card class="sheet-card ion-activatable">
             <ion-ripple-effect></ion-ripple-effect>
             <ion-img
+              class="sheet-thumbnail"
               [src]="sheet.thumbnail"
               alt="Thumbnail for {{ sheet.title }}">
             </ion-img>

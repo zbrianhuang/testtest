@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Upload Video</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="uploadVideo()">
+    <ion-list>
+      <!-- Video File Upload -->
+      <ion-item>
+        <ion-label position="stacked">Video File *</ion-label>
+        <input type="file" accept="video/*" (change)="onVideoFileSelected($event)" />
+      </ion-item>
+
+      <!-- Thumbnail File Upload -->
+      <ion-item>
+        <ion-label position="stacked">Thumbnail Image *</ion-label>
+        <input type="file" accept="image/*" (change)="onThumbnailFileSelected($event)" />
+      </ion-item>
+
+      <!-- Title -->
+      <ion-item>
+        <ion-label position="stacked">Title *</ion-label>
+        <ion-input [(ngModel)]="title" name="title" required></ion-input>
+      </ion-item>
+
+      <!-- Description -->
+      <ion-item>
+        <ion-label position="stacked">Description</ion-label>
+        <ion-textarea [(ngModel)]="description" name="description" rows="3"></ion-textarea>
+      </ion-item>
+
+      <!-- Original Artist -->
+      <ion-item>
+        <ion-label position="stacked">Original Artist *</ion-label>
+        <ion-input [(ngModel)]="artist" name="artist" required></ion-input>
+      </ion-item>
+
+      <!-- Cover Artist -->
+      <ion-item>
+        <ion-label position="stacked">Cover Artist *</ion-label>
+        <ion-input [(ngModel)]="coverArtist" name="coverArtist" required></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <!-- Upload Progress -->
+    <div *ngIf="isUploading" class="upload-progress">
+      <ion-progress-bar [value]="uploadProgress / 100"></ion-progress-bar>
+      <p>Uploading... {{ uploadProgress }}%</p>
+    </div>
+
+    <!-- Upload Button -->
+    <div class="ion-padding">
+      <ion-button expand="block" type="submit" [disabled]="isUploading">
+        <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+        Upload Video
+      </ion-button>
+    </div>
+  </form>
+</ion-content> 

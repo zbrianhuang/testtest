@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { S3Service } from '../services/s3.service';
+import { VideoMetadataService } from '../services/video-metadata.service';
 
 @Component({
   selector: 'app-upload-info',
@@ -19,21 +20,22 @@ export class UploadInfoPage implements OnInit {
   description = '';
   sheetMusicName = '';
   sheetMusicFile: File | null = null;
-  videoUrl: string = '';
+  videoFile: File | null = null;
   thumbnailFile: File | null = null;
   thumbnailUrl: string = '';
 
   constructor(
     private toastController: ToastController,
     private router: Router,
-    private s3Service: S3Service
+    private s3Service: S3Service,
+    private metadataService: VideoMetadataService
   ) {}
 
   ngOnInit() {
-    // Get video URL from navigation state
+    // Get video file from navigation state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
-      this.videoUrl = (navigation.extras.state as any).videoUrl;
+      this.videoFile = (navigation.extras.state as any).videoFile;
     }
   }
 
@@ -51,9 +53,9 @@ export class UploadInfoPage implements OnInit {
   }
 
   async submit() {
-    if (!this.videoTitle || !this.instrument || !this.videoType || !this.thumbnailFile) {
+    if (!this.videoTitle || !this.instrument || !this.videoType || !this.thumbnailFile || !this.videoFile) {
       const toast = await this.toastController.create({
-        message: 'Please fill in all required fields and upload a thumbnail!',
+        message: 'Please fill in all required fields and upload both video and thumbnail!',
         duration: 3000,
         color: 'danger'
       });
@@ -62,32 +64,19 @@ export class UploadInfoPage implements OnInit {
     }
 
     try {
-      // Upload thumbnail to S3
-      const thumbnailUrl = await this.s3Service.uploadThumbnail(this.thumbnailFile);
-
-      const finalTitle = this.sheetMusicName
-        ? `[sheet] ${this.videoTitle}`
-        : this.videoTitle;
-
-      const newVideo = {
-        title: finalTitle,
-        instrument: this.instrument,
-        videoType: this.videoType,
+      // Upload video and get metadata
+      const videoMetadata = await this.s3Service.uploadVideo(this.videoFile, {
+        title: this.videoTitle,
         description: this.description,
-        sheetMusicName: this.sheetMusicName,
-        videoUrl: this.videoUrl,
-        thumbnailUrl: thumbnailUrl,
-        hashtags: `#${this.instrument}#${this.videoType} · just now`,
-        likes: 0,
-        comments: 0,
-        canDelete: true
-      };
+        artist: this.instrument,
+        coverArtist: this.videoType
+      });
 
-      // Save to localStorage
-      const existing = localStorage.getItem('uploadedVideos');
-      const videoList = existing ? JSON.parse(existing) : [];
-      videoList.unshift(newVideo);
-      localStorage.setItem('uploadedVideos', JSON.stringify(videoList));
+      // Upload thumbnail
+      const thumbnailKey = await this.s3Service.uploadThumbnail(
+        this.thumbnailFile,
+        videoMetadata.id
+      );
 
       const toast = await this.toastController.create({
         message: 'Video uploaded successfully!',

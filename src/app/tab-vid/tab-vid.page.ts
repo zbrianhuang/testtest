@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
 import { CommonModule } from '@angular/common'; 
 import { IonicModule } from '@ionic/angular'; 
 import { S3Service } from '../services/s3.service';
+import { VideoMetadataService, VideoMetadata } from '../services/video-metadata.service';
 
 const db = [
     { id: "vid-001", title: 'annie.', artist: 'wave to earth', cover_artist: 'jim', videoUrl: '/assets/videos/annie_wave_to_earth.mp4', description: '#cover #guitar #vocal' },
@@ -29,10 +30,13 @@ export class TabVidPage implements OnInit {
   description: string = ''; 
   liked: boolean = false;
   saved: boolean = false;
+  views: number = 0;
+  likes: number = 0;
 
   constructor(
     private route: ActivatedRoute,
-    private s3Service: S3Service
+    private s3Service: S3Service,
+    private metadataService: VideoMetadataService
   ) {}
 
   async ngOnInit() {
@@ -52,30 +56,21 @@ export class TabVidPage implements OnInit {
 
   async loadVideoInfo(id: string) {
     try {
-      // First try to load from localStorage
-      const savedVideos = localStorage.getItem('uploadedVideos');
-      const uploadedVideos = savedVideos ? JSON.parse(savedVideos) : [];
+      const videoData = await this.metadataService.getVideo(id);
       
-      // Find the video with matching ID
-      let videoData = uploadedVideos.find((video: any) => video.id === id);
-
-      // If not found in localStorage, try the local db
-      if (!videoData) {
-        videoData = db.find(video => video.id === id);
-      }
-
       if (videoData) {
         this.title = videoData.title;
-        this.artist = videoData.artist || '';
-        this.cover_artist = videoData.cover_artist || '';
-        this.description = videoData.description || '';
+        this.artist = videoData.artist;
+        this.cover_artist = videoData.coverArtist;
+        this.description = videoData.description;
+        this.views = videoData.views;
+        this.likes = videoData.likes;
         
-        // If the video is from S3, get signed URL
-        if (videoData.videoUrl.startsWith('s3://')) {
-          this.videoUrl = await this.s3Service.getVideoUrl(videoData.videoUrl);
-        } else {
-          this.videoUrl = videoData.videoUrl;
-        }
+        // Get the video URL from S3
+        this.videoUrl = await this.s3Service.getVideoUrl(videoData.s3Key);
+        
+        // Increment view count
+        this.views = await this.metadataService.incrementViews(id);
       } else {
         console.error(`Video with ID ${id} not found!`);
         this.title = 'Error: Video not found';
@@ -86,8 +81,11 @@ export class TabVidPage implements OnInit {
     }
   }
 
-  like_video() {
-    this.liked = !this.liked;
+  async like_video() {
+    if (this.videoId) {
+      this.likes = await this.metadataService.incrementLikes(this.videoId);
+      this.liked = !this.liked;
+    }
   }
 
   save_video() {
