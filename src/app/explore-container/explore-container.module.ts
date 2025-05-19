@@ -11,8 +11,4 @@ import { ExploreContainerComponent } from './explore-container.component';
   declarations: [ExploreContainerComponent],
   exports: [ExploreContainerComponent]
 })
-<<<<<<< HEAD
 export class ExploreContainerComponentModule {}
-=======
-export class ExploreContainerComponentModule {}
->>>>>>> backend2

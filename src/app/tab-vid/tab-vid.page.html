@@ -23,10 +23,10 @@
   <div class="info-container ion-padding">
 
     <ion-grid>
-      <ion-button (click)="like_video()" [disabled]="liked">
+      <ion-button (click)="like_video()" [class.greyed-out]="liked" [class.active]="liked">
         <ion-icon [name]="liked ? 'heart' : 'heart-outline'"></ion-icon>
       </ion-button> 
-      <ion-button (click)="save_video()" [disabled]="saved">
+      <ion-button (click)="save_video()" [class.greyed-out]="saved" [class.active]="saved">
         <ion-icon [name]="saved ? 'folder' : 'folder-outline'"></ion-icon>
       </ion-button> 
     </ion-grid>

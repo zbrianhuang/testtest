@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { environment } from '../../environments/environment';
 
@@ -111,5 +111,38 @@ export class S3Service {
       console.error('Error getting thumbnail URL:', error);
       throw error;
     }
+  }
+
+  async listVideos(): Promise<any[]> {
+    const command = new ListObjectsV2Command({
+      Bucket: environment.aws.bucketName,
+      Prefix: 'videos/',
+    });
+    const response = await this.s3Client.send(command);
+    const videos = [];
+    if (response.Contents) {
+      for (const item of response.Contents) {
+        if (item.Key && !item.Key.endsWith('/')) {
+          const videoUrl = await this.getVideoUrl(item.Key);
+          // Try to get a thumbnail with the same base name but .jpg extension
+          const baseName = item.Key.replace(/^videos\//, '').replace(/\.[^/.]+$/, '');
+          const thumbnailKey = `thumbnails/${baseName}.jpg`;
+          let thumbnailUrl = '';
+          try {
+            thumbnailUrl = await this.getThumbnailUrl(thumbnailKey);
+          } catch {
+            thumbnailUrl = 'assets/thumbnails/default.jpg';
+          }
+          videos.push({
+            id: item.Key,
+            title: baseName,
+            description: '',
+            thumbnailUrl,
+            videoUrl,
+          });
+        }
+      }
+    }
+    return videos;
   }
 } 

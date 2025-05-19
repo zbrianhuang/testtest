@@ -21,11 +21,8 @@
     "@angular/platform-browser": "^19.0.0",
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
-<<<<<<< HEAD
-=======
     "@aws-sdk/client-s3": "^3.810.0",
     "@aws-sdk/s3-request-presigner": "^3.810.0",
->>>>>>> backend2
     "@capacitor-community/file-opener": "^7.0.1",
     "@capacitor/app": "7.0.1",
     "@capacitor/core": "7.2.0",
@@ -35,19 +32,13 @@
     "@capacitor/keyboard": "7.0.1",
     "@capacitor/status-bar": "7.0.1",
     "@capawesome/capacitor-file-picker": "^7.0.1",
-<<<<<<< HEAD
     "@ffmpeg/core": "^0.12.4",
-    "@ffmpeg/ffmpeg": "^0.12.7",
-    "@ffmpeg/util": "^0.12.1",
-    "@ionic/angular": "^7.6.2",
-    "@ionic/core": "^7.6.2",
-    "@ionic/storage-angular": "^4.0.0",
-=======
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@ionic/angular": "^7.6.2",
     "@ionic/core": "^7.6.2",
     "@ionic/storage-angular": "^4.0.0",
     "buffer": "^6.0.3",
->>>>>>> backend2
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -66,10 +57,7 @@
     "@capacitor/cli": "7.2.0",
     "@ionic/angular-toolkit": "^12.0.0",
     "@types/jasmine": "~5.1.0",
-<<<<<<< HEAD
-=======
     "@types/node": "^22.15.18",
->>>>>>> backend2
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^9.16.0",

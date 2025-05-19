@@ -133,11 +133,8 @@ export class Tab2Page implements OnInit {
     const cameraPreview = this.elementRef.nativeElement.querySelector('.camera-preview');
     const rect = cameraPreview.getBoundingClientRect();
 
-<<<<<<< HEAD
     // Calculate new position in pixels
-=======
     // Calculate new position
->>>>>>> backend2
     let newLeft = clientX - this.dragStartX;
     let newTop = clientY - this.dragStartY;
 
@@ -147,7 +144,6 @@ export class Tab2Page implements OnInit {
     newLeft = Math.max(0, Math.min(newLeft, rect.width - imageWidth));
     newTop = Math.max(0, Math.min(newTop, rect.height - imageHeight));
 
-<<<<<<< HEAD
     // Convert to percentages
     const leftPercent = (newLeft / rect.width) * 100;
     const topPercent = (newTop / rect.height) * 100;
@@ -156,9 +152,7 @@ export class Tab2Page implements OnInit {
       top: topPercent,
       left: leftPercent
     };
-=======
     this.templateImagePosition = { top: newTop, left: newLeft };
->>>>>>> backend2
   }
 
   stopDrag() {

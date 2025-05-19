@@ -3,56 +3,33 @@
   display: none !important;
 }
 
-<<<<<<< HEAD
-/* Core layout */
-=======
 /* HEADER */
->>>>>>> backend2
 .editor-header {
   --background: #f5f5f5;
   border-bottom: 1px solid #ccc;
 }
 
-<<<<<<< HEAD
-=======
 /* Next arrow in a circle */
->>>>>>> backend2
 .next-circle {
   --border-radius: 50%;
   --padding: 0;
   width: 36px;
   height: 36px;
-<<<<<<< HEAD
-  
   ion-icon {
-    font-size: 34px;
-  }
-}
-
-=======
-  ion-icon {
-    font-size: 34.56px; /* Increased by an additional 20% from 28.8px */
+    font-size: 34.56px;
   }
 }
 
 /* CONTENT WRAPPER */
->>>>>>> backend2
 .editor-content {
   display: flex;
   flex-direction: column;
   height: 100%;
   background: #fff;
-<<<<<<< HEAD
   position: relative;
 }
 
-/* Video preview section */
-=======
-  position: relative; /* Ensure ion-content is a positioning context */
-}
-
 /* VIDEO PREVIEW */
->>>>>>> backend2
 .video-wrapper {
   position: relative;
   background: #000;
@@ -64,44 +41,18 @@
   max-height: calc(60vh - 32px);
   border-radius: 8px;
   overflow: hidden;
-<<<<<<< HEAD
-
-  video {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-    transform-origin: center;
-  }
-
-  .template-image {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    z-index: 10;
-    pointer-events: auto;
-    top: 0;
-    left: 0;
-    transform: translate(calc(var(--left, 0) * 1%), calc(var(--top, 0) * 1%));
-  }
 }
 
-/* Timeline section */
-.timeline-container {
-  position: absolute;
-  bottom: 90px;
-=======
-}
-
-/* Template image preview in the same position */
+/* Template image preview */
 .template-video-preview {
   position: absolute;
-  width: 100px; /* Match size from Tab2 */
+  width: 100px;
   height: 100px;
   border: 2px solid #fff;
   border-radius: 8px;
   overflow: hidden;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .template-video-preview img {
@@ -115,14 +66,16 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transition: transform 0.3s ease;
+  transform-origin: center;
 }
 
 /* Crop rectangle overlay */
 .crop-rectangle {
   position: absolute;
-  border: 2px solid #ffcc00; /* Yellow border like iPhone editor */
+  border: 2px solid #ffcc00;
   box-sizing: border-box;
-  z-index: 10; /* Above the video */
+  z-index: 10;
 }
 
 /* Resize handles at the corners */
@@ -163,8 +116,7 @@
 /* TIMELINE FOR TRIMMING */
 .timeline-container {
   position: absolute;
-  bottom: 90px; /* As per your adjustment */
->>>>>>> backend2
+  bottom: 90px;
   left: 0;
   right: 0;
   padding: 16px;
@@ -177,269 +129,31 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   overflow: hidden;
-<<<<<<< HEAD
   background: #000;
-=======
->>>>>>> backend2
 }
 
 .timeline-thumbnails {
   display: flex;
   height: 100%;
-<<<<<<< HEAD
   width: 100%;
-  
-  .thumbnail {
-    flex: 1;
-    height: 100%;
-    width: 0;
-    object-fit: cover;
-    border-right: 1px solid rgba(153, 153, 153, 0.3);
-    
-    &:last-child {
-      border-right: none;
-    }
-  }
 }
 
-/* Trim controls */
-=======
-  .thumbnail {
-    flex: 1;
-    height: 100%;
-    object-fit: cover; /* Ensure thumbnails fit nicely */
-    border-right: 1px solid #999;
-  }
-}
-
-.loading-thumbnails {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.thumbnail {
+  flex: 1;
   height: 100%;
-  font-size: 12px;
-  color: #666;
+  width: 0;
+  object-fit: cover;
+  border-right: 1px solid rgba(153, 153, 153, 0.3);
 }
 
->>>>>>> backend2
-.trimmed-area {
-  position: absolute;
-  top: 0;
-  height: 100%;
-<<<<<<< HEAD
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1;
-
-  &.trimmed-start { left: 0; }
-  &.trimmed-end { right: 0; }
-=======
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay for trimmed areas */
-  z-index: 1; /* Above thumbnails but below handles */
+.thumbnail:last-child {
+  border-right: none;
 }
 
-.trimmed-area.trimmed-start {
-  left: 0;
-}
-
-.trimmed-area.trimmed-end {
-  right: 0;
->>>>>>> backend2
-}
-
-.selected-range {
-  position: absolute;
-  top: 0;
-  height: 100%;
-<<<<<<< HEAD
-  border: 2px solid #ffcc00;
-  box-sizing: border-box;
-  z-index: 1;
-=======
-  border: 2px solid #ffcc00; /* Yellow border to highlight selected range */
-  box-sizing: border-box;
-  z-index: 1; /* Above thumbnails but below handles */
->>>>>>> backend2
-}
-
-.playhead {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-<<<<<<< HEAD
-  background: #fff;
-  z-index: 2;
-=======
-  background: #fff; /* White playhead line */
-  z-index: 2; /* Above selected range but below handles */
->>>>>>> backend2
-}
-
-.trim-handles {
-  position: absolute;
-<<<<<<< HEAD
-  inset: 0;
-  z-index: 3;
-
-  .trim-start, .trim-end {
-    position: absolute;
-    width: 16px;
-    height: 100%;
-    background: #ffcc00;
-    cursor: ew-resize;
-  }
-
-  .trim-start {
-    left: 0;
-    transform: translateX(-50%);
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: -10px;
-      transform: translateY(-50%);
-      border-left: 10px solid #ffcc00;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-    }
-  }
-
-  .trim-end {
-    right: 0;
-    transform: translateX(50%);
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: -10px;
-      transform: translateY(-50%);
-      border-right: 10px solid #ffcc00;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-    }
-  }
-
-  .trim-time {
-    position: absolute;
-    top: -20px;
-=======
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3; /* Above everything else in the timeline */
-  .trim-start, .trim-end {
-    position: absolute;
-    width: 16px; /* Slightly wider for better visibility */
-    height: 100%;
-    background: #ffcc00; /* Yellow handle */
-    border: none; /* Remove border for a cleaner look */
-    cursor: ew-resize;
-  }
-  .trim-start {
-    left: 0;
-    transform: translateX(-50%); /* Center the handle on the edge */
-  }
-  .trim-start::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -10px; /* Position arrow to the right of the handle */
-    transform: translateY(-50%);
-    border-left: 10px solid #ffcc00; /* Yellow triangle pointing right */
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-  }
-  .trim-end {
-    right: 0;
-    transform: translateX(50%); /* Center the handle on the edge */
-  }
-  .trim-end::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: -10px; /* Position arrow to the left of the handle */
-    transform: translateY(-50%);
-    border-right: 10px solid #ffcc00; /* Yellow triangle pointing left */
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-  }
-  .trim-time {
-    position: absolute;
-    top: -20px; /* Position above the handle */
->>>>>>> backend2
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-size: 10px;
-    white-space: nowrap;
-  }
-<<<<<<< HEAD
-=======
-  .trim-start .trim-time {
-    left: 50%;
-  }
-  .trim-end .trim-time {
-    right: 50%;
-    transform: translateX(50%);
-  }
->>>>>>> backend2
-}
-
-/* EDITOR TOOLS */
-.editor-tools {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-<<<<<<< HEAD
-  justify-content: space-around;
-=======
-  justify-content: space-around; /* Adjusted for 4 icons */
->>>>>>> backend2
-  align-items: center;
-  padding: 12px 0;
-  background: #fff;
-  border-top: 1px solid #ccc;
-}
-
-/* Ensure buttons inside editor-tools remain unaffected */
-.editor-tools ion-button {
-  --padding: 0;
-}
-
-.editor-tools ion-icon {
-  font-size: 24px;
-}
-
-/* Style the back arrow button */
-.back-arrow {
-  ion-icon {
-    font-size: 34.56px;
-  }
-}
-
-/* Style the Done button with a right arrow */
-.done-button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  ion-icon {
-    font-size: 28.8px;
-  }
-<<<<<<< HEAD
-}
-
-/* Volume control styles */
+/* Volume control */
 .volume-control {
   position: relative;
-  display: flex;
-  align-items: center;
+  display: inline-block;
 }
 
 .volume-slider-container {
@@ -448,150 +162,71 @@
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.8);
-  border-radius: 12px;
-  padding: 12px;
-  height: 160px;
-  width: 60px;
+  padding: 10px;
+  border-radius: 8px;
   display: none;
-  transition: opacity 0.2s ease;
-  z-index: 1000;
-  
-  &.show-slider {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+  width: 120px;
+}
+
+.volume-slider-container.show-slider {
+  display: block;
 }
 
 .volume-value {
   color: white;
   text-align: center;
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
-  border-radius: 10px;
-  min-width: 36px;
+  margin-bottom: 5px;
+  font-size: 12px;
 }
 
 .volume-slider {
-  width: 110px !important;
-  height: 110px !important;
-  --bar-background: rgba(255, 255, 255, 0.15);
+  --bar-background: rgba(255, 255, 255, 0.2);
   --bar-background-active: var(--ion-color-primary);
-  --bar-height: 4px;
-  --bar-border-radius: 2px;
-  --knob-background: #ffffff;
-  --knob-size: 24px;
-  --pin-background: transparent;
-  transform: rotate(-90deg);
-  padding: 16px 0;
-  pointer-events: none;
-  
-  &::part(track) {
-    background: var(--bar-background);
-    width: 6px !important;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 3px;
-    pointer-events: none;
-  }
-  
-  &::part(track-active) {
-    background: var(--bar-background-active);
-    width: 6px !important;
-    border-radius: 3px;
-    pointer-events: none;
-  }
-  
-  &::part(knob) {
-    background: var(--knob-background);
-    width: var(--knob-size);
-    height: var(--knob-size);
-    border: 2px solid var(--bar-background-active);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    left: 50%;
-    transform: translateX(-50%);
-    position: absolute;
-    z-index: 2;
-    touch-action: none;
-    pointer-events: auto;
-    cursor: grab;
-  }
-
-  &::part(knob)::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 44px;
-    height: 44px;
-    background: transparent;
-    border-radius: 50%;
-  }
+  --knob-background: var(--ion-color-primary);
+  --height: 4px;
+  --width: 100%;
 }
 
-/* Video stitching modal styles */
+/* Editor tools */
+.editor-tools {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #ccc;
+}
+
+/* Video stitching modal */
 ion-modal {
-  --height: 400px;
+  --height: 80%;
   --border-radius: 16px;
-  
-  ion-content {
-    --padding-top: 16px;
-    --padding-bottom: 16px;
-  }
 }
 
-ion-thumbnail {
+ion-modal ion-content {
+  --background: #f5f5f5;
+}
+
+ion-modal ion-list {
+  background: transparent;
+}
+
+ion-modal ion-item {
+  --background: #fff;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+ion-modal ion-thumbnail {
   --size: 80px;
-  margin: 8px;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
-  
-  video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 }
 
-.stitch-button {
+ion-modal ion-button[expand="block"] {
   margin-top: 16px;
-}
-
-ion-spinner {
-  margin-right: 8px;
-}
-
-/* Add these styles for the template preview */
-.template-video-preview {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border: 2px solid #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  z-index: 10;
-  pointer-events: none; /* Prevent interaction in editor mode */
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.template-image {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  cursor: move;
-  z-index: 2;
-  pointer-events: auto;
-  transform: translate(calc(var(--left) * 1%), calc(var(--top) * 1%));
-=======
->>>>>>> backend2
 }

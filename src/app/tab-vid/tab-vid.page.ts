@@ -3,10 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
 import { CommonModule } from '@angular/common'; 
 import { IonicModule } from '@ionic/angular'; 
-<<<<<<< HEAD
-=======
 import { S3Service } from '../services/s3.service';
->>>>>>> backend2
 
 const db = [
     { id: "vid-001", title: 'annie.', artist: 'wave to earth', cover_artist: 'jim', videoUrl: '/assets/videos/annie_wave_to_earth.mp4', description: '#cover #guitar #vocal' },
@@ -33,30 +30,19 @@ export class TabVidPage implements OnInit {
   liked: boolean = false;
   saved: boolean = false;
 
-  // Inject ActivatedRoute
-<<<<<<< HEAD
-  constructor(private route: ActivatedRoute) {}
-
-  ngOnInit() {
-=======
   constructor(
     private route: ActivatedRoute,
     private s3Service: S3Service
   ) {}
 
   async ngOnInit() {
->>>>>>> backend2
     // Get the 'id' parameter from the URL snapshot
     const idFromRoute = this.route.snapshot.paramMap.get('id');
     this.videoId = idFromRoute;
 
     if (this.videoId) {
       console.log('Loading video for ID:', this.videoId);
-<<<<<<< HEAD
-      this.loadVideoInfo(this.videoId);
-=======
       await this.loadVideoInfo(this.videoId);
->>>>>>> backend2
     } else {
       console.error('No video ID found in route parameters!');
       this.title = 'Error: Video not found';
@@ -64,34 +50,19 @@ export class TabVidPage implements OnInit {
     }
   }
 
-<<<<<<< HEAD
-  loadVideoInfo(id: string) {
-    const videoData = db.find(video => video.id === id);
-
-    if (videoData) {
-      this.title = videoData.title;
-      this.artist = videoData.artist;
-      this.cover_artist = videoData.cover_artist; 
-      this.videoUrl = videoData.videoUrl;
-      this.description = videoData.description; 
-    } else {
-      console.error(`Video with ID ${id} not found in fake database!`);
-      this.title = 'Error: Video details not found';
-      this.artist = '';
-      this.cover_artist = '';
-      this.videoUrl = '';
-      this.description = '';
-    }
-  }
-=======
   async loadVideoInfo(id: string) {
     try {
-      // Load videos from localStorage
+      // First try to load from localStorage
       const savedVideos = localStorage.getItem('uploadedVideos');
       const uploadedVideos = savedVideos ? JSON.parse(savedVideos) : [];
       
       // Find the video with matching ID
-      const videoData = uploadedVideos.find((video: any) => video.id === id);
+      let videoData = uploadedVideos.find((video: any) => video.id === id);
+
+      // If not found in localStorage, try the local db
+      if (!videoData) {
+        videoData = db.find(video => video.id === id);
+      }
 
       if (videoData) {
         this.title = videoData.title;
@@ -99,8 +70,12 @@ export class TabVidPage implements OnInit {
         this.cover_artist = videoData.cover_artist || '';
         this.description = videoData.description || '';
         
-        // Get signed URLs for video and thumbnail
-        this.videoUrl = await this.s3Service.getVideoUrl(videoData.videoUrl);
+        // If the video is from S3, get signed URL
+        if (videoData.videoUrl.startsWith('s3://')) {
+          this.videoUrl = await this.s3Service.getVideoUrl(videoData.videoUrl);
+        } else {
+          this.videoUrl = videoData.videoUrl;
+        }
       } else {
         console.error(`Video with ID ${id} not found!`);
         this.title = 'Error: Video not found';
@@ -111,19 +86,15 @@ export class TabVidPage implements OnInit {
     }
   }
 
->>>>>>> backend2
   like_video() {
-    this.liked = true;
+    this.liked = !this.liked;
   }
 
   save_video() {
-    this.saved = true;
-    console.log("saved");
+    this.saved = !this.saved;
+    console.log("saved:", this.saved);
   }
-<<<<<<< HEAD
-=======
 
->>>>>>> backend2
   send_alert(str: string) {
     alert(str);
   }
