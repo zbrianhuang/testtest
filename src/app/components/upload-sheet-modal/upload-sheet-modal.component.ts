@@ -12,6 +12,7 @@ import { FilePicker, PickedFile } from '@capawesome/capacitor-file-picker';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { CommonModule } from '@angular/common';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 interface UploadData {
   title: string;
@@ -25,84 +26,119 @@ interface UploadData {
   templateUrl: './upload-sheet-modal.component.html',
   styleUrls: ['./upload-sheet-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule]
+  imports: [IonicModule, CommonModule, ReactiveFormsModule]
 })
 export class UploadSheetModalComponent implements OnInit {
-  @ViewChild('sheetFileInput') sheetFileInputRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('thumbnailFileInput') thumbnailFileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('sheetFileInput') sheetFileInput!: ElementRef;
+  @ViewChild('thumbnailFileInput') thumbnailFileInput!: ElementRef;
 
   uploadForm: FormGroup;
-  selectedSheetFile: { name: string; path: string; data?: string; mimeType?: string } | null = null;
-  selectedThumbnailFile: { name: string; path: string; data?: string; mimeType?: string } | null = null;
-
+  selectedSheetFile: any = null;
+  selectedThumbnailFile: any = null;
   sheetFileName: string = '';
   thumbnailFileName: string = '';
+  thumbnailPreview: string = '';
 
   constructor(
+    private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
-    private fb: FormBuilder,
     private platform: Platform,
-    private toastCtrl: ToastController
+    private toastController: ToastController
   ) {
-    this.uploadForm = this.fb.group({
+    this.uploadForm = this.formBuilder.group({
       title: ['', Validators.required],
-      author: ['', Validators.required],
+      author: ['', Validators.required]
     });
   }
 
   ngOnInit() {}
 
-  async selectSheetFile() {
-    if (Capacitor.isNativePlatform()) {
-      try {
-        const result = await FilePicker.pickFiles({
-          types: ['application/pdf'],
-          readData: false, // We only need the path for native
-        });
-        if (result.files.length > 0) {
-          const file = result.files[0];
-          this.selectedSheetFile = { name: file.name, path: file.path!, mimeType: file.mimeType };
-          this.sheetFileName = file.name;
-        }
-      } catch (e) {
-        console.error('Error picking sheet file:', e);
-        this.presentToast('Error picking sheet file.');
+  async takePicture() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera
+      });
+
+      if (image.webPath) {
+        // For web
+        this.selectedThumbnailFile = {
+          name: 'camera_photo.jpg',
+          path: image.webPath,
+          data: image.webPath
+        };
+        this.thumbnailFileName = 'Camera Photo';
+        this.thumbnailPreview = image.webPath;
+      } else if (image.path) {
+        // For native
+        this.selectedThumbnailFile = {
+          name: 'camera_photo.jpg',
+          path: image.path
+        };
+        this.thumbnailFileName = 'Camera Photo';
+        this.thumbnailPreview = Capacitor.convertFileSrc(image.path);
       }
-    } else {
-      // Web fallback
-      this.sheetFileInputRef.nativeElement.click();
+    } catch (error) {
+      console.error('Error taking picture:', error);
+      this.presentToast('Error taking picture');
+    }
+  }
+
+  async selectSheetFile() {
+    try {
+      const result = await FilePicker.pickFiles({
+        types: ['application/pdf'],
+        readData: true
+      });
+
+      if (result.files.length > 0) {
+        const file = result.files[0];
+        this.selectedSheetFile = {
+          name: file.name,
+          path: file.path,
+          data: file.data
+        };
+        this.sheetFileName = file.name;
+      }
+    } catch (error) {
+      console.error('Error picking file:', error);
+      this.presentToast('Error selecting file');
     }
   }
 
   async selectThumbnailFile() {
-    if (Capacitor.isNativePlatform()) {
-      try {
-        const result = await FilePicker.pickFiles({
-          types: ['image/jpeg', 'image/png'],
-          readData: false, // We only need the path for native
-        });
-        if (result.files.length > 0) {
-          const file = result.files[0];
-          this.selectedThumbnailFile = { name: file.name, path: file.path!, mimeType: file.mimeType };
-          this.thumbnailFileName = file.name;
+    try {
+      const result = await FilePicker.pickFiles({
+        types: ['image/jpeg', 'image/png'],
+        readData: true
+      });
+
+      if (result.files.length > 0) {
+        const file = result.files[0];
+        this.selectedThumbnailFile = {
+          name: file.name,
+          path: file.path,
+          data: file.data
+        };
+        this.thumbnailFileName = file.name;
+        if (file.data) {
+          this.thumbnailPreview = file.data;
         }
-      } catch (e) {
-        console.error('Error picking thumbnail:', e);
-        this.presentToast('Error picking thumbnail.');
       }
-    } else {
-      // Web fallback
-      this.thumbnailFileInputRef.nativeElement.click();
+    } catch (error) {
+      console.error('Error picking file:', error);
+      this.presentToast('Error selecting file');
     }
   }
 
-  // Handler for web file input
   handleSheetFileWeb(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
       const file = target.files[0];
       this.readFileAsBase64(file).then(base64Data => {
-        this.selectedSheetFile = { name: file.name, path: '', data: base64Data, mimeType: file.type };
+        this.selectedSheetFile = { name: file.name, path: '', data: base64Data };
         this.sheetFileName = file.name;
       });
     }
@@ -112,9 +148,10 @@ export class UploadSheetModalComponent implements OnInit {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
       const file = target.files[0];
-       this.readFileAsBase64(file).then(base64Data => {
-        this.selectedThumbnailFile = { name: file.name, path: '', data: base64Data, mimeType: file.type };
+      this.readFileAsBase64(file).then(base64Data => {
+        this.selectedThumbnailFile = { name: file.name, path: '', data: base64Data };
         this.thumbnailFileName = file.name;
+        this.thumbnailPreview = base64Data;
       });
     }
   }
@@ -122,14 +159,24 @@ export class UploadSheetModalComponent implements OnInit {
   private readFileAsBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        resolve(reader.result as string); // Format: data:mime/type;base64,BASE64_ENCODED_STRING
-      };
-      reader.onerror = error => reject(error);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
       reader.readAsDataURL(file);
     });
   }
 
+  async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  dismissModal() {
+    this.modalCtrl.dismiss();
+  }
 
   async saveSheetMusic() {
     if (this.uploadForm.valid && this.selectedSheetFile && this.selectedThumbnailFile) {
@@ -144,17 +191,5 @@ export class UploadSheetModalComponent implements OnInit {
     } else {
       this.presentToast('Please fill all fields and select files.');
     }
-  }
-
-  dismissModal() {
-    this.modalCtrl.dismiss(null);
-  }
-
-  async presentToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message: message,
-      duration: 3000,
-    });
-    toast.present();
   }
 }

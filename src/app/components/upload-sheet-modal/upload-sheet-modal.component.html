@@ -25,13 +25,25 @@
     <!-- Hidden file input for web/PWA fallback if FilePicker fails or for testing -->
     <input type="file" #sheetFileInput hidden (change)="handleSheetFileWeb($event)" accept=".pdf"/>
 
+    <ion-item>
+      <ion-label>Thumbnail</ion-label>
+      <ion-button slot="end" (click)="takePicture()">
+        <ion-icon name="camera-outline" slot="start"></ion-icon>
+        Take Photo
+      </ion-button>
+    </ion-item>
 
     <ion-item button (click)="selectThumbnailFile()">
-      <ion-label>Thumbnail (Image)</ion-label>
+      <ion-label>Or Select Image</ion-label>
       <ion-note slot="end">{{ thumbnailFileName || 'Select File' }}</ion-note>
     </ion-item>
     <!-- Hidden file input for web/PWA fallback -->
     <input type="file" #thumbnailFileInput hidden (change)="handleThumbnailFileWeb($event)" accept="image/png, image/jpeg"/>
+
+    <ion-item *ngIf="thumbnailPreview">
+      <ion-label>Preview</ion-label>
+      <img [src]="thumbnailPreview" alt="Thumbnail Preview" style="max-width: 100px; max-height: 100px;">
+    </ion-item>
 
     <ion-button type="submit" expand="block" [disabled]="!uploadForm.valid || !selectedSheetFile || !selectedThumbnailFile">
       Upload

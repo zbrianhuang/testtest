@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { SearchComponent } from './search/search.component';
+import { Tab2PageModule } from './tab2/tab2.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -18,7 +19,8 @@ import { SearchComponent } from './search/search.component';
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),  //this causes warning
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    Tab2PageModule
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
