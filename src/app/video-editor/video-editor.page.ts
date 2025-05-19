@@ -20,7 +20,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
   @ViewChild('videoPlayer', { static: true })
   videoPlayer!: ElementRef<HTMLVideoElement>;
 
-  videoSrc = 'assets/videos/annie_wave_to_earth.mp4';
+  videoSrc = 'assets/videos/知足.mp4';
   isPlaying = false;
   isMuted = false;
   duration = 0;

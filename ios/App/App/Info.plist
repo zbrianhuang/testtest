@@ -52,12 +52,16 @@
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>This app needs access to documents to save and manage sheet music files.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to photos to select thumbnails for sheet music.</string>
+	<string>我們需要存取相簿來儲存錄製的影片。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs access to save thumbnails to your photo library.</string>
+	<string>我們需要存取相簿來儲存錄製的影片。</string>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
 	<key>UISupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>我們需要使用相機來錄製影片。</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>我們需要使用麥克風來錄製影片的聲音。</string>
 </dict>
 </plist>
