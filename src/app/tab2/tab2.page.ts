@@ -58,9 +58,18 @@ export class Tab2Page implements OnInit {
     }
   }
 
-  setMode(mode: 'video' | 'template') {
-    this.selectedMode = mode;
-    this.showRecent = true;
+  setMode(mode: 'video' | 'template' | undefined) {
+    if (mode === 'video' || mode === 'template') {
+      this.selectedMode = mode;
+      this.showRecent = true;
+    }
+  }
+
+  handleSegmentChange(event: any) {
+    const value = event.detail.value;
+    if (value === 'video' || value === 'template') {
+      this.setMode(value);
+    }
   }
 
   showCamera() {
@@ -158,6 +167,7 @@ export class Tab2Page implements OnInit {
   stopDrag() {
     this.isDragging = false;
 
+
     // Remove event listeners
     document.removeEventListener('mousemove', this.onDrag.bind(this));
     document.removeEventListener('touchmove', this.onDrag.bind(this));
@@ -165,5 +175,7 @@ export class Tab2Page implements OnInit {
     document.removeEventListener('touchend', this.stopDrag.bind(this));
 
     // Do not save to storage, so position resets on new template selection
+
+    
   }
 }

@@ -139,3 +139,6 @@
     </ion-button>
   </ion-toolbar>
 </ion-footer>
+
+<ion-segment [(ngModel)]="selectedMode" (ionChange)="handleSegmentChange($event)">
+</ion-segment>
