@@ -22,6 +22,18 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos for sheet music thumbnails</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>This app needs access to documents to save and manage sheet music files.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs access to save thumbnails to your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select images for sheet music thumbnails</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -43,23 +55,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>NSDocumentsFolderUsageDescription</key>
-	<string>This app needs access to documents to save and manage sheet music files.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos for sheet music thumbnails</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to select images for sheet music thumbnails</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs access to save thumbnails to your photo library.</string>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
 	<key>UISupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>
 </plist>
