@@ -4,6 +4,9 @@ import { Storage } from '@ionic/storage-angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MetronomeComponent } from '../components/metronome/metronome.component';
+import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capacitor/camera';
+import { Platform } from '@ionic/angular';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
 
 @Component({
   selector: 'app-tab2',
@@ -30,7 +33,8 @@ export class Tab2Page implements OnInit {
     private navCtrl: NavController,
     private alertController: AlertController,
     private storage: Storage,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private platform: Platform
   ) {}
 
   async ngOnInit() {
@@ -184,5 +188,66 @@ export class Tab2Page implements OnInit {
 
   switchCamera() {
     this.currentCamera = this.currentCamera === 'front' ? 'back' : 'front';
+  }
+
+  async showUploadOptions() {
+    const alert = await this.alertController.create({
+      header: 'Upload Video',
+      message: 'Choose how to upload your video',
+      buttons: [
+        {
+          text: 'Record New',
+          handler: () => {
+            this.showCamera();
+          }
+        },
+        {
+          text: 'Upload Existing',
+          handler: () => {
+            this.pickVideo();
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async pickVideo() {
+    try {
+      const result = await FilePicker.pickFiles({
+        readData: true
+      });
+
+      if (result.files && result.files.length > 0) {
+        const file = result.files[0];
+        if (file.data && file.mimeType?.startsWith('video/')) {
+          // Navigate to video editor with the selected file
+          this.navCtrl.navigateForward('/tabs/video-editor', {
+            state: {
+              videoFile: new File([file.data], file.name, { type: file.mimeType })
+            }
+          });
+        } else {
+          const alert = await this.alertController.create({
+            header: 'Error',
+            message: 'Please select a video file.',
+            buttons: ['OK']
+          });
+          await alert.present();
+        }
+      }
+    } catch (error) {
+      console.error('Error picking video:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to pick video. Please try again.',
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
   }
 }

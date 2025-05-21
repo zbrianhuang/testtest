@@ -68,23 +68,12 @@ export class HomeTabPage implements OnInit {
         popular: popular.length
       });
 
-      // Create a Set to track unique video IDs
-      const uniqueVideoIds = new Set<string>();
-      
-      // Get signed URLs for all videos, ensuring each video appears only once
+      // Get signed URLs for all videos
       const videosWithUrls = await Promise.all([
         ...trending,
         ...recent,
         ...popular
-      ].filter(video => {
-        // Only include the video if we haven't seen its ID before
-        if (uniqueVideoIds.has(video.id)) {
-          console.log(`Skipping duplicate video ID: ${video.id}`);
-          return false;
-        }
-        uniqueVideoIds.add(video.id);
-        return true;
-      }).map(async (video) => {
+      ].map(async (video) => {
         console.log(`Processing video: ${video.id} - ${video.title}`);
         const videoUrl = await this.s3Service.getVideoUrl(video.s3Key);
         let thumbnailUrl = '';
@@ -101,13 +90,13 @@ export class HomeTabPage implements OnInit {
         };
       }));
 
-      console.log(`Total unique videos processed: ${videosWithUrls.length}`);
+      console.log(`Total videos processed: ${videosWithUrls.length}`);
 
-      // Organize videos into categories, ensuring each video appears in its highest priority category
+      // Organize videos into categories without filtering
       this.videos = [
         videosWithUrls.filter(v => trending.some(t => t.id === v.id)), // Trending
-        videosWithUrls.filter(v => recent.some(r => r.id === v.id) && !trending.some(t => t.id === v.id)), // Recent (excluding trending)
-        videosWithUrls.filter(v => popular.some(p => p.id === v.id) && !trending.some(t => t.id === v.id) && !recent.some(r => r.id === v.id)) // Popular (excluding trending and recent)
+        videosWithUrls.filter(v => recent.some(r => r.id === v.id)), // Recent
+        videosWithUrls.filter(v => popular.some(p => p.id === v.id)) // Popular
       ];
 
       console.log('Final video distribution:', {
