@@ -12,8 +12,9 @@ import { MetronomeComponent } from '../components/metronome/metronome.component'
     CommonModule,
     FormsModule,
     Tab2PageRoutingModule,
-    MetronomeComponent
+    MetronomeComponent,
+    Tab2Page
   ],
-  declarations: [Tab2Page]
+  declarations: []
 })
 export class Tab2PageModule {}

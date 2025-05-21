@@ -3,6 +3,314 @@
   display: none !important;
 }
 
+/* Editor container */
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Canvas Container (Main video editing area) */
+.canvas-container {
+  position: relative;
+  background-color: #111;
+  flex: 1;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+/* Video Layer Styling */
+.video-layer {
+  position: absolute;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s ease;
+}
+
+.video-layer.selected {
+  border-color: #4a80f5;
+  box-shadow: 0 0 0 1px rgba(74, 128, 245, 0.5);
+}
+
+.video-layer.dragging {
+  opacity: 0.8;
+  cursor: move;
+}
+
+.layer-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Resize Handles */
+.resize-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background-color: #fff;
+  border: 2px solid #4a80f5;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.resize-handle.top-left {
+  top: -7px;
+  left: -7px;
+  cursor: nwse-resize;
+}
+
+.resize-handle.top-right {
+  top: -7px;
+  right: -7px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-left {
+  bottom: -7px;
+  left: -7px;
+  cursor: nesw-resize;
+}
+
+.resize-handle.bottom-right {
+  bottom: -7px;
+  right: -7px;
+  cursor: nwse-resize;
+}
+
+/* Timeline Container */
+.timeline-container {
+  background-color: #222;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #333;
+  overflow: hidden;
+}
+
+/* Timeline Controls */
+.timeline-controls {
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  background-color: #1a1a1a;
+}
+
+.main-controls {
+  display: flex;
+  gap: 8px;
+}
+
+/* Timeline Tracks */
+.timeline-tracks {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.timeline-track {
+  display: flex;
+  background-color: #2a2a2a;
+  border-bottom: 1px solid #333;
+  min-height: 60px;
+  transition: background-color 0.2s;
+}
+
+.timeline-track.selected {
+  background-color: #344054;
+}
+
+.timeline-track.moving-up {
+  animation: moveUp 0.3s ease;
+}
+
+.timeline-track.moving-down {
+  animation: moveDown 0.3s ease;
+}
+
+@keyframes moveUp {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes moveDown {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+  100% { transform: translateY(0); }
+}
+
+/* Track Label */
+.track-label {
+  width: 250px;
+  padding: 8px;
+  background-color: #1a1a1a;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.layer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.layer-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.layer-time-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-input {
+  font-size: 12px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+}
+
+.upload-button {
+  margin-top: 4px;
+}
+
+/* Track Content */
+.track-content {
+  flex: 1;
+  position: relative;
+  height: 60px;
+  overflow: hidden;
+  transition: height 0.3s;
+}
+
+.track-content.expanded {
+  height: 120px;
+}
+
+.thumbnails-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  background-color: #1a1a1a;
+}
+
+.thumbnail {
+  min-width: 100px;
+  height: 100%;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Timeline Overlay */
+.timeline-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.trim-frame {
+  position: absolute;
+  height: 100%;
+  background-color: rgba(74, 128, 245, 0.2);
+  border: 2px solid #4a80f5;
+  box-sizing: border-box;
+  pointer-events: all;
+}
+
+.trim-frame .trim-handle {
+  position: absolute;
+  width: 8px;
+  height: 100%;
+  background-color: #4a80f5;
+  cursor: ew-resize;
+  pointer-events: all;
+}
+
+.trim-frame .trim-handle.left {
+  left: 0;
+}
+
+.trim-frame .trim-handle.right {
+  right: 0;
+}
+
+.playhead {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background-color: #ff4081;
+  pointer-events: none;
+}
+
+/* Trim rectangle */
+.trim-rectangle {
+  position: absolute;
+  border: 2px solid #4a80f5;
+  background-color: rgba(74, 128, 245, 0.2);
+  z-index: 100;
+}
+
+.trim-rectangle .trim-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background-color: #fff;
+  border: 2px solid #4a80f5;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Opacity Panel */
+.opacity-panel {
+  position: absolute;
+  bottom: 180px;
+  right: 16px;
+  background-color: rgba(42, 42, 42, 0.95);
+  border-radius: 8px;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.panel-content {
+  padding: 16px;
+}
+
 /* HEADER */
 .editor-header {
   --background: #f5f5f5;
@@ -76,78 +384,6 @@
   border: 2px solid #ffcc00;
   box-sizing: border-box;
   z-index: 10;
-}
-
-/* Resize handles at the corners */
-.resize-handle {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #ffcc00;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.resize-handle.top-left {
-  top: -6px;
-  left: -6px;
-  cursor: nwse-resize;
-}
-
-.resize-handle.top-right {
-  top: -6px;
-  right: -6px;
-  cursor: nesw-resize;
-}
-
-.resize-handle.bottom-left {
-  bottom: -6px;
-  left: -6px;
-  cursor: nesw-resize;
-}
-
-.resize-handle.bottom-right {
-  bottom: -6px;
-  right: -6px;
-  cursor: nwse-resize;
-}
-
-/* TIMELINE FOR TRIMMING */
-.timeline-container {
-  position: absolute;
-  bottom: 90px;
-  left: 0;
-  right: 0;
-  padding: 16px;
-  background: #fff;
-}
-
-.timeline {
-  position: relative;
-  height: 60px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  overflow: hidden;
-  background: #000;
-}
-
-.timeline-thumbnails {
-  display: flex;
-  height: 100%;
-  width: 100%;
-}
-
-.thumbnail {
-  flex: 1;
-  height: 100%;
-  width: 0;
-  object-fit: cover;
-  border-right: 1px solid rgba(153, 153, 153, 0.3);
-}
-
-.thumbnail:last-child {
-  border-right: none;
 }
 
 /* Volume control */

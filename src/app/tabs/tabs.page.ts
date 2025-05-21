@@ -54,6 +54,13 @@ export class TabsPage {
           }
         },
         {
+          text: 'Upload Without Editing',
+          icon: 'arrow-up-circle',
+          handler: () => {
+            this.pickVideoForDirectUpload();
+          }
+        },
+        {
           text: 'Cancel',
           icon: 'close',
           role: 'cancel'
@@ -133,6 +140,25 @@ export class TabsPage {
     } catch (error) {
       console.error('Error picking video:', error);
       alert('Could not pick a video. Please try again later.');
+    }
+  }
+
+  async pickVideoForDirectUpload() {
+    try {
+      const result = await FilePicker.pickVideos({
+        readData: false
+      });
+
+      if (result.files.length > 0) {
+        const videoFile = result.files[0];
+        
+        // Navigate directly to upload-info page with the video file
+        this.router.navigate(['/upload-info'], {
+          state: { videoFile: videoFile }
+        });
+      }
+    } catch (error) {
+      console.error('Error picking video for upload:', error);
     }
   }
 }

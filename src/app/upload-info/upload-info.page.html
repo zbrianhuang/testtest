@@ -50,8 +50,14 @@
 
   <ion-item>
     <ion-label>Thumbnail</ion-label>
-    <ion-button *ngIf="!thumbnailUrl" fill="outline" (click)="thumbnailInput.click()">Choose File</ion-button>
+    <ion-button fill="outline" (click)="thumbnailInput.click()" [disabled]="isGeneratingThumbnail || isUploading">Choose File</ion-button>
     <input #thumbnailInput type="file" accept="image/*" (change)="handleThumbnailUpload($event)" style="display: none">
+  </ion-item>
+
+  <!-- Show loading spinner when generating thumbnail -->
+  <ion-item *ngIf="isGeneratingThumbnail">
+    <ion-label>Generating thumbnail...</ion-label>
+    <ion-spinner name="circles"></ion-spinner>
   </ion-item>
 
   <ion-item *ngIf="thumbnailUrl">
@@ -67,7 +73,7 @@
 
   <ion-item lines="none">
     <ion-label>Attach Sheet Music</ion-label>
-    <ion-button fill="outline" (click)="selectSheetMusic()">Choose File</ion-button>
+    <ion-button fill="outline" (click)="selectSheetMusic()" [disabled]="isUploading">Choose File</ion-button>
   </ion-item>
 
   <ion-item *ngIf="sheetMusicName">
@@ -77,5 +83,20 @@
     </ion-label>
   </ion-item>
 
-  <ion-button expand="block" class="ion-margin-top" (click)="submit()">Submit</ion-button>
+  <!-- Upload Progress -->
+  <div *ngIf="isUploading" class="ion-padding">
+    <ion-progress-bar [value]="uploadProgress / 100"></ion-progress-bar>
+    <div class="ion-text-center ion-padding-top">
+      <p>Uploading video... {{ uploadProgress }}%</p>
+      <ion-button color="danger" (click)="cancelUpload()">
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        Cancel Upload
+      </ion-button>
+    </div>
+  </div>
+
+  <ion-button expand="block" class="ion-margin-top" (click)="submit()" [disabled]="isGeneratingThumbnail || isUploading">
+    <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+    Submit
+  </ion-button>
 </ion-content>

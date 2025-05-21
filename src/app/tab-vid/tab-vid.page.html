@@ -38,6 +38,10 @@
         <ion-icon name="eye-outline"></ion-icon>
         <span class="count">{{ views }}</span>
       </ion-button>
+      <ion-button (click)="editVideo()" color="tertiary">
+        <ion-icon name="create-outline"></ion-icon>
+        <span>Edit</span>
+      </ion-button>
     </ion-grid>
     <h1>{{ title }}</h1>
     <h2>Original Artist: {{ artist }}</h2>

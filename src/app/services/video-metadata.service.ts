@@ -26,6 +26,10 @@ export class VideoMetadataService {
     return this.mongoService.addVideo(metadata);
   }
 
+  async updateVideo(videoId: string, updates: Partial<VideoMetadata>): Promise<VideoMetadata> {
+    return this.mongoService.updateVideo(videoId, updates);
+  }
+
   async updateThumbnailKey(videoId: string, thumbnailKey: string): Promise<void> {
     await this.mongoService.updateThumbnailKey(videoId, thumbnailKey);
   }

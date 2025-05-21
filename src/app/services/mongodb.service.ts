@@ -25,6 +25,15 @@ export class MongoDBService {
     return response;
   }
 
+  // Update an existing video
+  async updateVideo(id: string, updates: Partial<VideoMetadata>): Promise<VideoMetadata> {
+    const response = await firstValueFrom(
+      this.http.put<VideoMetadata>(`${this.apiUrl}/videos/${id}`, updates)
+    );
+    if (!response) throw new Error('Failed to update video');
+    return response;
+  }
+
   // Get all videos
   async getAllVideos(): Promise<VideoMetadata[]> {
     const response = await firstValueFrom(

@@ -86,6 +86,71 @@ export class S3Service {
     }
   }
 
+  // Replace an existing video with a new one
+  async replaceVideo(videoId: string, file: File, metadata: {
+    title: string;
+    description: string;
+    artist: string;
+    coverArtist: string;
+  }): Promise<{ s3Key: string }> {
+    // Create a key for the updated video
+    const videoKey = `videos/${videoId}/${file.name}`;
+    
+    try {
+      // Convert file to buffer
+      const fileBuffer = await this.fileToBuffer(file);
+      
+      // Upload the file to S3 (overwrites existing file with same key)
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: environment.aws.bucketName,
+          Key: videoKey,
+          Body: fileBuffer,
+          ContentType: file.type
+        })
+      );
+
+      // Update metadata entry with the new info
+      await this.metadataService.updateVideo(videoId, {
+        title: metadata.title,
+        description: metadata.description,
+        artist: metadata.artist,
+        coverArtist: metadata.coverArtist,
+        s3Key: videoKey
+      });
+
+      return { s3Key: videoKey };
+    } catch (error) {
+      console.error('Error replacing video in S3:', error);
+      throw error;
+    }
+  }
+
+  // Generate a presigned URL for uploading a large video file directly from the client
+  async getVideoUploadPresignedUrl(fileName: string): Promise<{url: string, videoKey: string, videoId: string}> {
+    const videoId = `vid-${Date.now()}`;
+    const videoKey = `videos/${videoId}/${fileName}`;
+    
+    try {
+      const command = new PutObjectCommand({
+        Bucket: environment.aws.bucketName,
+        Key: videoKey,
+        ContentType: 'video/mp4'
+      });
+      
+      const url = await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+      
+      return {
+        url,
+        videoKey,
+        videoId
+      };
+    } catch (error) {
+      console.error('Error generating presigned URL:', error);
+      throw error;
+    }
+  }
+
   async uploadThumbnail(file: File, videoId: string): Promise<string> {
     const thumbnailKey = `thumbnails/${videoId}/${file.name}`;
     const fileBuffer = await this.fileToBuffer(file);

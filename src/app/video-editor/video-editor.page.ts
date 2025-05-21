@@ -151,6 +151,11 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly TIMELINE_NORMAL_HEIGHT = 60;
   private readonly TIMELINE_EXPANDED_HEIGHT = 200;
 
+  isEditingExistingVideo: boolean = false;
+  existingVideoId: string | null = null;
+  existingVideoMetadata: any = null;
+  editorTitle: string = 'New Video';
+
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
@@ -183,6 +188,18 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
       // Check if we have a videoFile from file picker
       const videoFile = state['videoFile'];
       const videoFileInfo = state['videoFileInfo'];
+      
+      // Handle video metadata if editing an existing video
+      const videoMetadata = navigation.extras.state['videoMetadata'];
+      if (videoMetadata) {
+        console.log('Editing existing video:', videoMetadata);
+        this.isEditingExistingVideo = true;
+        this.existingVideoId = videoMetadata.id;
+        this.existingVideoMetadata = videoMetadata;
+        
+        // Set title in the UI
+        this.editorTitle = `Editing: ${videoMetadata.title}`;
+      }
       
       if (videoFile) {
         console.log('Received video file in editor:', videoFile.name);
@@ -221,6 +238,18 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     } else {
       // Initialize with default video layers
       await this.initializeVideoLayers();
+    }
+
+    if (!this.navigationStateHandled) {
+      this.subscriptions.push(
+        this.route.queryParams.subscribe(async () => {
+          const navigation = this.router.getCurrentNavigation();
+          if (navigation?.extras?.state) {
+            this.selectedTemplateImage = navigation.extras.state['selectedTemplateImage'] || null;
+            this.initialTemplatePosition = navigation.extras.state['templateImagePosition'] || { top: 10, left: 10 };
+          }
+        })
+      );
     }
   }
 
@@ -784,7 +813,8 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
       });
       console.log('Thumbnail created successfully, size:', thumbnailBlob.size);
       
-      const thumbnailFile = new File([thumbnailBlob], fileName.replace('.mp4', '.jpg'), { type: 'image/jpeg' });
+      const originalFileName = fileName;
+      const thumbnailFile = new File([thumbnailBlob], originalFileName.replace('.mp4', '.jpg'), { type: 'image/jpeg' });
 
       // Dismiss the processing alert before navigation
       if (processingAlert) {
@@ -799,14 +829,29 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
         duration: videoElement.duration
       };
       
-      // Navigate to upload info page with both files
-      this.navCtrl.navigateForward('/upload-info', {
-        state: {
-          videoFile,
-          thumbnailFile,
-          videoMetadata
-        }
-      });
+      // Check if we're editing an existing video
+      if (this.isEditingExistingVideo && this.existingVideoMetadata) {
+        // Navigate to upload info page with both files and pass existing metadata
+        this.navCtrl.navigateForward('/upload-info', {
+          state: {
+            videoFile,
+            thumbnailFile,
+            isUpdatingExistingVideo: true,
+            existingVideoId: this.existingVideoId,
+            existingVideoMetadata: this.existingVideoMetadata,
+            videoMetadata
+          }
+        });
+      } else {
+        // Navigate to upload info page with both files for a new video
+        this.navCtrl.navigateForward('/upload-info', {
+          state: {
+            videoFile,
+            thumbnailFile,
+            videoMetadata
+          }
+        });
+      }
     } catch (error) {
       console.error('Error exporting video:', error);
       
@@ -1902,5 +1947,23 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  // Helper method to safely get the opacity of the currently selected layer
+  getSelectedLayerOpacity(): number {
+    if (!this.selectedLayerId) return 100;
+    
+    const selectedLayer = this.layers.find(l => l.id === this.selectedLayerId);
+    if (!selectedLayer) return 100;
+    
+    return selectedLayer.opacity * 100;
+  }
+
+  // Method to handle opacity changes from the range slider
+  handleOpacityChange(event: any): void {
+    if (!this.selectedLayerId) return;
+    
+    const opacity = event.detail.value / 100;
+    this.updateLayerOpacity(this.selectedLayerId, opacity);
   }
 }

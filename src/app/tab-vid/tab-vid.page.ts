@@ -1,8 +1,8 @@
 // tab-vid.page.ts
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
+import { ActivatedRoute, Router } from '@angular/router'; // Import Router
 import { CommonModule } from '@angular/common'; 
-import { IonicModule } from '@ionic/angular'; 
+import { IonicModule, LoadingController } from '@ionic/angular'; 
 import { S3Service } from '../services/s3.service';
 import { VideoMetadataService, VideoMetadata } from '../services/video-metadata.service';
 
@@ -32,11 +32,14 @@ export class TabVidPage implements OnInit {
   saved: boolean = false;
   views: number = 0;
   likes: number = 0;
+  videoData: VideoMetadata | null = null;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private s3Service: S3Service,
-    private metadataService: VideoMetadataService
+    private metadataService: VideoMetadataService,
+    private loadingCtrl: LoadingController
   ) {}
 
   async ngOnInit() {
@@ -56,18 +59,18 @@ export class TabVidPage implements OnInit {
 
   async loadVideoInfo(id: string) {
     try {
-      const videoData = await this.metadataService.getVideo(id);
+      this.videoData = await this.metadataService.getVideo(id);
       
-      if (videoData) {
-        this.title = videoData.title;
-        this.artist = videoData.artist;
-        this.cover_artist = videoData.coverArtist;
-        this.description = videoData.description;
-        this.views = videoData.views;
-        this.likes = videoData.likes;
+      if (this.videoData) {
+        this.title = this.videoData.title;
+        this.artist = this.videoData.artist;
+        this.cover_artist = this.videoData.coverArtist;
+        this.description = this.videoData.description;
+        this.views = this.videoData.views;
+        this.likes = this.videoData.likes;
         
         // Get the video URL from S3
-        this.videoUrl = await this.s3Service.getVideoUrl(videoData.s3Key);
+        this.videoUrl = await this.s3Service.getVideoUrl(this.videoData.s3Key);
         
         // Increment view count
         this.views = await this.metadataService.incrementViews(id);
@@ -91,6 +94,50 @@ export class TabVidPage implements OnInit {
   save_video() {
     this.saved = !this.saved;
     console.log("saved:", this.saved);
+  }
+
+  async editVideo() {
+    if (!this.videoId || !this.videoData) {
+      alert('Cannot edit this video. Video data not available.');
+      return;
+    }
+
+    try {
+      // Show loading indicator
+      const loading = await this.loadingCtrl.create({
+        message: 'Preparing video for editing...'
+      });
+      await loading.present();
+
+      // Create a blob URL from the video URL for editing
+      // We need to fetch the video to create a Blob object
+      const response = await fetch(this.videoUrl);
+      const videoBlob = await response.blob();
+      
+      // Create a File object from the Blob
+      const fileName = this.videoData.s3Key.split('/').pop() || 'video.mp4';
+      const videoFile = new File([videoBlob], fileName, { type: 'video/mp4' });
+
+      loading.dismiss();
+
+      // Navigate to the video editor with the video file and metadata
+      this.router.navigate(['/tabs/video-editor'], {
+        state: { 
+          videoFile: videoFile,
+          videoMetadata: {
+            id: this.videoId,
+            title: this.title,
+            artist: this.artist,
+            coverArtist: this.cover_artist,
+            description: this.description,
+            isExistingVideo: true
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error preparing video for editing:', error);
+      alert('Failed to prepare video for editing. Please try again.');
+    }
   }
 
   send_alert(str: string) {

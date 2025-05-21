@@ -1,143 +1,226 @@
 <ion-header>
-  <ion-toolbar class="editor-header">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="closeEditor()">
-        <ion-icon name="chevron-back-outline"></ion-icon>
+      <ion-button (click)="closeEditor()">
+        <ion-icon name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title></ion-title>
+    <ion-title>{{ editorTitle }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="solid" color="primary" class="next-circle" (click)="exportVideo()" [disabled]="isExporting">
-        <ion-spinner *ngIf="isExporting" name="crescent"></ion-spinner>
-        <ion-icon *ngIf="!isExporting" name="arrow-forward-outline"></ion-icon>
+      <ion-button (click)="exportVideo()">
+        <ion-icon name="save"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="editor-content">
-  <!-- VIDEO PREVIEW -->
-  <div class="video-wrapper">
-    <video #videoPlayer [src]="videoSrc" playsinline preload="metadata"></video>
-    <!-- Template image preview -->
-    <div
-      class="template-video-preview"
-      *ngIf="selectedTemplateImage"
-      [style.top.px]="templateImagePosition.top"
-      [style.left.px]="templateImagePosition.left"
-      (mousedown)="startDrag($event)"
-      (touchstart)="startDrag($event)"
-    >
-      <img [src]="selectedTemplateImage" alt="Template Preview" />
-    </div>
-    <!-- Crop rectangle overlay -->
-    <div
-      class="crop-rectangle"
-      [style.left.px]="cropRect.x"
-      [style.top.px]="cropRect.y"
-      [style.width.px]="cropRect.width"
-      [style.height.px]="cropRect.height"
-    >
-      <!-- Resize handles -->
-      <div class="resize-handle top-left" (mousedown)="startResize($event, 'top-left')" (touchstart)="startResize($event, 'top-left')"></div>
-      <div class="resize-handle top-right" (mousedown)="startResize($event, 'top-right')" (touchstart)="startResize($event, 'top-right')"></div>
-      <div class="resize-handle bottom-left" (mousedown)="startResize($event, 'bottom-left')" (touchstart)="startResize($event, 'bottom-left')"></div>
-      <div class="resize-handle bottom-right" (mousedown)="startResize($event, 'bottom-right')" (touchstart)="startResize($event, 'bottom-right')"></div>
-    </div>
-  </div>
-
-  <!-- TIMELINE FOR TRIMMING -->
-  <div class="timeline-container">
-    <div class="timeline" (mousedown)="startTrim($event, 'scrub')" (touchstart)="startTrim($event, 'scrub')">
-      <!-- Thumbnails for the video timeline -->
-      <div class="timeline-thumbnails" *ngIf="thumbnailsLoaded; else loadingThumbnails">
-        <img *ngFor="let thumbnail of thumbnails" [src]="thumbnail" class="thumbnail" />
+<ion-content>
+  <div class="editor-container">
+    <!-- Canvas Container -->
+    <div #canvasContainer class="canvas-container">
+      <!-- Trim Rectangle Overlay -->
+      <div *ngIf="isTrimMode" 
+           class="trim-rectangle"
+           [style.left.px]="trimRect.x"
+           [style.top.px]="trimRect.y"
+           [style.width.px]="trimRect.width"
+           [style.height.px]="trimRect.height">
+        <div class="trim-handle top-left" (mousedown)="startResize($event, 'top-left')" (touchstart)="startResize($event, 'top-left')"></div>
+        <div class="trim-handle top-right" (mousedown)="startResize($event, 'top-right')" (touchstart)="startResize($event, 'top-right')"></div>
+        <div class="trim-handle bottom-left" (mousedown)="startResize($event, 'bottom-left')" (touchstart)="startResize($event, 'bottom-left')"></div>
+        <div class="trim-handle bottom-right" (mousedown)="startResize($event, 'bottom-right')" (touchstart)="startResize($event, 'bottom-right')"></div>
       </div>
-      <ng-template #loadingThumbnails>
-        <div class="loading-thumbnails">
-          Loading thumbnails...
+
+      <div *ngFor="let layer of layers" 
+           class="video-layer"
+           [class.selected]="layer.isSelected"
+           [class.dragging]="isDraggingLayer && selectedLayerId === layer.id"
+           [class.resizing]="isResizing && selectedLayerId === layer.id"
+           [style.z-index]="layer.zIndex"
+           [style.left.px]="layer.position.x"
+           [style.top.px]="layer.position.y"
+           [style.width.px]="layer.size.width"
+           [style.height.px]="layer.size.height"
+           [style.opacity]="layer.opacity"
+           (mousedown)="startDragLayer($event, layer.id)"
+           (touchstart)="startDragLayer($event, layer.id)">
+        
+        <video *ngIf="layer.videoUrl" 
+               [id]="'video-' + layer.id"
+               [src]="layer.videoUrl"
+               class="layer-video"
+               [attr.currentTime]="layer.startTime"
+               (timeupdate)="onTimeUpdate($event, layer)"
+               disablePictureInPicture
+               controlsList="nodownload nofullscreen"
+               playsinline>
+        </video>
+        
+        <!-- Resize Handles -->
+        <div class="resize-handle top-left"
+             (mousedown)="startResizeLayer($event, layer.id); $event.stopPropagation()"
+             (touchstart)="startResizeLayer($event, layer.id); $event.stopPropagation()">
         </div>
-      </ng-template>
-      <!-- Trimmed area overlays -->
-      <div
-        class="trimmed-area trimmed-start"
-        [style.width]="(trimStart / duration) * 100 + '%'"
-      ></div>
-      <div
-        class="trimmed-area trimmed-end"
-        [style.width]="((duration - trimEnd) / duration) * 100 + '%'"
-      ></div>
-      <!-- Selected range border -->
-      <div
-        class="selected-range"
-        [style.left]="(trimStart / duration) * 100 + '%'"
-        [style.width]="((trimEnd - trimStart) / duration) * 100 + '%'"
-      ></div>
-      <!-- Playhead -->
-      <div
-        class="playhead"
-        [style.left]="((currentTime - trimStart) / (trimEnd - trimStart)) * 100 + '%'"
-        *ngIf="currentTime >= trimStart && currentTime <= trimEnd"
-      ></div>
-      <!-- Trimming handles -->
-      <div class="trim-handles">
-        <div class="trim-start" (mousedown)="startTrim($event, 'start')" (touchstart)="startTrim($event, 'start')">
-          <span class="trim-time">{{ trimStart | number:'1.1-1' }}s</span>
+        <div class="resize-handle top-right"
+             (mousedown)="startResizeLayer($event, layer.id); $event.stopPropagation()"
+             (touchstart)="startResizeLayer($event, layer.id); $event.stopPropagation()">
         </div>
-        <div class="trim-end" (mousedown)="startTrim($event, 'end')" (touchstart)="startTrim($event, 'end')">
-          <span class="trim-time">{{ trimEnd | number:'1.1-1' }}s</span>
+        <div class="resize-handle bottom-left"
+             (mousedown)="startResizeLayer($event, layer.id); $event.stopPropagation()"
+             (touchstart)="startResizeLayer($event, layer.id); $event.stopPropagation()">
+        </div>
+        <div class="resize-handle bottom-right"
+             (mousedown)="startResizeLayer($event, layer.id); $event.stopPropagation()"
+             (touchstart)="startResizeLayer($event, layer.id); $event.stopPropagation()">
         </div>
       </div>
     </div>
+
+    <!-- Timeline -->
+    <div class="timeline-container">
+      <div class="timeline-controls">
+        <div class="main-controls">
+          <ion-button fill="clear" (click)="togglePlay()">
+            <ion-icon [name]="isPlaying ? 'pause' : 'play'"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" (click)="toggleTrimMode()" [color]="isTrimMode ? 'primary' : ''">
+            <ion-icon name="cut-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" (click)="toggleOpacityPanel()">
+            <ion-icon name="contrast-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" (click)="addNewLayer()">
+            <ion-icon name="add"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <div class="timeline-tracks">
+        <div *ngFor="let layer of layers" 
+             class="timeline-track"
+             [class.selected]="layer.isSelected"
+             [class.moving-up]="layer.isMovingUp"
+             [class.moving-down]="layer.isMovingDown"
+             [attr.data-layer-id]="layer.id"
+             (click)="selectLayer(layer.id)">
+          
+          <div class="track-label">
+            <div class="layer-header">
+              <span>Layer {{layer.zIndex + 1}}</span>
+              <div class="layer-actions">
+                <ion-button fill="clear" size="small" (click)="moveLayerUp(layer.id)" (mousedown)="$event.stopPropagation()">
+                  <ion-icon name="arrow-up"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" size="small" (click)="moveLayerDown(layer.id)" (mousedown)="$event.stopPropagation()">
+                  <ion-icon name="arrow-down"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" size="small" color="danger" (click)="deleteLayer(layer.id)" (mousedown)="$event.stopPropagation()">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+            <div class="layer-time-controls">
+              <ion-input type="text" 
+                        [value]="formatTime(layer.startTime)"
+                        (ionChange)="setVideoStartTime(layer.id, $event.detail.value)"
+                        label="Start Time"
+                        labelPlacement="stacked"
+                        [min]="0"
+                        [max]="layer.duration"
+                        class="time-input">
+              </ion-input>
+              <ion-input type="text"
+                        [value]="formatTime(layer.endTime)"
+                        (ionChange)="setVideoEndTime(layer.id, $event.detail.value)"
+                        label="End Time"
+                        labelPlacement="stacked"
+                        [min]="layer.startTime"
+                        [max]="layer.duration"
+                        class="time-input">
+              </ion-input>
+              <div class="upload-button">
+                <ion-button fill="outline" size="small" (click)="triggerFileUpload(layer.id)" (mousedown)="$event.stopPropagation()">
+                  <ion-icon name="cloud-upload"></ion-icon>
+                  Upload Video
+                </ion-button>
+                <input 
+                  type="file" 
+                  accept="video/*" 
+                  [id]="'file-input-' + layer.id"
+                  style="display: none"
+                  (change)="onVideoFileSelected($event, layer.id)"
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="track-content"
+               [class]="getTrackContentClass()"
+               (mousedown)="startTimelineLongPress($event)"
+               (touchstart)="startTimelineLongPress($event)"
+               (mouseup)="endTimelineLongPress()"
+               (mouseleave)="endTimelineLongPress()"
+               (touchend)="endTimelineLongPress()"
+               (touchcancel)="endTimelineLongPress()">
+            <div class="thumbnails-container">
+              <div *ngFor="let thumbnail of layer.thumbnails; let i = index"
+                   class="thumbnail">
+                <img [src]="thumbnail" alt="Thumbnail">
+              </div>
+            </div>
+
+            <div class="timeline-overlay">
+              <div class="trim-handles">
+                <div *ngIf="isTrimMode && layer.isSelected" 
+                     class="trim-frame"
+                     [style.left.px]="layer.trimFrameStart"
+                     [style.width.px]="layer.trimFrameWidth">
+                  <div class="trim-handle left"
+                       (mousedown)="startTimelineTrim($event, 'start', layer.id)"
+                       (touchstart)="startTimelineTrim($event, 'start', layer.id)">
+                  </div>
+                  <div class="trim-handle right"
+                       (mousedown)="startTimelineTrim($event, 'end', layer.id)"
+                       (touchstart)="startTimelineTrim($event, 'end', layer.id)">
+                  </div>
+                </div>
+
+                <div class="playhead"
+                     [style.left.px]="getPlayheadPosition(layer)">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- TOOLBAR -->
-  <div class="editor-tools">
-    <!-- Play/Pause -->
-    <ion-button fill="clear" (click)="togglePlay()">
-      <ion-icon [name]="isPlaying ? 'pause' : 'play'"></ion-icon>
-    </ion-button>
-
-    <!-- Speed control -->
-    <ion-button fill="clear" (click)="toggleSpeed()">
-      <ion-icon name="speedometer-outline"></ion-icon>
-    </ion-button>
-
-    <!-- Rotate clip -->
-    <ion-button fill="clear" (click)="rotateClip()">
-      <ion-icon name="repeat-outline"></ion-icon>
-    </ion-button>
-
-    <!-- Volume control -->
-    <div class="volume-control">
-      <ion-button fill="clear" (click)="toggleMute()">
-        <ion-icon [name]="getVolumeIcon()"></ion-icon>
+  <!-- Opacity Panel -->
+  <div class="opacity-panel" *ngIf="showOpacityPanel && selectedLayerId">
+    <div class="panel-header">
+      <h3>Opacity</h3>
+      <ion-button fill="clear" size="small" (click)="toggleOpacityPanel()">
+        <ion-icon name="close"></ion-icon>
       </ion-button>
-      <div class="volume-slider-container" [class.show-slider]="isVolumeSliderVisible">
-        <div class="volume-value">{{ volumeLevel }}%</div>
-        <ion-range
-          [(ngModel)]="volumeLevel"
-          (ionChange)="onVolumeChange($event)"
-          min="0"
-          max="100"
-          step="1"
-          class="volume-slider"
-          [snaps]="false"
-          [pin]="false"
-          [ticks]="false"
-          debounce="0">
-        </ion-range>
-      </div>
     </div>
-
-    <!-- Video stitching button -->
-    <ion-button (click)="openVideoStitchingModal()" fill="clear">
-      <ion-icon name="add-circle-outline"></ion-icon>
-    </ion-button>
+    <div class="panel-content">
+      <ion-range
+        [value]="getSelectedLayerOpacity()"
+        (ionChange)="handleOpacityChange($event)"
+        min="0"
+        max="100"
+        step="1"
+        [pin]="true"
+        [snaps]="false">
+        <ion-icon name="contrast-outline" slot="start"></ion-icon>
+        <ion-icon name="contrast" slot="end"></ion-icon>
+      </ion-range>
+    </div>
   </div>
 </ion-content>
 
-<!-- Video stitching modal -->
+<!-- Video Stitching Modal -->
 <ion-modal #stitchingModal [isOpen]="isStitchingModalOpen">
   <ng-template>
     <ion-header>
