@@ -13,6 +13,10 @@ export class VideoService {
     this.loadFFmpeg();
   }
 
+  checkIfCrossOriginIsolated(): boolean {
+    return window.crossOriginIsolated === true;
+  }
+
   private async loadFFmpeg() {
     if (!this.isFFmpegLoaded) {
       // Load ffmpeg with the correct base URL

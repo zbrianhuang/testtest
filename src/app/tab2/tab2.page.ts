@@ -3,13 +3,14 @@ import { NavController, AlertController, IonicModule } from '@ionic/angular';
 import { Storage } from '@ionic/storage-angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MetronomeComponent } from '../components/metronome/metronome.component';
 
 @Component({
   selector: 'app-tab2',
   templateUrl: './tab2.page.html',
   styleUrls: ['./tab2.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, MetronomeComponent]
 })
 export class Tab2Page implements OnInit {
   isRecording: boolean = false;
@@ -17,6 +18,7 @@ export class Tab2Page implements OnInit {
   showRecent: boolean = false;
   hasRecorded: boolean = false;
   selectedTemplateImage: string | null = null;
+  currentCamera: 'front' | 'back' = 'front';
 
   // Dragging state
   private isDragging: boolean = false;
@@ -178,5 +180,9 @@ export class Tab2Page implements OnInit {
     // Do not save to storage, so position resets on new template selection
 
     
+  }
+
+  switchCamera() {
+    this.currentCamera = this.currentCamera === 'front' ? 'back' : 'front';
   }
 }
