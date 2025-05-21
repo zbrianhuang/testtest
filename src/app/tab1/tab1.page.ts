@@ -40,6 +40,7 @@ export class Tab1Page implements OnInit {
   sheets: SheetMusic[] = [];
   isLoading: boolean = true;
   errorLoading: boolean = false;
+  isOpeningPdf: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -253,20 +254,81 @@ export class Tab1Page implements OnInit {
   }
 
   async openFile(sheet: SheetMusic) {
-    if (sheet.isUserUploaded && Capacitor.isNativePlatform()) {
-      try {
-        await FileOpener.open({
-          filePath: sheet.redirect, // This is the native path (e.g., file:///...)
-          // contentType: 'application/pdf' // Optional: MIME type
-        });
-      } catch (e) {
-        console.error('Error opening file', e);
-        this.presentToast('Could not open the file.', 'danger');
+    this.isOpeningPdf = true;
+    try {
+      if (Capacitor.isNativePlatform()) {
+        if (sheet.isUserUploaded) {
+          // For user-uploaded files
+          const filePath = sheet.redirect.startsWith('file://') 
+            ? sheet.redirect 
+            : `file://${sheet.redirect}`;
+            
+          await FileOpener.open({
+            filePath: filePath,
+            contentType: 'application/pdf'
+          });
+        } else {
+          // For bundled PDFs in assets
+          try {
+            // First, read the file from assets
+            const response = await fetch(sheet.redirect);
+            const blob = await response.blob();
+            
+            // Convert blob to base64
+            const reader = new FileReader();
+            const base64Data = await new Promise<string>((resolve) => {
+              reader.onloadend = () => {
+                const base64 = reader.result as string;
+                resolve(base64.split(',')[1]); // Remove the data URL prefix
+              };
+              reader.readAsDataURL(blob);
+            });
+
+            // Create a temporary file name
+            const tempFileName = `temp_${Date.now()}.pdf`;
+            const tempFilePath = `${USER_SHEET_MUSIC_DIR}/${tempFileName}`;
+
+            // Ensure directory exists
+            try {
+              await Filesystem.readdir({
+                path: USER_SHEET_MUSIC_DIR,
+                directory: Directory.Data
+              });
+            } catch(e) {
+              await Filesystem.mkdir({
+                path: USER_SHEET_MUSIC_DIR,
+                directory: Directory.Data,
+                recursive: true
+              });
+            }
+
+            // Write the base64 data to a temporary file
+            const result = await Filesystem.writeFile({
+              path: tempFilePath,
+              data: base64Data,
+              directory: Directory.Data,
+              encoding: Encoding.UTF8
+            });
+
+            // Open the temporary file
+            await FileOpener.open({
+              filePath: result.uri,
+              contentType: 'application/pdf'
+            });
+          } catch (error) {
+            console.error('Error processing bundled PDF:', error);
+            throw error;
+          }
+        }
+      } else {
+        // For web platform
+        window.open(sheet.redirect, '_blank');
       }
-    } else {
-      // For web (base64 PDF) or assets, use standard link behavior
-      // For base64 PDF on web, this will try to download it or display if browser supports it
-      window.open(sheet.redirect, '_blank');
+    } catch (error) {
+      console.error('Error opening PDF:', error);
+      this.presentToast('Could not open the PDF file. Please try again.', 'danger');
+    } finally {
+      this.isOpeningPdf = false;
     }
   }
 
@@ -280,12 +342,13 @@ export class Tab1Page implements OnInit {
   }
 
 
-  async presentToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+  async presentToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message: message,
-      duration: 3000,
+      duration: 2000,
       color: color,
+      position: 'bottom'
     });
-    toast.present();
+    await toast.present();
   }
 }

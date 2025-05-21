@@ -1,5 +1,3 @@
-
-
   <ion-header [translucent]="true">
     <ion-toolbar>
       <ion-button slot="end" (click)="openUploadModal()">
@@ -17,23 +15,27 @@
   <ion-grid *ngIf="!isLoading && !errorLoading && sheets.length > 0">
     <ion-row>
       <ion-col size="6" size-sm="4" size-md="3" size-lg="2" *ngFor="let sheet of sheets">
-        <a [href]="sheet.redirect" target="_blank" style="text-decoration: none; color: inherit;">
-          <ion-card class="sheet-card ion-activatable">
-            <ion-ripple-effect></ion-ripple-effect>
-            <ion-img
-              class="sheet-thumbnail"
-              [src]="sheet.thumbnail"
-              alt="Thumbnail for {{ sheet.title }}">
-            </ion-img>
+        <ion-card class="sheet-card ion-activatable" (click)="openFile(sheet)">
+          <ion-ripple-effect></ion-ripple-effect>
+          <ion-img
+            class="sheet-thumbnail"
+            [src]="getDisplayThumbnail(sheet)"
+            alt="Thumbnail for {{ sheet.title }}">
+          </ion-img>
 
-            <ion-card-header class="ion-text-center">
-              <ion-card-title>{{ sheet.title }}</ion-card-title>
-              <ion-card-subtitle>{{ sheet.author }}</ion-card-subtitle>
-            </ion-card-header>
-          </ion-card>
-        </a>
+          <ion-card-header class="ion-text-center">
+            <ion-card-title>{{ sheet.title }}</ion-card-title>
+            <ion-card-subtitle>{{ sheet.author }}</ion-card-subtitle>
+          </ion-card-header>
+        </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
 
+  <!-- Loading indicator -->
+  <ion-loading
+    [isOpen]="isOpeningPdf"
+    message="Opening PDF..."
+    duration="0">
+  </ion-loading>
 </ion-content> 
