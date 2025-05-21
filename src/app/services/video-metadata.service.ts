@@ -7,6 +7,7 @@ export interface VideoMetadata {
   description: string;
   artist: string;
   coverArtist: string;
+  sheetMusicName?: string;
   uploadDate: number;
   likes: number;
   views: number;

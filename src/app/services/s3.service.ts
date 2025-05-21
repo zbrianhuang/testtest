@@ -40,9 +40,13 @@ export class S3Service {
     description: string;
     artist: string;
     coverArtist: string;
+
     trimStart?: number;
     trimEnd?: number;
     duration?: number;
+
+    sheetMusicName?: string;
+
   }): Promise<VideoMetadata> {
     const videoId = `vid-${Date.now()}`;
     const videoKey = `videos/${videoId}/${file.name}`;
@@ -74,6 +78,7 @@ export class S3Service {
         description: metadata.description,
         artist: metadata.artist,
         coverArtist: metadata.coverArtist,
+        sheetMusicName: metadata.sheetMusicName,
         uploadDate: Date.now(),
         s3Key: videoKey,
         thumbnailKey: `thumbnails/${videoId}/${file.name.replace('.mp4', '.jpg')}` // Set a placeholder key
