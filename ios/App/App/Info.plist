@@ -36,8 +36,17 @@
 	<string>This app needs access to photos to select thumbnails for sheet music.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
 			<key>54.206.124.56</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
