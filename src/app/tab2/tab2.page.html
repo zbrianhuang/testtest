@@ -7,14 +7,8 @@
     </ion-buttons>
     <ion-title>New Video</ion-title>
     <ion-buttons slot="end" class="header-buttons">
-      <ion-button>
-        <ion-icon name="flash-outline"></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-label>1x</ion-label>
-      </ion-button>
-      <ion-button>
-        <ion-icon name="timer-outline"></ion-icon>
+      <ion-button (click)="switchCamera()">
+        <ion-icon name="camera-reverse-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -23,9 +17,8 @@
 <ion-content>
   <!-- Camera preview placeholder -->
   <div class="camera-preview" *ngIf="!showRecent">
-    <div class="camera-icon">
-      <ion-icon name="camera-outline" size="large"></ion-icon>
-    </div>
+    <video #videoPreview autoplay playsinline muted></video>
+    <app-metronome></app-metronome>
     <!-- Template image preview in the top corner -->
     <div
       class="template-video-preview"
@@ -117,7 +110,7 @@
   <!-- Recording button container: Hide when grid is visible -->
   <div class="record-button-container" *ngIf="!showRecent">
     <ion-button class="record-button" (click)="toggleRecording()" fill="clear">
-      <ion-icon [name]="isRecording ? 'stop-outline' : 'radio-button-on-outline'" size="large"></ion-icon>
+      <ion-icon [name]="isRecording ? 'stop-circle-outline' : 'radio-button-on-outline'" size="large"></ion-icon>
     </ion-button>
     <!-- Next button: Show only after a recording has been made -->
     <ion-button class="next-button" *ngIf="hasRecorded && !isRecording" (click)="goToNext()" color="primary">

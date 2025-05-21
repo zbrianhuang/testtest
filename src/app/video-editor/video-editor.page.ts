@@ -29,7 +29,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
 
   @ViewChild('stitchingModal') stitchingModal!: IonModal;
 
-  videoSrc = 'assets/videos/annie_wave_to_earth.mp4';
+  videoSrc = '';
   isPlaying = false;
   isMuted = false;
   duration = 0;
@@ -97,8 +97,10 @@ export class VideoEditorPage implements OnInit, AfterViewInit {
     this.route.queryParams.subscribe(async () => {
       const navigation = this.navCtrl['router'].getCurrentNavigation();
       if (navigation?.extras?.state) {
-        this.selectedTemplateImage = navigation.extras.state['selectedTemplateImage'] || null;
-        this.initialTemplatePosition = navigation.extras.state['templateImagePosition'] || { top: 10, left: 10 };
+        const state = navigation.extras.state;
+        this.videoSrc = state['videoPath'] || '';
+        this.selectedTemplateImage = state['selectedTemplateImage'] || null;
+        this.initialTemplatePosition = state['templateImagePosition'] || { top: 10, left: 10 };
         
         // Wait for the view to be ready
         await new Promise(resolve => setTimeout(resolve, 100));

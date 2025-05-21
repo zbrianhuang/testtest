@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { environment } from '../../environments/environment';
 import { VideoMetadataService, VideoMetadata } from './video-metadata.service';
 
 @Injectable({
@@ -9,13 +8,14 @@ import { VideoMetadataService, VideoMetadata } from './video-metadata.service';
 })
 export class S3Service {
   private s3Client: S3Client;
+  private bucketName = 'your-bucket-name';
 
   constructor(private metadataService: VideoMetadataService) {
     this.s3Client = new S3Client({
-      region: environment.aws.region,
+      region: 'ap-southeast-2',
       credentials: {
-        accessKeyId: environment.aws.accessKeyId,
-        secretAccessKey: environment.aws.secretAccessKey
+        accessKeyId: 'your-access-key',
+        secretAccessKey: 'your-secret-key'
       }
     });
   }
@@ -40,6 +40,7 @@ export class S3Service {
     description: string;
     artist: string;
     coverArtist: string;
+    sheetMusicName?: string;
   }): Promise<VideoMetadata> {
     const videoId = `vid-${Date.now()}`;
     const videoKey = `videos/${videoId}/${file.name}`;
@@ -51,7 +52,7 @@ export class S3Service {
       // Upload the file to S3
       await this.s3Client.send(
         new PutObjectCommand({
-          Bucket: environment.aws.bucketName,
+          Bucket: this.bucketName,
           Key: videoKey,
           Body: fileBuffer,
           ContentType: file.type
@@ -65,6 +66,7 @@ export class S3Service {
         description: metadata.description,
         artist: metadata.artist,
         coverArtist: metadata.coverArtist,
+        sheetMusicName: metadata.sheetMusicName,
         uploadDate: Date.now(),
         s3Key: videoKey,
         thumbnailKey: `thumbnails/${videoId}/${file.name.replace('.mp4', '.jpg')}` // Set a placeholder key
@@ -82,7 +84,7 @@ export class S3Service {
     const fileBuffer = await this.fileToBuffer(file);
     
     const command = new PutObjectCommand({
-      Bucket: environment.aws.bucketName,
+      Bucket: this.bucketName,
       Key: thumbnailKey,
       Body: fileBuffer,
       ContentType: file.type
@@ -108,7 +110,7 @@ export class S3Service {
     }
 
     const command = new GetObjectCommand({
-      Bucket: environment.aws.bucketName,
+      Bucket: this.bucketName,
       Key: key
     });
 
@@ -130,7 +132,7 @@ export class S3Service {
     }
 
     const command = new GetObjectCommand({
-      Bucket: environment.aws.bucketName,
+      Bucket: this.bucketName,
       Key: key
     });
 

@@ -25,15 +25,15 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to camera to record videos.</string>
+	<string>This app needs access to camera to record videos. 我們需要使用相機來錄製影片。</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to microphone to record audio for videos.</string>
+	<string>This app needs access to microphone to record audio for videos. 我們需要使用麥克風來錄製影片的聲音。</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>This app needs access to documents to save and manage sheet music files.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs access to save thumbnails to your photo library.</string>
+	<string>This app needs access to save thumbnails to your photo library. 我們需要存取相簿來儲存錄製的影片。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to photos to select thumbnails for sheet music.</string>
+	<string>This app needs access to photos to select thumbnails for sheet music. 我們需要存取相簿來儲存錄製的影片。</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
