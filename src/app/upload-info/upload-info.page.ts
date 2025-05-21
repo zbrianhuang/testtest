@@ -23,6 +23,11 @@ export class UploadInfoPage implements OnInit {
   videoFile: File | null = null;
   thumbnailFile: File | null = null;
   thumbnailUrl: string = '';
+  videoMetadata: { 
+    trimStart: number;
+    trimEnd: number;
+    duration: number;
+  } | null = null;
 
   constructor(
     private toastController: ToastController,
@@ -32,10 +37,30 @@ export class UploadInfoPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Get video file from navigation state
+    // Get video file and thumbnail from navigation state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
-      this.videoFile = (navigation.extras.state as any).videoFile;
+      const state = navigation.extras.state as any;
+      this.videoFile = state.videoFile;
+      this.thumbnailFile = state.thumbnailFile;
+      this.videoMetadata = state.videoMetadata || null;
+      
+      if (this.videoMetadata) {
+        console.log('Received video metadata:', 
+          'trimStart:', this.videoMetadata.trimStart, 
+          'trimEnd:', this.videoMetadata.trimEnd, 
+          'duration:', this.videoMetadata.duration
+        );
+      }
+      
+      if (this.thumbnailFile) {
+        // Create a preview URL for the thumbnail
+        this.thumbnailUrl = URL.createObjectURL(this.thumbnailFile);
+      }
+      
+      if (this.videoFile) {
+        console.log('Received video from editor:', this.videoFile.name, 'size:', this.videoFile.size);
+      }
     }
   }
 
@@ -64,20 +89,38 @@ export class UploadInfoPage implements OnInit {
     }
 
     try {
-      // Upload video and get metadata
-      const videoMetadata = await this.s3Service.uploadVideo(this.videoFile, {
+      // Create metadata with standard fields
+      const videoMetadataObj = {
         title: this.videoTitle,
         description: this.description,
         artist: this.instrument,
-        coverArtist: this.videoType,
-        sheetMusicName: this.sheetMusicName
-      });
+        coverArtist: this.videoType
+      };
+      
+      // Add trim data if available
+      if (this.videoMetadata) {
+        Object.assign(videoMetadataObj, {
+          trimStart: this.videoMetadata.trimStart,
+          trimEnd: this.videoMetadata.trimEnd,
+          duration: this.videoMetadata.duration
+        });
+      }
+      
+      // Upload video and get metadata
+      const videoMetadata = await this.s3Service.uploadVideo(
+        this.videoFile, 
+        videoMetadataObj
+      );
 
       // Upload thumbnail
-      const thumbnailKey = await this.s3Service.uploadThumbnail(
-        this.thumbnailFile,
-        videoMetadata.id
-      );
+      if (videoMetadata && videoMetadata.id) {
+        const thumbnailKey = await this.s3Service.uploadThumbnail(
+          this.thumbnailFile,
+          videoMetadata.id
+        );
+      } else {
+        throw new Error('Failed to create video metadata record');
+      }
 
       const toast = await this.toastController.create({
         message: 'Video uploaded successfully!',
@@ -96,5 +139,19 @@ export class UploadInfoPage implements OnInit {
       });
       toast.present();
     }
+  }
+
+  changeThumbnail() {
+    // Reset the thumbnail to allow choosing a new one
+    this.thumbnailFile = null;
+    this.thumbnailUrl = '';
+    
+    // Trigger the file input programmatically
+    setTimeout(() => {
+      const thumbnailInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (thumbnailInput) {
+        thumbnailInput.click();
+      }
+    }, 100);
   }
 }

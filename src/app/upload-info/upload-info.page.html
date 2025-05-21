@@ -50,7 +50,7 @@
 
   <ion-item>
     <ion-label>Thumbnail</ion-label>
-    <ion-button fill="outline" (click)="thumbnailInput.click()">Choose File</ion-button>
+    <ion-button *ngIf="!thumbnailUrl" fill="outline" (click)="thumbnailInput.click()">Choose File</ion-button>
     <input #thumbnailInput type="file" accept="image/*" (change)="handleThumbnailUpload($event)" style="display: none">
   </ion-item>
 
@@ -60,6 +60,9 @@
       Thumbnail Preview
     </ion-label>
     <img [src]="thumbnailUrl" alt="Thumbnail Preview" style="max-width: 100px; max-height: 100px;">
+    <ion-button slot="end" fill="clear" (click)="changeThumbnail()">
+      <ion-icon name="refresh-outline"></ion-icon>
+    </ion-button>
   </ion-item>
 
   <ion-item lines="none">
