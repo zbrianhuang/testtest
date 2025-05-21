@@ -69,7 +69,8 @@ export class UploadInfoPage implements OnInit {
         title: this.videoTitle,
         description: this.description,
         artist: this.instrument,
-        coverArtist: this.videoType
+        coverArtist: this.videoType,
+        sheetMusicName: this.sheetMusicName
       });
 
       // Upload thumbnail
