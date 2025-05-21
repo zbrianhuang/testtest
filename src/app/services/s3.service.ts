@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { environment } from '../../environments/environment';
 import { VideoMetadataService, VideoMetadata } from './video-metadata.service';
 
 @Injectable({
@@ -8,14 +9,13 @@ import { VideoMetadataService, VideoMetadata } from './video-metadata.service';
 })
 export class S3Service {
   private s3Client: S3Client;
-  private bucketName = 'your-bucket-name';
 
   constructor(private metadataService: VideoMetadataService) {
     this.s3Client = new S3Client({
-      region: 'ap-southeast-2',
+      region: environment.aws.region,
       credentials: {
-        accessKeyId: 'your-access-key',
-        secretAccessKey: 'your-secret-key'
+        accessKeyId: environment.aws.accessKeyId,
+        secretAccessKey: environment.aws.secretAccessKey
       }
     });
   }
@@ -40,7 +40,13 @@ export class S3Service {
     description: string;
     artist: string;
     coverArtist: string;
+
+    trimStart?: number;
+    trimEnd?: number;
+    duration?: number;
+
     sheetMusicName?: string;
+
   }): Promise<VideoMetadata> {
     const videoId = `vid-${Date.now()}`;
     const videoKey = `videos/${videoId}/${file.name}`;
@@ -52,10 +58,16 @@ export class S3Service {
       // Upload the file to S3
       await this.s3Client.send(
         new PutObjectCommand({
-          Bucket: this.bucketName,
+          Bucket: environment.aws.bucketName,
           Key: videoKey,
           Body: fileBuffer,
-          ContentType: file.type
+          ContentType: file.type,
+          // Add metadata in S3 object for trim points if available
+          Metadata: {
+            ...(metadata.trimStart !== undefined ? { 'trim-start': String(metadata.trimStart) } : {}),
+            ...(metadata.trimEnd !== undefined ? { 'trim-end': String(metadata.trimEnd) } : {}),
+            ...(metadata.duration !== undefined ? { 'duration': String(metadata.duration) } : {})
+          }
         })
       );
 
@@ -84,7 +96,7 @@ export class S3Service {
     const fileBuffer = await this.fileToBuffer(file);
     
     const command = new PutObjectCommand({
-      Bucket: this.bucketName,
+      Bucket: environment.aws.bucketName,
       Key: thumbnailKey,
       Body: fileBuffer,
       ContentType: file.type
@@ -110,13 +122,18 @@ export class S3Service {
     }
 
     const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: key
+      Bucket: environment.aws.bucketName,
+      Key: key,
+      ResponseCacheControl: 'max-age=86400',
+      ResponseContentDisposition: `inline; filename="${key.split('/').pop()}"`,
+      ResponseContentType: 'video/mp4'
     });
 
     try {
       console.log('Getting signed URL for video:', key);
-      const url = await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+      const url = await getSignedUrl(this.s3Client, command, { 
+        expiresIn: 86400 // 24 hours
+      });
       console.log('Successfully generated signed URL for video:', key);
       return url;
     } catch (error) {
@@ -132,7 +149,7 @@ export class S3Service {
     }
 
     const command = new GetObjectCommand({
-      Bucket: this.bucketName,
+      Bucket: environment.aws.bucketName,
       Key: key
     });
 
