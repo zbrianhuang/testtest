@@ -402,7 +402,7 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     if (this.selectedTemplateImage && this.initialTemplatePosition) {
       const videoWrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
       if (videoWrapper) {
-        // Use the percentages directly since they're already in percentage format
+        // Use the pixel values directly as they come from tab2
         this.templateImagePosition = {
           top: this.initialTemplatePosition.top,
           left: this.initialTemplatePosition.left
@@ -890,6 +890,10 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
       console.log('Video metadata:', videoMetadata);
       console.log('Dismissing loading indicator and navigating to upload page');
       
+      // Check for returnTab from navigation state
+      const navigation = this.router.getCurrentNavigation();
+      const returnTab = navigation?.extras?.state?.['returnTab'] || null;
+      
       // Dismiss the processing alert before navigation
       if (processingAlert) {
         await processingAlert.dismiss();
@@ -901,7 +905,8 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
         state: {
           videoFile,
           thumbnailFile,
-          videoMetadata
+          videoMetadata,
+          returnTab // Pass the return tab information through
         }
       });
       
@@ -1047,7 +1052,18 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
         {
           text: 'Yes',
           handler: () => {
-            this.navCtrl.navigateBack('/tabs/home_tab');
+            // Check if we have a return tab from navigation state
+            const navigation = this.router.getCurrentNavigation();
+            const returnTab = navigation?.extras?.state?.['returnTab'];
+
+            if (returnTab && returnTab.startsWith('/tabs/')) {
+              // Return to the tab we came from
+              console.log('Returning to:', returnTab);
+              this.navCtrl.navigateBack(returnTab);
+            } else {
+              // Default to home tab
+              this.navCtrl.navigateBack('/tabs/home_tab');
+            }
           }
         }
       ]
@@ -1349,22 +1365,24 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
 
-    const videoWrapper = this.elementRef.nativeElement.querySelector('.video-wrapper');
-    if (!videoWrapper) return;
+    const container = this.canvasContainer.nativeElement;
+    if (!container) return;
 
-    const rect = videoWrapper.getBoundingClientRect();
+    const rect = container.getBoundingClientRect();
     
     // Calculate the change in position
     const deltaX = clientX - this.dragStartX;
     const deltaY = clientY - this.dragStartY;
 
-    // Update the position in percentages
-    let newLeft = (this.templateImagePosition.left + (deltaX / rect.width) * 100);
-    let newTop = (this.templateImagePosition.top + (deltaY / rect.height) * 100);
+    // Update the position in pixels
+    let newLeft = this.templateImagePosition.left + deltaX;
+    let newTop = this.templateImagePosition.top + deltaY;
 
-    // Clamp the values between 0 and 100
-    newLeft = Math.max(0, Math.min(100, newLeft));
-    newTop = Math.max(0, Math.min(100, newTop));
+    // Constrain to container bounds
+    const templateWidth = 100;  // Width from CSS
+    const templateHeight = 100; // Height from CSS
+    newLeft = Math.max(0, Math.min(rect.width - templateWidth, newLeft));
+    newTop = Math.max(0, Math.min(rect.height - templateHeight, newTop));
 
     this.templateImagePosition = {
       left: newLeft,

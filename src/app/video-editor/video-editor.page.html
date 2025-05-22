@@ -31,6 +31,16 @@
         <div class="trim-handle bottom-right" (mousedown)="startResize($event, 'bottom-right')" (touchstart)="startResize($event, 'bottom-right')"></div>
       </div>
 
+      <!-- Template image preview in the top corner -->
+      <div class="template-video-preview"
+           *ngIf="selectedTemplateImage"
+           [style.top.px]="templateImagePosition.top"
+           [style.left.px]="templateImagePosition.left"
+           (mousedown)="startDrag($event)"
+           (touchstart)="startDrag($event)">
+        <img [src]="selectedTemplateImage" alt="Template Preview" />
+      </div>
+
       <div *ngFor="let layer of layers" 
            class="video-layer"
            [class.selected]="layer.isSelected"

@@ -34,6 +34,7 @@ export class UploadInfoPage implements OnInit {
   cancelUploadSource: AbortController | null = null;
   isUpdatingExistingVideo = false;
   existingVideoId: string | null = null;
+  returnTab: string | null = null;
 
   constructor(
     private toastController: ToastController,
@@ -50,6 +51,7 @@ export class UploadInfoPage implements OnInit {
       this.videoFile = (navigation.extras.state as any).videoFile;
       this.thumbnailFile = (navigation.extras.state as any).thumbnailFile;
       this.videoMetadata = (navigation.extras.state as any).videoMetadata || null;
+      this.returnTab = (navigation.extras.state as any).returnTab || null;
       
       if (this.videoMetadata) {
         console.log('Received video metadata:', 
@@ -57,6 +59,10 @@ export class UploadInfoPage implements OnInit {
           'trimEnd:', this.videoMetadata.trimEnd, 
           'duration:', this.videoMetadata.duration
         );
+      }
+      
+      if (this.returnTab) {
+        console.log('Return tab available:', this.returnTab);
       }
       
       // Check if we're updating an existing video
@@ -302,7 +308,15 @@ export class UploadInfoPage implements OnInit {
         : 'Video uploaded successfully!';
         
       await this.presentToast(successMessage, 'success');
-      this.router.navigate(['/tabs/home_tab']);
+
+      // Navigate back to the appropriate tab
+      if (this.returnTab && this.returnTab.startsWith('/tabs/')) {
+        console.log('Returning to tab:', this.returnTab);
+        this.router.navigateByUrl(this.returnTab);
+      } else {
+        // Default to home tab
+        this.router.navigateByUrl('/tabs/home_tab');
+      }
     } catch (error: any) {
       console.error('Error uploading video:', error);
       await this.presentToast(error.message || 'Error uploading video. Please try again.');

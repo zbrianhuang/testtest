@@ -1,12 +1,13 @@
 .camera-preview {
   width: 100%;
-  height: 100%;
+  height: 100%; /* Make it fill the entire content area */
   position: relative;
   background: #000;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  z-index: 1; /* Lower z-index */
 
   video {
     width: 100%;
@@ -51,15 +52,15 @@
    Record & Next button positioning
    ============================== */
 .record-button-container {
-  position: absolute;
-  bottom: 80px;
+  position: fixed; /* Changed from absolute to fixed to match the toolbar */
+  bottom: 90px; /* Position higher above the recording bar */
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  z-index: 1000;
+  z-index: 99999; /* Very high z-index to appear above everything else */
 }
 
 /* ==============================
@@ -68,20 +69,28 @@
 .record-button {
   --padding-start: 0;
   --padding-end: 0;
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   --border-radius: 50%;
-  --background: transparent;
+  --background: rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
 
   ion-icon {
-    font-size: 64px;
+    font-size: 70px;
     color: #ff4961;
+    transition: all 0.2s ease;
   }
 
   &.recording {
+    --background: rgba(255, 73, 97, 0.3);
     ion-icon {
-      color: #ff4961;
+      color: #ffffff;
     }
+  }
+  
+  &:active {
+    --background: rgba(255, 73, 97, 0.5);
+    transform: scale(0.95);
   }
 }
 
@@ -94,38 +103,61 @@
   --border-radius: 20px;
 }
 
-ion-footer {
-  ion-toolbar.recording-bar {
-    --background: rgba(0, 0, 0, 0.8);
+/* Recording bar styles */
+.recording-toolbar-container {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  height: 70px;
+  z-index: 100000 !important;
+  display: flex;
+  justify-content: center;
+  pointer-events: none; /* Allow touches to pass through container but not children */
+}
+
+.recording-bar {
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  width: calc(100% - 20px);
+  height: 70px;
+  margin: 0 10px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: auto; /* Make buttons clickable */
+  
+  .video-button, .recording-button, .template-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: none;
+    padding: 0;
+    background: transparent;
+    border: none;
+    height: 36px;
     display: flex;
-    flex-direction: row; /* Ensure row layout */
-    flex-wrap: nowrap; /* Prevent wrapping */
-    justify-content: space-between; /* Pin Video and Template to edges */
     align-items: center;
-    padding: 0 10px;
-    z-index: 5; /* Ensure footer is behind the grid */
-
-    ion-button {
-      --color: #fff;
-      
-      &.active {
-        --color: #ff4961;
-      }
-      flex: 0 0 auto; /* Prevent buttons from stretching */
-      padding: 0 15px; /* Add padding to ensure even spacing */
+    justify-content: center;
+    
+    &.active {
+      color: #ff4961;
     }
-
-    .video-button {
-      margin-right: auto; /* Push to the left */
-    }
-
-    .recording-button {
-      margin: 0 auto; /* Center the Recording button */
-    }
-
-    .template-button {
-      margin-left: auto; /* Push to the right */
-    }
+  }
+  
+  .video-button {
+    left: 5%;
+  }
+  
+  .recording-button {
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .template-button {
+    right: 5%;
   }
 }
 
@@ -142,17 +174,17 @@ ion-footer {
   background: #f5f5f5; /* Beige background */
   padding: 10px;
   position: absolute;
-  bottom: 0;
+  bottom: 80px; /* Position it right above the recording bar with margin */
   width: 100%;
-  max-height: 50%; /* Limit height to half the screen */
+  max-height: calc(50% - 80px); /* Limit height and account for the recording bar with margin */
   overflow-y: auto; /* Allow scrolling if content overflows */
-  z-index: 20; /* Ensure grid is in front of everything */
+  z-index: 20;
 }
 
 .recent-videos.full-page {
   position: static; /* Remove absolute positioning for full-page mode */
-  max-height: 100%; /* Full height */
-  height: calc(100% - 56px); /* Adjust for header height (56px is typical for Ionic headers) */
+  max-height: calc(100% - 136px); /* Full height minus header and recording bar with margin */
+  height: calc(100% - 136px); /* Adjust for header height and recording bar with margin */
 }
 
 .recent-videos h2 {
@@ -196,5 +228,16 @@ ion-footer {
 /* Style the alert backdrop */
 ion-alert {
   --backdrop-opacity: 0.5; /* Slightly transparent backdrop */
+}
+
+/* Force ion-content to have appropriate z-index */
+ion-content {
+  --z-index: 1;
+  z-index: 1;
+  --background: #000;
+  
+  &::part(scroll) {
+    height: 100%;
+  }
 }
 

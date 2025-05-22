@@ -29,9 +29,16 @@ export class TabsPage {
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => {
         const url = e.urlAfterRedirects;
-        this.hideTabBar =
-          url === '/tabs/tab2' ||
-          url.startsWith('/tabs/video-editor');
+        console.log('Navigation to URL:', url);
+        
+        // Force update hideTabBar based on URL
+        if (url === '/tabs/tab2' || url.startsWith('/tabs/video-editor')) {
+          console.log('Hiding tab bar');
+          this.hideTabBar = true;
+        } else {
+          console.log('Showing tab bar');
+          this.hideTabBar = false;
+        }
       });
   }
 
@@ -50,6 +57,8 @@ export class TabsPage {
           text: 'Camera',
           icon: 'camera',
           handler: () => {
+            // Force hide tab bar immediately before navigation
+            this.hideTabBar = true;
             this.router.navigate(['/tabs/tab2']);
           }
         },
@@ -91,7 +100,7 @@ export class TabsPage {
               state: { 
                 videoFileInfo: selectedFile,
                 sourceType: 'file-picker',
-                isFromGallery: true 
+                isFromGallery: true
               }
             });
             return;
@@ -114,7 +123,7 @@ export class TabsPage {
             state: { 
               videoFile: videoFile,
               sourceType: 'file-picker',
-              isFromGallery: true 
+              isFromGallery: true
             }
           });
         } catch (fetchError) {
@@ -125,7 +134,7 @@ export class TabsPage {
             state: { 
               videoFileInfo: selectedFile,
               sourceType: 'file-picker',
-              isFromGallery: true 
+              isFromGallery: true
             }
           });
         }

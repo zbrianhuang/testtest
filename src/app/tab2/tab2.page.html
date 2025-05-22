@@ -117,23 +117,22 @@
       Next
     </ion-button>
   </div>
-
-
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar class="recording-bar">
-    <ion-button class="video-button" fill="clear" (click)="setMode('video')" [class.active]="selectedMode === 'video' && showRecent">
+<!-- Custom floating toolbar that will appear on top of content -->
+<div class="recording-toolbar-container">
+  <div class="recording-bar">
+    <button class="video-button" (click)="setMode('video')" [class.active]="selectedMode === 'video' && showRecent">
       Video
-    </ion-button>
-    <ion-button class="recording-button" fill="clear" (click)="showCamera()" [class.active]="!showRecent">
+    </button>
+    <button class="recording-button" (click)="showCamera()" [class.active]="!showRecent">
       Recording
-    </ion-button>
-    <ion-button class="template-button" fill="clear" (click)="setMode('template')" [class.active]="selectedMode === 'template' && showRecent">
+    </button>
+    <button class="template-button" (click)="setMode('template')" [class.active]="selectedMode === 'template' && showRecent">
       Template
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>
+    </button>
+  </div>
+</div>
 
 <ion-segment [(ngModel)]="selectedMode" (ionChange)="handleSegmentChange($event)">
 </ion-segment>
