@@ -1,9 +1,10 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { NavController, AlertController, IonicModule } from '@ionic/angular';
 import { Storage } from '@ionic/storage-angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MetronomeComponent } from '../components/metronome/metronome.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tab2',
@@ -13,6 +14,8 @@ import { MetronomeComponent } from '../components/metronome/metronome.component'
   imports: [IonicModule, CommonModule, FormsModule, MetronomeComponent]
 })
 export class Tab2Page implements OnInit {
+  @ViewChild('videoPreview') videoPreview!: ElementRef<HTMLVideoElement>;
+  
   isRecording: boolean = false;
   selectedMode: 'video' | 'template' = 'video';
   showRecent: boolean = false;
@@ -30,7 +33,8 @@ export class Tab2Page implements OnInit {
     private navCtrl: NavController,
     private alertController: AlertController,
     private storage: Storage,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -186,4 +190,6 @@ export class Tab2Page implements OnInit {
 
     
   }
+
+
 }

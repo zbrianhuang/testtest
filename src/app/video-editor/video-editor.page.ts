@@ -134,6 +134,9 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
   timelineThumbnailHeight = 60; // height of each thumbnail in pixels
   private thumbnailInterval = 1; // generate thumbnail every X seconds
 
+  // Track content element reference for template
+  trackContent: any = null;
+  
   showOpacityPanel = false;
 
   isTrimMode = false;
@@ -270,26 +273,24 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
       
       console.log('Container dimensions:', { width: containerWidth, height: containerHeight });
       
-      // Calculate video dimensions (50% of container width, maintaining aspect ratio)
-      const videoWidth = Math.min(containerWidth * 0.5, 400); // Max width of 400px
+      // Calculate video dimensions (80% of container width, maintaining aspect ratio)
+      const videoWidth = Math.min(containerWidth * 0.8, 800); // Max width of 800px, use 80% of container
       const videoHeight = (videoWidth * 9) / 16; // Assuming 16:9 aspect ratio
       
-      // Check if we're in a cross-origin isolated context
+      // Note about cross-origin isolation (commented out to avoid unnecessary warnings)
+      // We'll only log to console but not show an error to the user
       const isCrossOriginIsolated = this.videoService.checkIfCrossOriginIsolated();
       console.log('Cross-origin isolated context:', isCrossOriginIsolated);
       
       if (!isCrossOriginIsolated) {
-        console.warn('Not running in a cross-origin isolated context. FFMPEG operations may fail.');
-        await this.showError('This application requires a secure context with cross-origin isolation. Some features may not work correctly.');
+        console.warn('Not running in a cross-origin isolated context. Advanced FFMPEG operations may be limited.');
+        // Don't show the warning to users as it's not critical for basic functionality
       }
       
-      // Create single layer with playingGod1.mp4
-      const videoPath = 'assets/videos/playingGod1.mp4';
-      console.log('Loading video from path:', videoPath);
-      
+      // Create an empty layer without a default video
       const layer1: VideoLayer = {
         id: `layer-${Date.now()}`,
-        videoUrl: videoPath,
+        videoUrl: undefined, // No default video
         position: { 
           x: (containerWidth - videoWidth) / 2, // Center horizontally
           y: (containerHeight - videoHeight) / 2 // Center vertically
@@ -308,19 +309,17 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
         isMovingDown: false
       };
 
-      console.log('Created video layer:', layer1);
+      console.log('Created empty video layer:', layer1);
 
       // Add the layer
       this.layers = [layer1];
       this.selectedLayerId = layer1.id;
-
-      // Load video and set its duration
-      try {
-        await this.loadVideoForLayer(layer1);
-      } catch (error) {
-        console.error('Failed to load video for layer:', error);
-        await this.showError('Failed to load video. This may be due to CORS restrictions or a missing file.');
-      }
+      
+      // Show hint to user
+      setTimeout(() => {
+        this.showInfo('Click the "Upload" button to add a video to your project.');
+      }, 500);
+      
     } catch (error) {
       console.error('Error initializing video layers:', error);
       await this.showError('Error initializing the video editor. Please try again.');
@@ -566,24 +565,63 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     });
     await alert.present();
   }
+  
+  private async showInfo(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Info',
+      message,
+      buttons: ['OK']
+    });
+    await alert.present();
+  }
 
   togglePlay() {
     this.isPlaying = !this.isPlaying;
     console.log('Toggle play:', this.isPlaying);
     
+    // Ensure all videos are properly rendered and sized
     this.layers.forEach(layer => {
-      const video = this.elementRef.nativeElement.querySelector(`#video-${layer.id}`) as HTMLVideoElement;
-      if (video) {
-        if (this.isPlaying) {
-          video.currentTime = layer.startTime;
-          video.play().catch(error => {
-            console.error('Error playing video:', error);
-          });
-        } else {
-          video.pause();
+      if (layer.videoUrl) {
+        const video = this.elementRef.nativeElement.querySelector(`#video-${layer.id}`) as HTMLVideoElement;
+        if (video) {
+          // Check if video dimensions are reasonable
+          if (video.offsetWidth < 10 || video.offsetHeight < 10) {
+            console.log(`Video ${layer.id} has incorrect dimensions, attempting to fix...`);
+            
+            // Fix the layer size if it's too small
+            if (layer.size.width < 100 || layer.size.height < 56) {
+              const container = this.canvasContainer.nativeElement;
+              const videoWidth = Math.min(container.offsetWidth * 0.8, 800);
+              const videoHeight = (videoWidth * 9) / 16;
+              layer.size = { width: videoWidth, height: videoHeight };
+              console.log(`Reset layer ${layer.id} dimensions to:`, layer.size);
+            }
+          }
+          
+          // Set time and play/pause
+          if (this.isPlaying) {
+            // Make sure we start from the beginning of the layer's time range
+            video.currentTime = layer.startTime;
+            
+            // Use promise to handle play errors
+            video.play().catch(error => {
+              console.error('Error playing video:', error);
+              
+              // Try with muted if there are autoplay restrictions
+              video.muted = true;
+              video.play().catch(err => {
+                console.error('Error playing even with muted:', err);
+              });
+            });
+          } else {
+            video.pause();
+          }
         }
       }
     });
+    
+    // Force update UI
+    this.cdr.detectChanges();
   }
 
   // Add new method to handle video seeking
@@ -745,113 +783,128 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
       });
       await processingAlert.present();
       
-      // Get video element to export
-      const videoElement = this.videoPlayer ? this.videoPlayer.nativeElement : 
-        this.elementRef.nativeElement.querySelector('video');
+      console.log('Starting export process');
+      
+      // Find active layer with a video
+      const activeLayer = this.layers.find(layer => layer.videoUrl && layer.isSelected);
+      const firstVideoLayer = activeLayer || this.layers.find(layer => layer.videoUrl);
+      
+      if (!firstVideoLayer || !firstVideoLayer.videoUrl) {
+        throw new Error('No video found in any layer. Please add a video first.');
+      }
+      
+      console.log('Using layer:', firstVideoLayer.id);
+      
+      // Get video element for the active layer
+      const videoElement = this.elementRef.nativeElement.querySelector(`#video-${firstVideoLayer.id}`) as HTMLVideoElement;
       
       if (!videoElement) {
-        throw new Error('No video element found to export');
+        throw new Error('Video element not found for the selected layer');
       }
       
       // Create a timestamp for the exported files
       const timestamp = Date.now();
       
       // Get the original file name from the video source or create a unique name
-      let fileName = this.videoSrc.split('/').pop() || `edited-video-${timestamp}.mp4`;
+      let fileName = firstVideoLayer.videoUrl.split('/').pop() || `edited-video-${timestamp}.mp4`;
       // Ensure it has an mp4 extension
       if (!fileName.toLowerCase().endsWith('.mp4')) {
         fileName = `${fileName.split('.')[0] || 'edited-video'}.mp4`;
       }
       
-      // Check if we have the original video file from navigation state
+      // Create a file from the blob URL for the video
       let videoFile: File | null = null;
       
-      const navigation = this.router.getCurrentNavigation();
-      if (navigation?.extras?.state && navigation.extras.state['videoFile']) {
-        // Use the original file that was passed to the editor
-        const originalFile = navigation.extras.state['videoFile'] as File;
-        videoFile = new File([originalFile], fileName, { type: 'video/mp4' });
-        console.log('Using original video file:', videoFile.name, 'size:', videoFile.size);
-      } else {
-        // If no file was passed, we'll just create a placeholder file
-        // This is a limitation when the source is an asset or URL
-        console.log('No original file available, creating placeholder');
-        videoFile = new File([new Blob([])], fileName, { type: 'video/mp4' });
+      try {
+        if (firstVideoLayer.videoUrl.startsWith('blob:')) {
+          // Attempt to fetch the blob directly
+          const response = await fetch(firstVideoLayer.videoUrl);
+          const blob = await response.blob();
+          videoFile = new File([blob], fileName, { type: 'video/mp4' });
+        } else {
+          // For other URLs, create a placeholder
+          videoFile = new File([new Blob()], fileName, { type: 'video/mp4' });
+        }
+      } catch (error) {
+        console.error('Error creating video file:', error);
+        // Create a placeholder file as a fallback
+        videoFile = new File([new Blob()], fileName, { type: 'video/mp4' });
       }
       
       console.log('Creating thumbnail...');
-      // Create a temporary thumbnail from the current frame
+      
+      // Create a canvas for the thumbnail
       const canvas = document.createElement('canvas');
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
+      canvas.width = 640;  // Default size if video dimensions are not available
+      canvas.height = 360;
+      
+      if (videoElement.videoWidth && videoElement.videoHeight) {
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+      }
+      
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         throw new Error('Failed to create canvas context');
       }
       
-      // Ensure we're at the frame we want to capture
-      videoElement.currentTime = this.trimStart;
+      // Fill with black as fallback
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Wait for video to seek to desired time
-      await new Promise<void>((resolve) => {
-        const onSeeked = () => {
-          videoElement.removeEventListener('seeked', onSeeked);
-          resolve();
-        };
-        videoElement.addEventListener('seeked', onSeeked);
-      });
-      
-      // Draw the current frame to canvas
-      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      try {
+        // Try to draw the video frame
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      } catch (drawError) {
+        console.error('Error drawing to canvas:', drawError);
+        // Continue with black background
+      }
       
       // Get thumbnail blob
-      const thumbnailBlob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else resolve(new Blob([])); // Empty fallback
-        }, 'image/jpeg', 0.8);
-      });
-      console.log('Thumbnail created successfully, size:', thumbnailBlob.size);
+      let thumbnailBlob: Blob;
+      try {
+        thumbnailBlob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((blob) => {
+            if (blob && blob.size > 0) {
+              resolve(blob);
+            } else {
+              resolve(new Blob([], { type: 'image/jpeg' }));
+            }
+          }, 'image/jpeg', 0.8);
+        });
+      } catch (blobError) {
+        console.error('Error creating thumbnail blob:', blobError);
+        thumbnailBlob = new Blob([], { type: 'image/jpeg' });
+      }
       
-      const originalFileName = fileName;
-      const thumbnailFile = new File([thumbnailBlob], originalFileName.replace('.mp4', '.jpg'), { type: 'image/jpeg' });
-
+      const thumbnailFile = new File([thumbnailBlob], fileName.replace('.mp4', '.jpg'), { type: 'image/jpeg' });
+      console.log('Thumbnail created, size:', thumbnailBlob.size);
+      
+      // Create metadata to pass to upload page
+      const videoMetadata = {
+        trimStart: firstVideoLayer.startTime || 0,
+        trimEnd: firstVideoLayer.endTime || (firstVideoLayer.duration || 0),
+        duration: firstVideoLayer.duration || 0
+      };
+      
+      console.log('Video metadata:', videoMetadata);
+      console.log('Dismissing loading indicator and navigating to upload page');
+      
       // Dismiss the processing alert before navigation
       if (processingAlert) {
         await processingAlert.dismiss();
         processingAlert = null;
       }
       
-      // Create an object with trim info to pass to the upload page
-      const videoMetadata = {
-        trimStart: this.trimStart,
-        trimEnd: this.trimEnd,
-        duration: videoElement.duration
-      };
+      // Navigate to upload info page
+      this.navCtrl.navigateForward('/upload-info', {
+        state: {
+          videoFile,
+          thumbnailFile,
+          videoMetadata
+        }
+      });
       
-      // Check if we're editing an existing video
-      if (this.isEditingExistingVideo && this.existingVideoMetadata) {
-        // Navigate to upload info page with both files and pass existing metadata
-        this.navCtrl.navigateForward('/upload-info', {
-          state: {
-            videoFile,
-            thumbnailFile,
-            isUpdatingExistingVideo: true,
-            existingVideoId: this.existingVideoId,
-            existingVideoMetadata: this.existingVideoMetadata,
-            videoMetadata
-          }
-        });
-      } else {
-        // Navigate to upload info page with both files for a new video
-        this.navCtrl.navigateForward('/upload-info', {
-          state: {
-            videoFile,
-            thumbnailFile,
-            videoMetadata
-          }
-        });
-      }
     } catch (error) {
       console.error('Error exporting video:', error);
       
@@ -1358,11 +1411,23 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addNewLayer() {
+    // Get container dimensions
+    const container = this.canvasContainer.nativeElement;
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    
+    // Calculate default size (80% of container width, maintaining 16:9 aspect ratio)
+    const videoWidth = Math.min(containerWidth * 0.8, 800);
+    const videoHeight = (videoWidth * 9) / 16;
+    
     const newLayer: VideoLayer = {
       id: `layer-${Date.now()}`,
       videoUrl: '', // This will be set when user selects a video
-      position: { x: 0, y: 0 },
-      size: { width: 300, height: 169 }, // Default size matching our initialization
+      position: { 
+        x: (containerWidth - videoWidth) / 2, // Center horizontally
+        y: (containerHeight - videoHeight) / 2 // Center vertically  
+      },
+      size: { width: videoWidth, height: videoHeight },
       opacity: 1,
       zIndex: this.layers.length,
       isSelected: true,
@@ -1379,6 +1444,15 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     // Add the new layer
     this.layers.push(newLayer);
     this.selectedLayerId = newLayer.id;
+    
+    // Ensure the timeline is visible
+    this.ensureTimelineVisible();
+    
+    // Trigger file upload immediately
+    setTimeout(() => {
+      this.triggerFileUpload(newLayer.id);
+    }, 100);
+    
     this.cdr.detectChanges();
   }
 
@@ -1406,6 +1480,12 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
       // Create new video URL
       layer.videoUrl = URL.createObjectURL(file);
       
+      // Ensure the layer has a reasonable size
+      const container = this.canvasContainer.nativeElement;
+      const videoWidth = Math.min(container.offsetWidth * 0.8, 800);
+      const videoHeight = (videoWidth * 9) / 16;
+      layer.size = { width: videoWidth, height: videoHeight };
+      
       // Position the layer if it's new
       if (layer.position.x === 0 && layer.position.y === 0) {
         const lastLayer = this.layers[this.layers.length - 2];
@@ -1416,18 +1496,51 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
           };
         } else {
           // If this is the first layer, center it
-          const container = this.canvasContainer.nativeElement;
           layer.position = {
             x: (container.offsetWidth - layer.size.width) / 2,
             y: (container.offsetHeight - layer.size.height) / 2
           };
         }
       }
+            
+      // Ensure timeline container is properly shown
+      this.ensureTimelineVisible();
+      
+      // Force UI update immediately
+      this.cdr.detectChanges();
+      
+      // Add an extra verification check to ensure video is displayed
+      setTimeout(() => {
+        const videoElement = this.elementRef.nativeElement.querySelector(`#video-${layerId}`) as HTMLVideoElement;
+        if (videoElement) {
+          console.log('Video element found, current dimensions:', {
+            width: videoElement.offsetWidth,
+            height: videoElement.offsetHeight
+          });
+          
+          // Force video to refresh if it's not rendering properly
+          if (videoElement.offsetWidth < 10 || videoElement.offsetHeight < 10) {
+            console.log('Video element size is too small, forcing refresh...');
+            const currentSrc = layer.videoUrl;
+            layer.videoUrl = '';
+            this.cdr.detectChanges();
+            setTimeout(() => {
+              layer.videoUrl = currentSrc;
+              this.cdr.detectChanges();
+            }, 50);
+          }
+        }
+      }, 100);
       
       // Generate thumbnails
       this.generateThumbnailsForLayer(layer).then(() => {
         // Reset the input value to allow selecting the same file again
         input.value = '';
+        
+        // Select this layer to ensure its timeline is shown
+        this.selectLayer(layer.id);
+        
+        // Make sure we update the UI
         this.cdr.detectChanges();
       });
     } catch (error) {
@@ -1438,6 +1551,25 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
         message: 'Failed to process video. Please try again.',
         buttons: ['OK']
       }).then(alert => alert.present());
+    }
+  }
+  
+  // Helper method to ensure timeline is visible
+  private ensureTimelineVisible() {
+    // Find the timeline container element
+    const timelineContainer = this.elementRef.nativeElement.querySelector('.timeline-container');
+    if (timelineContainer) {
+      // Make sure the timeline is visible by setting its height
+      timelineContainer.style.display = 'flex';
+      
+      // If timeline needs more initialization, do it here
+      // For example, ensure the height is proper
+      if (timelineContainer.offsetHeight < 100) {
+        timelineContainer.style.minHeight = '200px';
+      }
+      
+      // Force layout recalculation
+      void timelineContainer.offsetHeight;
     }
   }
 
@@ -1680,44 +1812,176 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
   async generateThumbnailsForLayer(layer: VideoLayer) {
     if (!layer.videoUrl) return;
 
+    console.log('Generating thumbnails for layer:', layer.id);
+    
     const video = document.createElement('video');
     video.src = layer.videoUrl;
+    video.crossOrigin = 'anonymous'; // Try to avoid CORS issues
+    video.muted = true; // Prevent audio issues
     
     await new Promise<void>((resolve) => {
       video.onloadedmetadata = () => {
+        console.log(`Video metadata loaded: duration = ${video.duration}s`);
         layer.duration = video.duration;
         layer.endTime = video.duration;
         resolve();
       };
+      
+      // Add an error handler
+      video.onerror = (e) => {
+        console.error('Error loading video for thumbnails:', e);
+        resolve(); // Continue anyway to avoid blocking
+      };
+      
+      // Add a timeout just in case
+      setTimeout(() => {
+        if (!layer.duration) {
+          console.warn('Timed out waiting for video metadata');
+          resolve();
+        }
+      }, 5000);
+      
+      // Trigger load
+      video.load();
     });
 
+    // Exit early if we couldn't get video duration
+    if (!layer.duration) {
+      console.warn('No video duration available, cannot generate thumbnails');
+      return;
+    }
+
     const canvas = document.createElement('canvas');
-    const timelineWidth = this.timelineContainer.nativeElement.offsetWidth;
-    const thumbnailWidth = 100; // Fixed width for each thumbnail
-    const numThumbnails = Math.ceil(timelineWidth / thumbnailWidth);
+    const containerWidth = 500; // Ensure we have a reasonable width even if timeline container is not yet available
+    const thumbnailWidth = 80; // Reduced width for each thumbnail to fit more
+    const numThumbnails = Math.max(10, Math.floor(layer.duration / 2)); // At least 10 thumbnails, or one every 2 seconds
     const interval = layer.duration / numThumbnails;
+
+    console.log(`Generating ${numThumbnails} thumbnails at ${interval}s intervals`);
 
     canvas.width = thumbnailWidth;
     canvas.height = this.timelineThumbnailHeight;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.error('Could not get canvas context');
+      return;
+    }
 
     const thumbnails: string[] = [];
 
-    for (let i = 0; i < numThumbnails; i++) {
-      const time = i * interval;
-      video.currentTime = time;
+    try {
+      // Play the video to make sure it's ready for seeking
+      await video.play().catch(e => console.log('Play ignored:', e));
+      video.pause();
       
-      await new Promise<void>((resolve) => {
-        video.onseeked = () => {
-          ctx.drawImage(video, 0, 0, thumbnailWidth, this.timelineThumbnailHeight);
-          thumbnails.push(canvas.toDataURL('image/jpeg', 0.5));
-          resolve();
-        };
-      });
+      for (let i = 0; i < numThumbnails; i++) {
+        const time = i * interval;
+        console.log(`Generating thumbnail at time: ${time}s`);
+        
+        video.currentTime = time;
+        
+        await new Promise<void>((resolve) => {
+          const onSeeked = () => {
+            video.removeEventListener('seeked', onSeeked);
+            video.removeEventListener('error', onError);
+            
+            try {
+              // Draw a border and background first
+              ctx.fillStyle = '#333333';
+              ctx.fillRect(0, 0, thumbnailWidth, this.timelineThumbnailHeight);
+              
+              // Draw the video frame
+              ctx.drawImage(video, 0, 0, thumbnailWidth, this.timelineThumbnailHeight);
+              
+              // Draw a timestamp label
+              const timeText = this.formatTime(time);
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+              ctx.fillRect(0, this.timelineThumbnailHeight - 15, thumbnailWidth, 15);
+              ctx.fillStyle = '#ffffff';
+              ctx.font = '10px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText(timeText, thumbnailWidth / 2, this.timelineThumbnailHeight - 5);
+              
+              thumbnails.push(canvas.toDataURL('image/jpeg', 0.7));
+            } catch (err) {
+              console.error('Error generating thumbnail:', err);
+              // Add a placeholder with just the timestamp
+              ctx.fillStyle = '#333333';
+              ctx.fillRect(0, 0, thumbnailWidth, this.timelineThumbnailHeight);
+              
+              ctx.fillStyle = '#ffffff';
+              ctx.font = '10px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText(this.formatTime(time), thumbnailWidth / 2, this.timelineThumbnailHeight / 2);
+              
+              thumbnails.push(canvas.toDataURL('image/jpeg', 0.7));
+            }
+            
+            resolve();
+          };
+          
+          const onError = (err: Event) => {
+            video.removeEventListener('seeked', onSeeked);
+            video.removeEventListener('error', onError);
+            console.error('Error seeking video:', err);
+            
+            // Add a placeholder thumbnail
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(0, 0, thumbnailWidth, this.timelineThumbnailHeight);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Error', thumbnailWidth / 2, this.timelineThumbnailHeight / 2);
+            
+            thumbnails.push(canvas.toDataURL('image/jpeg', 0.7));
+            resolve();
+          };
+          
+          video.addEventListener('seeked', onSeeked);
+          video.addEventListener('error', onError);
+          
+          // Add timeout for each seek operation
+          setTimeout(() => {
+            // Check if we need to clean up
+            if (!video || video.readyState === 0) {
+              console.log('Video element was not ready or available');
+              return;
+            }
+            
+            video.removeEventListener('seeked', onSeeked);
+            video.removeEventListener('error', onError);
+            
+            // Create a placeholder thumbnail
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(0, 0, thumbnailWidth, this.timelineThumbnailHeight);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Timeout', thumbnailWidth / 2, this.timelineThumbnailHeight / 2);
+            
+            thumbnails.push(canvas.toDataURL('image/jpeg', 0.7));
+            resolve();
+          }, 3000);
+        });
+      }
+    } catch (error) {
+      console.error('Error in thumbnail generation loop:', error);
+    } finally {
+      // Clean up
+      video.src = '';
+      video.remove();
     }
 
+    console.log(`Generated ${thumbnails.length} thumbnails for layer ${layer.id}`);
     layer.thumbnails = thumbnails;
+    
+    // Create timeline for this layer if not already present
+    this.updateTimelineTrimFrame(layer);
+    
+    // Make sure timeline is visible after thumbnails are generated
+    this.ensureTimelineVisible();
+    
+    // Force update UI
     this.cdr.detectChanges();
   }
 
@@ -1817,9 +2081,23 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     const video = this.elementRef.nativeElement.querySelector(`#video-${layer.id}`) as HTMLVideoElement;
     if (!video) return 0;
     
-    const progress = (video.currentTime - layer.startTime) / (layer.endTime - layer.startTime);
-    const timelineWidth = this.timelineContainer.nativeElement.offsetWidth;
-    return progress * timelineWidth;
+    // Calculate track width
+    const trackContent = this.elementRef.nativeElement.querySelector(`.timeline-track[data-layer-id="${layer.id}"] .track-content`);
+    if (!trackContent) return 0;
+    
+    // Store for template reference
+    this.trackContent = trackContent;
+    
+    const trackWidth = trackContent.offsetWidth;
+    
+    // Calculate position based on current time relative to duration
+    let position = 0;
+    if (layer.duration > 0) {
+      const progress = video.currentTime / layer.duration;
+      position = progress * trackWidth;
+    }
+    
+    return Math.max(0, Math.min(position, trackWidth));
   }
 
   toggleOpacityPanel() {
@@ -1965,5 +2243,63 @@ export class VideoEditorPage implements OnInit, AfterViewInit, OnDestroy {
     
     const opacity = event.detail.value / 100;
     this.updateLayerOpacity(this.selectedLayerId, opacity);
+  }
+
+  // Add a new method to handle playhead dragging
+  startPlayheadDrag(event: MouseEvent | TouchEvent, layerId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const layer = this.layers.find(l => l.id === layerId);
+    if (!layer) return;
+    
+    // Track mouse/touch movement
+    const moveHandler = (e: MouseEvent | TouchEvent) => this.onPlayheadDrag(e, layerId);
+    const upHandler = () => {
+      document.removeEventListener('mousemove', moveHandler);
+      document.removeEventListener('touchmove', moveHandler);
+      document.removeEventListener('mouseup', upHandler);
+      document.removeEventListener('touchend', upHandler);
+    };
+    
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('touchmove', moveHandler);
+    document.addEventListener('mouseup', upHandler);
+    document.addEventListener('touchend', upHandler);
+  }
+  
+  onPlayheadDrag(event: MouseEvent | TouchEvent, layerId: string) {
+    const layer = this.layers.find(l => l.id === layerId);
+    if (!layer) return;
+    
+    const trackContent = this.elementRef.nativeElement.querySelector(`.timeline-track[data-layer-id="${layerId}"] .track-content`);
+    if (!trackContent) return;
+    
+    const rect = trackContent.getBoundingClientRect();
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    
+    // Calculate new time based on position
+    const relativeX = clientX - rect.left;
+    const progress = Math.max(0, Math.min(1, relativeX / rect.width));
+    const newTime = progress * layer.duration;
+    
+    // Set the video time
+    const video = this.elementRef.nativeElement.querySelector(`#video-${layerId}`) as HTMLVideoElement;
+    if (video) {
+      video.currentTime = newTime;
+    }
+    
+    // Force UI update
+    this.cdr.detectChanges();
+  }
+
+  // Helper method to get current time for a specific video layer
+  getCurrentVideoTime(layerId: string): number {
+    // Find the video element
+    const video = this.elementRef.nativeElement.querySelector(`#video-${layerId}`) as HTMLVideoElement;
+    if (!video) return 0;
+    
+    // Return the current time
+    return video.currentTime || 0;
   }
 }

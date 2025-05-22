@@ -53,7 +53,9 @@
                (timeupdate)="onTimeUpdate($event, layer)"
                disablePictureInPicture
                controlsList="nodownload nofullscreen"
-               playsinline>
+               muted
+               playsinline
+               preload="auto">
         </video>
         
         <!-- Resize Handles -->
@@ -92,6 +94,13 @@
           <ion-button fill="clear" (click)="addNewLayer()">
             <ion-icon name="add"></ion-icon>
           </ion-button>
+        </div>
+        
+        <!-- Global scrubbing hint -->
+        <div class="global-scrubbing-hint">
+          <ion-icon name="arrow-forward"></ion-icon>
+          Drag the pink vertical line to scrub through video
+          <ion-icon name="arrow-back"></ion-icon>
         </div>
       </div>
 
@@ -141,7 +150,7 @@
               <div class="upload-button">
                 <ion-button fill="outline" size="small" (click)="triggerFileUpload(layer.id)" (mousedown)="$event.stopPropagation()">
                   <ion-icon name="cloud-upload"></ion-icon>
-                  Upload Video
+                  Upload
                 </ion-button>
                 <input 
                   type="file" 
@@ -161,11 +170,20 @@
                (mouseup)="endTimelineLongPress()"
                (mouseleave)="endTimelineLongPress()"
                (touchend)="endTimelineLongPress()"
-               (touchcancel)="endTimelineLongPress()">
+               (touchcancel)="endTimelineLongPress()"
+               (click)="onPlayheadDrag($event, layer.id)">
             <div class="thumbnails-container">
               <div *ngFor="let thumbnail of layer.thumbnails; let i = index"
                    class="thumbnail">
                 <img [src]="thumbnail" alt="Thumbnail">
+              </div>
+              <!-- Add timestamp labels -->
+              <div *ngIf="layer.duration > 0" class="timeline-ticks">
+                <span *ngFor="let thumbnail of layer.thumbnails; let i = index"
+                      class="timeline-tick"
+                      [style.left.%]="(i / layer.thumbnails.length) * 100">
+                  {{ formatTime((i / layer.thumbnails.length) * layer.duration) }}
+                </span>
               </div>
             </div>
 
@@ -185,8 +203,20 @@
                   </div>
                 </div>
 
-                <div class="playhead"
-                     [style.left.px]="getPlayheadPosition(layer)">
+                <!-- Enhanced playhead with label -->
+                <div class="playhead-container">
+                  <div class="playhead"
+                       [style.left.px]="getPlayheadPosition(layer)"
+                       (mousedown)="startPlayheadDrag($event, layer.id)"
+                       (touchstart)="startPlayheadDrag($event, layer.id)">
+                    <!-- Display current time -->
+                    <div class="playhead-label">{{ formatTime(getCurrentVideoTime(layer.id)) }}</div>
+                  </div>
+                </div>
+
+                <!-- Add a visual indicator for scrubbing -->
+                <div class="scrubber-hint">
+                  Click or drag anywhere on timeline to scrub
                 </div>
               </div>
             </div>

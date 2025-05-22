@@ -40,13 +40,6 @@ export class TabsPage {
       header: 'Add Content',
       buttons: [
         {
-          text: 'Camera',
-          icon: 'camera',
-          handler: () => {
-            this.router.navigate(['/tabs/tab2']);
-          }
-        },
-        {
           text: 'Upload Video',
           icon: 'cloud-upload',
           handler: () => {
@@ -54,10 +47,10 @@ export class TabsPage {
           }
         },
         {
-          text: 'Upload Without Editing',
-          icon: 'arrow-up-circle',
+          text: 'Camera',
+          icon: 'camera',
           handler: () => {
-            this.pickVideoForDirectUpload();
+            this.router.navigate(['/tabs/tab2']);
           }
         },
         {

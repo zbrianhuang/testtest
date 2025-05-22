@@ -9,4 +9,48 @@ ion-tab-button img {
     object-fit: contain;
   }
   
+// Navigation bar uses default colors
+
+ion-tab-button {
+    --padding-end: 0;
+    --padding-start: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+}
+
+.nav_button {
+    --color: white;
+}
+
+.nav_icon {
+    width: 24px;
+    height: 24px;
+}
+
+.profile-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.sheet-music-library-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.upload-video-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.message-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.large-plus-icon {
+    font-size: 32px;
+    color: black;
+    --ionicon-stroke-width: 36px;
+}
+  
   
