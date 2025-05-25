@@ -16,6 +16,7 @@ ion-tab-button {
     --padding-start: 0;
     --padding-top: 0;
     --padding-bottom: 0;
+    position: relative;
 }
 
 .nav_button {
@@ -51,6 +52,15 @@ ion-tab-button {
     font-size: 32px;
     color: black;
     --ionicon-stroke-width: 36px;
+}
+
+ion-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 10px;
 }
   
   

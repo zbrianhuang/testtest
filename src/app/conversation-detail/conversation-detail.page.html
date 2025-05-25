@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab4"></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="conversation">{{ conversation.user }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="conversation" class="message-container">
+    <div class="messages-list">
+      <div *ngFor="let message of conversation.messages" 
+           [ngClass]="{'message-bubble': true, 'user-message': message.sender === 'user', 'other-message': message.sender === 'other'}">
+        <div class="message-content">
+          <p>{{ message.text }}</p>
+          <small class="message-time">
+            {{ message.timestamp | date:'shortTime' }}
+            <span *ngIf="message.isEdited" class="edited-indicator">(edited)</span>
+          </small>
+        </div>
+        
+        <div *ngIf="message.sender === 'user'" class="message-actions">
+          <ion-button fill="clear" size="small" (click)="showEditOptions(message)">
+            <ion-icon name="ellipsis-vertical"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="message-input">
+      <ion-item>
+        <ion-input 
+          placeholder="Type a message..." 
+          type="text" 
+          [(ngModel)]="newMessage"
+          (keyup.enter)="sendMessage()">
+        </ion-input>
+        <ion-button slot="end" fill="clear" (click)="sendMessage()">
+          <ion-icon name="send"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </div>
+  </div>
+</ion-content> 

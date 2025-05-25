@@ -14,6 +14,7 @@
 
     <ion-tab-button tab="tab4" href="/tabs/tab4">
       <img class="message-icon" src="/assets/icon/message_page.png">
+      <ion-badge *ngIf="unreadCount > 0" color="danger">{{ unreadCount }}</ion-badge>
     </ion-tab-button>
 
     <ion-tab-button tab="tab3" href="/tabs/tab3">

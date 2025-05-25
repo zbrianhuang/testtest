@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Filesystem } from '@capacitor/filesystem';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { MessageService } from '../services/message.service';
 
 @Component({
   selector: 'app-tabs',
@@ -20,10 +21,12 @@ import { FilePicker } from '@capawesome/capacitor-file-picker';
 })
 export class TabsPage {
   hideTabBar = false;
+  unreadCount = 0;
 
   constructor(
     private router: Router,
-    private actionSheetCtrl: ActionSheetController
+    private actionSheetCtrl: ActionSheetController,
+    private messageService: MessageService
   ) {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
@@ -40,6 +43,10 @@ export class TabsPage {
           this.hideTabBar = false;
         }
       });
+      
+    this.messageService.unreadCount$.subscribe(count => {
+      this.unreadCount = count;
+    });
   }
 
   async presentActionSheet() {

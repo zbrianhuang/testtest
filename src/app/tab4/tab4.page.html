@@ -12,14 +12,17 @@
   </ion-header>
 
   <ion-list>
-    <ion-item *ngFor="let conversation of conversations">
+    <ion-item *ngFor="let conversation of conversations" 
+              (click)="openConversation(conversation.id)" 
+              button>
       <ion-avatar slot="start">
         <ion-icon name="person-circle-outline" size="large"></ion-icon>
       </ion-avatar>
       <ion-label>
         <h2>{{ conversation.user }}</h2>
-        <p>{{ conversation.lastMessage }}</p>
+        <p *ngIf="conversation.messages.length > 0">{{ conversation.messages[conversation.messages.length-1].text }}</p>
       </ion-label>
+      <ion-badge *ngIf="conversation.unread" color="danger" slot="end">New</ion-badge>
     </ion-item>
   </ion-list>
 </ion-content>

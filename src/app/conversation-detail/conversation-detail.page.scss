@@ -1,0 +1,74 @@
+.message-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.message-bubble {
+  display: flex;
+  border-radius: 15px;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  max-width: 80%;
+  position: relative;
+}
+
+.user-message {
+  background-color: #dcf8c6;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.other-message {
+  background-color: #f1f0f0;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.message-content {
+  flex-grow: 1;
+  p {
+    margin: 0 0 5px 0;
+    word-break: break-word;
+  }
+}
+
+.message-time {
+  display: block;
+  color: #8e8e8e;
+  font-size: 0.7em;
+  text-align: right;
+}
+
+.edited-indicator {
+  font-style: italic;
+  margin-left: 5px;
+}
+
+.message-actions {
+  display: flex;
+  align-items: flex-start;
+  margin-left: 5px;
+}
+
+ion-button[size="small"] {
+  height: 20px;
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+}
+
+.message-input {
+  margin-top: auto;
+  width: 100%;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+} 

@@ -16,6 +16,10 @@ const routes: Routes = [
 
   },
   {
+    path: 'conversation/:id',
+    loadChildren: () => import('./conversation-detail/conversation-detail.module').then( m => m.ConversationDetailPageModule)
+  },
+  {
     path: 'upload-info',
     loadComponent: () => import('./upload-info/upload-info.page').then(m => m.UploadInfoPage)
   },
