@@ -27,7 +27,19 @@ export class MetronomeService {
     }
   }
 
-  start() {
+  increaseTempo() {
+    this.setTempo(this.tempo + 5);
+  }
+
+  decreaseTempo() {
+    this.setTempo(this.tempo - 5);
+  }
+
+  start(bpm?: number) {
+    if (bpm) {
+      this.setTempo(bpm);
+    }
+    
     if (this.isPlaying) return;
     
     this.isPlaying = true;

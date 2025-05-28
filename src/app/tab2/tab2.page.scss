@@ -15,14 +15,6 @@
     object-fit: cover;
     transform: scaleX(-1); // Mirror the preview for front camera
   }
-
-  app-metronome {
-    position: absolute;
-    left: 16px;
-    bottom: 120px;
-    z-index: 1000;
-    pointer-events: auto;
-  }
 }
 
 .camera-icon {
@@ -238,6 +230,50 @@ ion-content {
   
   &::part(scroll) {
     height: 100%;
+  }
+}
+
+/* Metronome container to ensure it's accessible and interactive */
+.metronome-container {
+  position: fixed;
+  z-index: 999999;
+  left: 16px;
+  bottom: 180px;
+  width: 80px;
+  height: 80px;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  cursor: pointer;
+  
+  /* Add a visible tap target that's larger than the component */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    z-index: -1;
+  }
+}
+
+/* Super metronome style to ensure visibility */
+.super-metronome {
+  position: relative !important;
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  
+  /* Ensure clicks pass through to the component */
+  &::part(native) {
+    pointer-events: auto !important;
+  }
+  
+  &::part(inner) {
+    pointer-events: auto !important;
   }
 }
 

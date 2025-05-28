@@ -14,11 +14,15 @@
   </ion-toolbar>
 </ion-header>
 
+<!-- Metronome component at root level, outside of ion-content with better interactivity -->
+<div class="metronome-container" *ngIf="!showRecent">
+  <app-metronome class="super-metronome"></app-metronome>
+</div>
+
 <ion-content>
   <!-- Camera preview placeholder -->
   <div class="camera-preview" *ngIf="!showRecent">
     <video #videoPreview autoplay playsinline muted></video>
-    <app-metronome></app-metronome>
     <!-- Template image preview in the top corner -->
     <div
       class="template-video-preview"

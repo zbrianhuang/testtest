@@ -60,8 +60,25 @@ export class Tab2Page implements OnInit, OnDestroy {
     this.selectedTemplateImage = null;
     this.templateImagePosition = { top: 10, left: 10 }; // Reset position on page enter
     
-    // Start the camera automatically when entering the page
-    this.startCamera();
+    // Force metronome to be visible by manipulating DOM
+    setTimeout(() => {
+      // Ensure metronome has highest possible z-index
+      const metronome = document.querySelector('.super-metronome') as HTMLElement;
+      if (metronome) {
+        metronome.style.zIndex = '9999999';
+        document.body.appendChild(metronome); // Move to body to ensure it's on top
+        console.log('Metronome moved to body');
+      } else {
+        // If the metronome component is not found, create a fallback
+        this.ensureMetronomeVisibility();
+        console.log('Created fallback metronome');
+      }
+      
+      // Start the camera with a slight delay
+      setTimeout(() => {
+        this.startCamera();
+      }, 300);
+    }, 100);
   }
 
   ionViewWillLeave() {
@@ -73,6 +90,40 @@ export class Tab2Page implements OnInit, OnDestroy {
     
     // Clean up camera resources when leaving
     this.stopCamera();
+    
+    // Clean up any metronome-related elements
+    this.removeMetronomeElements();
+  }
+  
+  // Method to clean up metronome elements
+  private removeMetronomeElements() {
+    try {
+      // Remove the floating metronome fallback if it exists
+      const floatingMetronome = document.getElementById('floating-metronome-container');
+      if (floatingMetronome && floatingMetronome.parentNode) {
+        floatingMetronome.parentNode.removeChild(floatingMetronome);
+      }
+      
+      // Find any metronome elements that might have been moved to body
+      const metronomeElements = document.querySelectorAll('app-metronome');
+      metronomeElements.forEach(element => {
+        if (element.parentElement === document.body) {
+          document.body.removeChild(element);
+        }
+      });
+      
+      // Remove any metronome containers
+      const metronomeContainers = document.querySelectorAll('.metronome-container');
+      metronomeContainers.forEach(container => {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+      });
+      
+      console.log('Cleaned up metronome elements');
+    } catch (error) {
+      console.error('Error removing metronome elements:', error);
+    }
   }
   
   // Start the camera preview
@@ -331,14 +382,16 @@ export class Tab2Page implements OnInit, OnDestroy {
           {
             text: 'Yes',
             handler: () => {
-              this.navCtrl.navigateBack('/tabs/home_tab');
+              // Navigate to home tab when user confirms discard
+              this.navCtrl.navigateRoot('/tabs/home_tab');
             }
           }
         ]
       });
       await alert.present();
     } else {
-      this.navCtrl.navigateBack('/tabs/home_tab');
+      // Navigate to home tab when there's no recording to discard
+      this.navCtrl.navigateRoot('/tabs/home_tab');
     }
   }
 
@@ -478,6 +531,95 @@ export class Tab2Page implements OnInit, OnDestroy {
         parent.style.position = 'relative';
         parent.appendChild(overlay);
       }
+    }
+  }
+
+  // Update the ensureMetronomeVisibility method to make sure it's visible
+  private ensureMetronomeVisibility() {
+    try {
+      // First approach: Create a floating div at the document level
+      const floatingMetronome = document.createElement('div');
+      floatingMetronome.id = 'floating-metronome-container';
+      floatingMetronome.style.position = 'absolute';
+      floatingMetronome.style.zIndex = '999999';
+      floatingMetronome.style.left = '16px';
+      floatingMetronome.style.bottom = '180px';
+      floatingMetronome.style.width = '70px';
+      floatingMetronome.style.height = '70px';
+      floatingMetronome.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+      floatingMetronome.style.borderRadius = '50%';
+      floatingMetronome.style.border = '3px solid #ff4961';
+      floatingMetronome.style.display = 'flex';
+      floatingMetronome.style.alignItems = 'center';
+      floatingMetronome.style.justifyContent = 'center';
+      floatingMetronome.style.boxShadow = '0 0 20px rgba(255, 73, 97, 0.7)';
+      floatingMetronome.style.pointerEvents = 'auto';
+      floatingMetronome.style.touchAction = 'auto';
+      
+      // Add a pulsing dot
+      const pulsingDot = document.createElement('div');
+      pulsingDot.style.width = '20px';
+      pulsingDot.style.height = '20px';
+      pulsingDot.style.borderRadius = '50%';
+      pulsingDot.style.backgroundColor = '#ff4961';
+      pulsingDot.style.animation = 'pulse 1s infinite';
+      
+      // Add a text label
+      const label = document.createElement('div');
+      label.style.color = 'white';
+      label.style.fontSize = '12px';
+      label.style.fontWeight = 'bold';
+      label.style.marginTop = '5px';
+      label.textContent = 'BPM';
+      
+      // Create the animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes pulse {
+          0% { transform: scale(1); opacity: 0.7; }
+          50% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.7; }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      // Assemble the container
+      const inner = document.createElement('div');
+      inner.style.display = 'flex';
+      inner.style.flexDirection = 'column';
+      inner.style.alignItems = 'center';
+      inner.appendChild(pulsingDot);
+      inner.appendChild(label);
+      
+      floatingMetronome.appendChild(inner);
+      
+      // Add click handler to show the real metronome
+      floatingMetronome.addEventListener('click', () => {
+        const metronome = document.querySelector('app-metronome') as HTMLElement;
+        if (metronome) {
+          metronome.style.display = 'block';
+          floatingMetronome.style.display = 'none';
+        }
+      });
+      
+      // Make sure touchstart events also work (important for iOS)
+      floatingMetronome.addEventListener('touchstart', (event) => {
+        event.preventDefault(); // Prevent default touch behavior
+        event.stopPropagation(); // Stop event propagation
+        
+        const metronome = document.querySelector('app-metronome') as HTMLElement;
+        if (metronome) {
+          metronome.style.display = 'block';
+          floatingMetronome.style.display = 'none';
+        }
+      });
+      
+      // Add to document body
+      document.body.appendChild(floatingMetronome);
+      
+      console.log('Added floating metronome fallback');
+    } catch (error) {
+      console.error('Error creating metronome fallback:', error);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnDestroy, NgZone, HostListener } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,9 +8,15 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 @Component({
   selector: 'app-metronome',
   template: `
-    <div class="metronome-wrapper" [class.collapsed]="!expanded">
-      <div class="metronome-toggle" (click)="toggleExpanded()">
+    <div class="metronome-wrapper" 
+         [class.collapsed]="!expanded"
+         [style.left.px]="position.x"
+         [style.top.px]="position.y"
+         (mousedown)="startDrag($event)"
+         (touchstart)="startDrag($event)">
+      <div class="metronome-toggle" (click)="toggleExpanded($event)" (touchstart)="handleTouchStart($event)">
         <div class="single-beat-dot" [class.active]="isPlaying && currentBeat === 1"></div>
+        <span class="metronome-label">BPM</span>
       </div>
       <div class="metronome-expanded" [@expandCollapse]="expanded ? 'expanded' : 'collapsed'">
         <div class="metronome-container">
@@ -24,7 +30,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
             </div>
           </div>
           <div class="tempo-controls">
-            <ion-button fill="clear" (click)="decreaseTempo()">
+            <ion-button fill="clear" (click)="decreaseTempo($event)" (touchstart)="handleButtonTouchStart($event, 'decrease')">
               <ion-icon name="remove-outline"></ion-icon>
             </ion-button>
             <div class="tempo-display">
@@ -32,14 +38,15 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
               <span class="tempo-value">{{ tempo }}</span>
               <span class="tempo-unit">BPM</span>
             </div>
-            <ion-button fill="clear" (click)="increaseTempo()">
+            <ion-button fill="clear" (click)="increaseTempo($event)" (touchstart)="handleButtonTouchStart($event, 'increase')">
               <ion-icon name="add-outline"></ion-icon>
             </ion-button>
           </div>
           <ion-button 
             class="play-button"
             [color]="isPlaying ? 'danger' : 'primary'"
-            (click)="toggleMetronome()">
+            (click)="toggleMetronome($event)"
+            (touchstart)="handleButtonTouchStart($event, 'toggle')">
             <ion-icon [name]="isPlaying ? 'square' : 'play'"></ion-icon>
           </ion-button>
         </div>
@@ -48,15 +55,19 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   `,
   styles: [`
     :host {
-      position: absolute;
-      left: 16px;
-      bottom: 120px;
-      z-index: 1000;
+      position: fixed;
+      z-index: 9999999;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
 
     .metronome-wrapper {
       display: flex;
       align-items: flex-start;
+      position: absolute;
+      cursor: move; /* Show move cursor */
+      pointer-events: auto;
       
       &.collapsed {
         .metronome-expanded {
@@ -71,31 +82,43 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 
     .metronome-toggle {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(10px);
       border-radius: 12px;
       padding: 12px;
       cursor: pointer;
       flex-shrink: 0;
       z-index: 2;
-      width: 40px;
-      height: 40px;
+      width: 60px;
+      height: 60px;
+      border: 3px solid var(--ion-color-danger);
+      box-shadow: 0 0 15px rgba(255, 73, 97, 0.8);
+      pointer-events: auto;
+      touch-action: auto;
+    }
+
+    .metronome-label {
+      color: white;
+      font-size: 12px;
+      margin-top: 4px;
+      font-weight: bold;
     }
 
     .single-beat-dot {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: var(--ion-color-primary);
+      background: var(--ion-color-danger);
       opacity: 0.5;
       transition: all 0.1s ease-in-out;
 
       &.active {
         opacity: 1;
         transform: scale(1.2);
-        box-shadow: 0 0 20px var(--ion-color-primary);
+        box-shadow: 0 0 20px var(--ion-color-danger);
       }
     }
 
@@ -226,6 +249,12 @@ export class MetronomeComponent implements OnDestroy {
   currentBeat: number = 1;
   private beatInterval: any;
 
+  // Dragging properties
+  position = { x: 20, y: window.innerHeight - 200 }; // Position near bottom of screen
+  private isDragging = false;
+  private startPosition = { x: 0, y: 0 };
+  private dragOffset = { x: 0, y: 0 };
+
   constructor(
     private metronomeService: MetronomeService,
     private ngZone: NgZone
@@ -238,47 +267,161 @@ export class MetronomeComponent implements OnDestroy {
     });
   }
 
-  toggleExpanded() {
+  // Handle touchstart for the toggle button
+  handleTouchStart(event: TouchEvent) {
+    event.stopPropagation(); // Stop propagation to prevent dragging
+    event.preventDefault(); // Prevent default touch behavior
+    
+    // Determine if this is a drag attempt or a toggle action
+    const touch = event.touches[0];
+    const startX = touch.clientX;
+    const startY = touch.clientY;
+    
+    // Set a small timeout to determine if it's a drag or a tap
+    const touchTimer = setTimeout(() => {
+      this.toggleExpanded(event);
+    }, 150);
+    
+    // Set up touch move listener to cancel the toggle if it's a drag
+    const touchMoveListener = (moveEvent: TouchEvent) => {
+      const moveTouch = moveEvent.touches[0];
+      const deltaX = Math.abs(moveTouch.clientX - startX);
+      const deltaY = Math.abs(moveTouch.clientY - startY);
+      
+      // If the user moved their finger, it's a drag, not a tap
+      if (deltaX > 5 || deltaY > 5) {
+        clearTimeout(touchTimer);
+        document.removeEventListener('touchmove', touchMoveListener);
+        document.removeEventListener('touchend', touchEndListener);
+      }
+    };
+    
+    // Clean up on touch end
+    const touchEndListener = () => {
+      clearTimeout(touchTimer);
+      document.removeEventListener('touchmove', touchMoveListener);
+      document.removeEventListener('touchend', touchEndListener);
+    };
+    
+    // Add event listeners
+    document.addEventListener('touchmove', touchMoveListener);
+    document.addEventListener('touchend', touchEndListener);
+  }
+  
+  // Handle touchstart for buttons within the metronome
+  handleButtonTouchStart(event: TouchEvent, action: 'increase' | 'decrease' | 'toggle') {
+    event.stopPropagation(); // Stop propagation to prevent dragging
+    event.preventDefault(); // Prevent default touch behavior
+    
+    // Based on the action, call the appropriate method
+    if (action === 'increase') {
+      this.increaseTempo(event);
+    } else if (action === 'decrease') {
+      this.decreaseTempo(event);
+    } else if (action === 'toggle') {
+      this.toggleMetronome(event);
+    }
+  }
+
+  toggleExpanded(event?: MouseEvent | TouchEvent) {
+    if (event) {
+      event.stopPropagation(); // Prevent event bubbling to avoid triggering drag
+    }
     this.expanded = !this.expanded;
   }
 
-  toggleMetronome() {
+  toggleMetronome(event?: MouseEvent | TouchEvent) {
+    if (event) {
+      event.stopPropagation(); // Prevent event bubbling to avoid triggering drag
+    }
     this.ngZone.runOutsideAngular(() => {
       if (this.isPlaying) {
         this.metronomeService.stop();
         this.stopBeatVisualization();
       } else {
-        this.metronomeService.start();
+        this.metronomeService.start(this.tempo);
         this.startBeatVisualization();
       }
-      this.ngZone.run(() => {
-        this.isPlaying = !this.isPlaying;
-      });
+      this.isPlaying = !this.isPlaying;
     });
   }
 
-  increaseTempo() {
-    this.metronomeService.setTempo(this.tempo + 5);
+  increaseTempo(event?: MouseEvent | TouchEvent) {
+    if (event) {
+      event.stopPropagation(); // Prevent event bubbling to avoid triggering drag
+    }
+    this.metronomeService.increaseTempo();
   }
 
-  decreaseTempo() {
-    this.metronomeService.setTempo(this.tempo - 5);
+  decreaseTempo(event?: MouseEvent | TouchEvent) {
+    if (event) {
+      event.stopPropagation(); // Prevent event bubbling to avoid triggering drag
+    }
+    this.metronomeService.decreaseTempo();
+  }
+
+  startDrag(event: MouseEvent | TouchEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+    
+    // Store the initial position where the drag started
+    if (event instanceof MouseEvent) {
+      this.startPosition.x = event.clientX;
+      this.startPosition.y = event.clientY;
+    } else {
+      // TouchEvent
+      this.startPosition.x = event.touches[0].clientX;
+      this.startPosition.y = event.touches[0].clientY;
+    }
+    
+    // Calculate the offset from the top-left corner of the element
+    this.dragOffset.x = this.position.x - this.startPosition.x;
+    this.dragOffset.y = this.position.y - this.startPosition.y;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  @HostListener('document:touchmove', ['$event'])
+  onDrag(event: MouseEvent | TouchEvent) {
+    if (!this.isDragging) return;
+    
+    let clientX: number;
+    let clientY: number;
+    
+    if (event instanceof MouseEvent) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else {
+      // TouchEvent
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    }
+    
+    // Calculate new position
+    this.position.x = clientX + this.dragOffset.x;
+    this.position.y = clientY + this.dragOffset.y;
+    
+    // Ensure metronome stays within the window boundaries
+    this.position.x = Math.max(0, Math.min(window.innerWidth - 50, this.position.x));
+    this.position.y = Math.max(0, Math.min(window.innerHeight - 50, this.position.y));
+  }
+
+  @HostListener('document:mouseup')
+  @HostListener('document:touchend')
+  stopDrag() {
+    this.isDragging = false;
   }
 
   private startBeatVisualization() {
-    if (this.beatInterval) {
-      this.stopBeatVisualization();
-    }
-
     this.ngZone.runOutsideAngular(() => {
-      this.currentBeat = 1;
-      const beatLength = 60 / this.tempo * 1000;
-      
+      // Clear any existing interval
+      this.stopBeatVisualization();
+
+      // Start new interval based on tempo
+      const beatDuration = 60000 / this.tempo; // Convert BPM to ms
       this.beatInterval = setInterval(() => {
-        this.ngZone.run(() => {
-          this.currentBeat = this.currentBeat % 4 + 1;
-        });
-      }, beatLength);
+        this.currentBeat = this.currentBeat % 4 + 1;
+        this.ngZone.run(() => {}); // Force UI update
+      }, beatDuration);
     });
   }
 
@@ -287,18 +430,14 @@ export class MetronomeComponent implements OnDestroy {
       clearInterval(this.beatInterval);
       this.beatInterval = null;
     }
-    this.currentBeat = 1;
   }
 
   private restartBeatVisualization() {
     this.stopBeatVisualization();
-    if (this.isPlaying) {
-      this.startBeatVisualization();
-    }
+    this.startBeatVisualization();
   }
 
   ngOnDestroy() {
-    this.metronomeService.stop();
     this.stopBeatVisualization();
   }
 } 
